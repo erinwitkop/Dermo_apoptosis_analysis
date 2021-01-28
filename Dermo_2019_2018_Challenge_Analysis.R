@@ -4381,7 +4381,7 @@ Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot <- ggplot(dat
 #save
 ggsave(plot = Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot, device = "tiff", filename = "Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 10, width = 12)
+       height = 5, width = 6)
 
 # Compare the percent of dead cells
 Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Dermo_Inhibitor_hemo_2020_VIA_join %>%
@@ -4406,7 +4406,7 @@ Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Dermo_Inhi
 #save
 ggsave(plot = Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 10, width = 12)
+       height = 5, width = 6)
 
 ### Viability Analysis for Parasite
 
@@ -4431,7 +4431,7 @@ Dermo_Inhibitor_2020_VIA_join_Percent_PERK_DEAD_plot <- Dermo_Inhibitor_perk_202
 #save
 ggsave(plot = Dermo_Inhibitor_2020_VIA_join_Percent_PERK_DEAD_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_VIA_join_Percent_PERK_DEAD_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 10, width = 12)
+       height = 5, width = 6)
 
 #### 2020 Dermo and Inhibitors PHAGOCYTOSIS ASSAY ####
 
@@ -4487,11 +4487,11 @@ Dermo_Inhibitor_2020_PHAGO_join_phago_combined_plot <- ggplot(Dermo_Inhibitor_20
 #save
 ggsave(plot = Dermo_Inhibitor_2020_PHAGO_join_phago_combined_plot , device = "tiff", filename = "Dermo_Inhibitor_2020_PHAGO_join_phago_combined_plot.tiff",
       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-      height = 10, width = 12)
+      height = 5, width = 6)
 
 ### Statistical analysis
 
-# goal is to compare the percent phagocytosis of beads vs parasite
+# goal is to compare the percent phagocytosis of beads vs parasite in agranulocytes
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined_phago_only <- Dermo_Inhibitor_2020_PHAGO_join_phago_combined %>% filter(Gate == "Q1-UR")
 
 summary(aov(revised_percent_of_this_plot_arcsine~Treat, data =Dermo_Inhibitor_2020_PHAGO_join_phago_combined_phago_only))
@@ -4505,29 +4505,31 @@ summary(aov(revised_percent_of_this_plot_arcsine~Treat, data =Dermo_Inhibitor_20
 
 #### 2020 Dermo and Inhibitors APOPTSIS ASSAY Statistics and Plotting ####
 Dermo_Inhibitor_2020_APOP_join
+# goal
 
-Dermo_Inhibitor_2020_APOP_join_Agranular_Granular <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate =="Q1-UL" | Gate =="Q1-UR" | Gate =="Q1-LL" | Gate =="Q1-LR"|
-                                                                                 Gate =="Q2-UL" | Gate =="Q2-UR" | Gate =="Q2-LL" | Gate =="Q2-LR")
-levels(factor(MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic$Plot_number)) # 4, 7
+Dermo_Inhibitor_2020_APOP_join_Agranular_Granular <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate =="Q16-UL" | Gate =="Q16-UR" | Gate =="Q16-LL" | Gate =="Q16-LR"|
+                                                                                 Gate =="Q15-UL" | Gate =="Q15-UR" | Gate =="Q15-LL" | Gate =="Q15-LR")
+levels(factor(Dermo_Inhibitor_2020_APOP_join_Agranular_Granular$Plot_number)) # 4, 7
 
 # Apoptosis for the FSW hemocytes is anything in the UL quadrant!
 
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic <- MOI_1hr_2019_APOP_join_Agranular_Granular %>% filter(Gate ==  "Q1-UR" | Gate =="Q2-UR" | Gate ==  "Q1-UL" | Gate =="Q2-UL")
+# focusing on the upper right and the upper left quadrants in the granulocyte plot, plot 4 Q 16
+Dermo_Inhibitor_2020_APOP_join_Granular <- Dermo_Inhibitor_2020_APOP_join_Agranular_Granular %>% filter(Gate =="Q16-UR" | Gate =="Q16-UL")
 
 
-# Analysis for all Granular and Agranular Combined from the quad plots
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic$Treat <- factor(MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic$Treat, 
-                                                                    levels = c( "FSW","Beads",   "HK",    "P11" , "P51",  "P101",   "P251",   "PERK" ),
-                                                                    labels = c( "FSW and\n Hemocytes","Beads to\n Hemocytes\n 1:1",   "Heat-Killed\n P. mar to\n Hemocytes\n 1:1",    "P. mar to\n Hemocytes\n 1:1" , 
-                                                                                "P. mar to\n Hemocytes\n 5:1",  
-                                                                                "P. mar to\n Hemocytes\n 10:1",   "P. mar to\n Hemocytes\n 25:1",   "Perkinsus\n Only\n Control" ))
+# Analysis for Granular
+Dermo_Inhibitor_2020_APOP_join_Granular$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_Granular$Treat, 
+                                                                    levels = c( "BEADS_LPS","Control_hemo", "Dermo","Dermo_GDC","Dermo_ZVAD","PERK","UV"),
+                                                                    labels = c( "Beads and\n LPS", "Control hemocytes",    "P. mar to\n Hemocytes\n" , 
+                                                                                "P. mar to\n Hemocytes\n GDC",  
+                                                                                "P. mar to\n Hemocytes\n ZVAD",   "P. mar Alone",   "UV P. mar"))
 # Make plot 
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_all_samplesplot <- ggplot(data=MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic,
+Dermo_Inhibitor_2020_APOP_join_Granular_apoptosis_plot <- ggplot(data=Dermo_Inhibitor_2020_APOP_join_Granular,
                                                                               aes(y=Percent_of_this_plot, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
   geom_boxplot() +
   xlab("Treatment") +
-  ylab("Percent of Each Cell Type") + 
-  ggtitle("Percent of Each Cell Type Positive\n for Apoptosis and Parasite, Beads, or HK P. marinus") + 
+  ylab("Percent of Granulocytes") + 
+  ggtitle("Percent of Granulocytes Apoptosis or Apoptosis and Parasite Positive") + 
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100), breaks = c(0,5,10,20,30,40,50,60,70,80,90,100)) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
@@ -4538,15 +4540,48 @@ MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_all_samplesplot <- ggplot(da
   theme(text=element_text(size=12)) + 
   theme(axis.text.x = element_text(size=12)) +
   theme(legend.text = element_text(size=12)) +
-  scale_color_manual(name="Cell Type", labels=c("Apoptotic\nGranular", "Apoptotic Granular,\nPerkinsus, or Beads", "Apoptotic\nAgranular", "Apoptotic Agranular,\nPerkinsus or Beads"), 
-                     values = c("#cc57b4", "#7e78d4", "#56b464", "#5b2c90")) 
+  scale_color_manual(name="Cell Type", labels=c("Apoptotic\nGranular", "Apoptotic Granular,\nwith P. mar., or Beads"), 
+                     values = c("#56b464", "#5b2c90")) 
 
 # color options
 #"#cc57b4", "#88bf3b", "#aa4dce", "#56b464", "#5b2c90"
 #"#c89832", "#5a6ee6", "#ca4e33", "#7e78d4", "#cd4272"
 
 #save
-ggsave(plot = MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_all_samplesplot, device = "tiff", filename = "MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_all_samplesplot.tiff",
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_Granular_apoptosis_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_Granular_apoptosis_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
+
+# Plot just the Q16-UR 
+# Make plot 
+Dermo_Inhibitor_2020_APOP_join_Granular_with_Pmar_apoptosis_plot <- 
+  Dermo_Inhibitor_2020_APOP_join_Granular %>% 
+  # remove the UR as well as the control hemocyte...since there was no parasite in the sample, any cells that were in in UR were artifact
+  filter(Gate == "Q16-UR" & Treat != "Control hemocytes") %>% 
+  ggplot(., aes(y=Percent_of_this_plot, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
+  geom_boxplot() +
+  xlab("Treatment") +
+  ylab("Percent of Granulocytes") + 
+  ggtitle("Percent of Granulocytes Apoptosis and Parasite Positive") + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_color_manual(name="Cell Type", labels=c("Apoptotic Granular,\nwith P. mar., or Beads"), 
+                     values = c("#5b2c90")) 
+
+# color options
+#"#cc57b4", "#88bf3b", "#aa4dce", "#56b464", "#5b2c90"
+#"#c89832", "#5a6ee6", "#ca4e33", "#7e78d4", "#cd4272"
+
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_Granular_with_Pmar_apoptosis_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_Granular_with_Pmar_apoptosis_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
