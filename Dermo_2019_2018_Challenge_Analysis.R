@@ -4533,8 +4533,8 @@ summary(aov(revised_percent_of_this_plot_arcsine~Treat, data =Dermo_Inhibitor_20
 # Perkinsus is phagocytosed significantly more than the BEADS treatment
 
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
-Dermo_Inhibitor_2020_APOP_join
-# # Apoptosis for the FSW hemocytes, and parasite alone is anything in the UL quadrant because both of these treatments were unstained
+
+Dermo_Inhibitor_2020_CASP_join
 
 ## Adjusting the percentages after noramlizing for the amount of perkinsus alone apoptosis 
 ## Start by comparing the number of parasite cells in Q16-LR in the stained dermo plots to the Q16-LL in the unstained Dermo plots
@@ -4583,9 +4583,32 @@ Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all %>% dplyr::group_by(ID
   # apop ratio is between 35% and 46%..so about 40% of the perkinsus cells are apoptotic...so I can roughly calculate what the ratio would
     # be for the other assay
 
-#Plot 
-ggplot(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all, aes(x= sample_ID, y = Counts, fill = Gate)) + 
-  geom_col(position = "dodge")
+#Plot apoptotic perkinsus
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_apoptotic_perkinsus_plot <- 
+  ggplot(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all, aes(x= sample_ID, y = Counts, fill = Gate)) + 
+  geom_col(position = "dodge") +
+  xlab("Treatment") +
+  ylab("Cell Counts") + 
+  ggtitle("Counts of Apoptotic Perkinsus") + 
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12, angle= 90, hjust=1.0)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_fill_manual(name="Cell Type", labels=c("Non-apoptotic P. marinus", "Apoptotic P. marinus"), 
+                    values = c("#50b47b",
+                               "#7f63b8")) 
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_non_apop_granular_apoptotic_perkinsus_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_non_apop_granular_apoptotic_perkinsus_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
+
+
+
 
 ## Calculate rough counts of apoptotic parasite based on Q16-LR apoptotic parasite ratio from the perkinsus only assay
 Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat_approx_perk_apop <- Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat %>% 
