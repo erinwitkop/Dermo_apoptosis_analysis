@@ -4532,7 +4532,7 @@ summary(aov(revised_percent_of_this_plot_arcsine~Treat, data =Dermo_Inhibitor_20
 
 # Perkinsus is phagocytosed significantly more than the BEADS treatment
 
-#### 2020 Dermo and Inhibitors APOPTSIS ASSAY Statistics and Plotting ####
+#### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
 Dermo_Inhibitor_2020_APOP_join
 # # Apoptosis for the FSW hemocytes, and parasite alone is anything in the UL quadrant because both of these treatments were unstained
 
@@ -4646,10 +4646,23 @@ Dermo_Inhibitor_2020_APOP_join %>%
 # calculate new arcsine values for the recalculated percentages
 Dermo_Inhibitor_2020_APOP_join_beads_recalc$Percent_of_this_plot_recalc_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_beads_recalc$Percent_of_this_plot_recalc*0.01)
 
-## Combine the recalculated beads percentage and the parasite percentage so I can plot both 
-Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc <- rbind(Dermo_Inhibitor_2020_APOP_join_beads_recalc, 
-                                                              Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc_done)
+# isolate the control hemocyte levels, but don't need to recalculate percentages
+Dermo_Inhibitor_2020_APOP_join_control <- Dermo_Inhibitor_2020_APOP_join %>%
+  filter(Treat == "Control_hemo" & Plot_number == "4") %>% 
+  dplyr::mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
+  #rename columns for joining with other altered dataframes
+  dplyr::rename(.,Percent_of_this_plot_recalc_arcsine = Percent_of_this_plot_arcsine) %>%
+  dplyr::rename(.,Percent_of_this_plot_recalc = Percent_of_this_plot) 
+Dermo_Inhibitor_2020_APOP_join_control <- as.data.frame(Dermo_Inhibitor_2020_APOP_join_control)
 
+## Combine the recalculated beads percentage and the parasite percentage so I can plot both 
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc <- rbind(Dermo_Inhibitor_2020_APOP_join_beads_recalc[,c("ID","Treat","Assay","Plot_number","Channel","Gate",
+                                                                  "Percent_of_this_plot_recalc","Counts" ,"Cell_type",
+                                                                   "Percent_of_this_plot_recalc_arcsine", "sample_ID")], 
+                                                              Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc_done[,c("ID","Treat","Assay","Plot_number","Channel","Gate",
+                                                                    "Percent_of_this_plot_recalc","Counts" ,"Cell_type",
+                                                                    "Percent_of_this_plot_recalc_arcsine", "sample_ID")],
+                                                              Dermo_Inhibitor_2020_APOP_join_control)
 ### Plotting granular cell data
 
 # change treatment labels, remember that we are not plotting here parasite alone or the UV
@@ -4662,11 +4675,11 @@ Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc$Treat <- factor(Dermo_Inhib
 Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_plot <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
   # plot percentage of apoptotic hemocytes with and without parasite
   filter(Gate == "Q16-UR" | Gate == "Q16-UL") %>%
-  ggplot(data=., aes(y=Percent_of_this_plot, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
+  ggplot(data=., aes(y=Percent_of_this_plot_recalc, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
   geom_boxplot() +
   xlab("Treatment") +
   ylab("Percent of Granulocytes") + 
-  ggtitle("Percent of Granulocytes Apoptosis or Apoptosis and Parasite Positive") + 
+  ggtitle("Percent of Apoptotic Granulocytes") + 
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,40), breaks = c(0,5,10,20,30,40)) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
@@ -4694,12 +4707,12 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_plot, device 
 Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot <- 
   Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
   # plot only UR and remove the control hemocyte
-  filter(Gate == "Q16-UR" & Treat != "Control hemocytes") %>% 
-  ggplot(., aes(y=Percent_of_this_plot, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
+  filter(Gate == "Q16-UR") %>% 
+  ggplot(., aes(y=Percent_of_this_plot_recalc, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
   geom_boxplot() +
   xlab("Treatment") +
   ylab("Percent of Granulocytes") + 
-  ggtitle("Percent of Granulocytes Apoptosis and Parasite Positive") + 
+  ggtitle("Percent of Apoptotic Granulocytes") + 
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
@@ -4713,104 +4726,385 @@ Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot <-
   scale_color_manual(name="Cell Type", labels=c("Apoptotic Granular,\nwith P. mar., or Beads"), 
                      values = c("#5b2c90")) 
 
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
+
+# Also plot the pool since there is a significant difference with the pools
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot <- 
+  Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
+  # plot only UR and remove the control hemocyte
+  filter(Gate == "Q16-UR") %>% 
+  ggplot(., aes(y=Percent_of_this_plot_recalc, x=Treat, fill=ID)) + geom_col(position = "dodge") + 
+  xlab("Treatment") +
+  ylab("Percent of Granulocytes") + 
+  ggtitle("Percent of Apoptotic Granulocytes") + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_fill_manual(name="Cell Type", labels=c("Pool 1", "Pool 2", "Pool3"), 
+                     values = c("#7f63b8", "#50b47b", "#ba583b")) 
+
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
+### ANALYSIS QUESTIONS ###
+
+### Do the beads and parasite hemocyte treatments differ in granular apoptosis levels?
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>% filter(Gate == "Q16-UR")
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat, data= Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop)
+summary(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_AOV)
+#Df  Sum Sq  Mean Sq F value  Pr(>F)   
+#Treat        4 0.03267 0.008169   10.67 0.00124 **
+
+# tukey
+TukeyHSD(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_AOV)
+#$Treat
+#diff          lwr        upr     p adj
+#Control hemocytes-Beads and\n LPS                        0.9870437
+#P. mar to\n Hemocytes\n-Beads and\n LPS                  0.0221725
+#P. mar to\n Hemocytes\n GDC-Beads and\n LPS              0.7575550
+#P. mar to\n Hemocytes\n ZVAD-Beads and\n LPS             0.0057946
+#P. mar to\n Hemocytes\n-Control hemocytes                0.0105875
+#P. mar to\n Hemocytes\n GDC-Control hemocytes            0.4887769
+#P. mar to\n Hemocytes\n ZVAD-Control hemocytes           0.0028907
+#P. mar to\n Hemocytes\n GDC-P. mar to\n Hemocytes\n      0.1380722
+#P. mar to\n Hemocytes\n ZVAD-P. mar to\n Hemocytes\n     0.8937251
+#P. mar to\n Hemocytes\n ZVAD-P. mar to\n Hemocytes\n GDC 0.0351358
+
+# two way aov with the pool
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_pool_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat + ID, data= Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop)
+summary(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_pool_AOV)
+  #Df  Sum Sq  Mean Sq F value   Pr(>F)    
+  #Treat        4 0.03267 0.008169  20.405 0.000295 ***
+  #ID           2 0.00445 0.002227   5.562 0.030625 * 
+TukeyHSD(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_pool_AOV)
+#$Treat
+#diff            p adj
+#Control hemocytes-Beads and LPS                  0.9574639
+#P. mar to Hemocytes-Beads and LPS                0.0048861
+#P. mar to Hemocytes GDC-Beads and LPS            0.5122712
+#P. mar to Hemocytes ZVAD-Beads and LPS           0.0012562
+#P. mar to Hemocytes-Control hemocytes            0.0022834
+#P. mar to Hemocytes GDC-Control hemocytes        0.2331101
+#P. mar to Hemocytes ZVAD-Control hemocytes       0.0006433
+#P. mar to Hemocytes GDC-P. mar to Hemocytes      0.0392944
+#P. mar to Hemocytes ZVAD-P. mar to Hemocytes     0.7348395
+#P. mar to Hemocytes ZVAD-P. mar to Hemocytes GDC 0.0079997
+#
+#$ID
+#diff         
+#Pool2-Pool1 0.0529475
+#Pool3-Pool1 0.0434216
+#Pool3-Pool2 0.9900067
+
+# t.test GDC and P.mar hemocytes
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_GDC <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop %>% filter(Treat == "P. mar to\n Hemocytes\n GDC" | Treat == "P. mar to\n Hemocytes\n")
+t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_GDC)
+  #  p-value = 0.1042
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop %>% filter(Treat == "P. mar to\n Hemocytes\n ZVAD" | Treat == "P. mar to\n Hemocytes\n")
+t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD)
+#  p-value = 0.5433
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD_GDC <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop %>% filter(Treat == "P. mar to\n Hemocytes\n ZVAD" | Treat ==  "P. mar to\n Hemocytes\n GDC")
+t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD_GDC)
+#  p-value = 0.04644
+
+#### 2020 Dermo and Inhibitors APOPTSIS ASSAY Statistics and Plotting ####
+Dermo_Inhibitor_2020_APOP_join
+# # Apoptosis for the FSW hemocytes, and parasite alone is anything in the UL quadrant because both of these treatments were unstained
+
+## Adjusting the percentages after noramlizing for the amount of perkinsus alone apoptosis 
+## Start by comparing the number of parasite cells in Q16-LR in the stained dermo plots to the Q16-LL in the unstained Dermo plots
+# this will help assure my self that similar levels of non-apoptotic P. marinus are present in both
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-LL" & Treat == "PERK" ) %>% 
+  mutate(sample_ID = paste(ID, Treat, sep = "-"))
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-LR") %>%
+  filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD") %>% 
+  mutate(sample_ID = paste(ID, Treat, sep = "-"))
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_treat <- rbind(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk, 
+                                                                     Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat)
+#Plot 
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_treat_plot <- 
+  ggplot(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_treat, aes(x= sample_ID, y = Counts, fill = Gate)) + 
+  geom_col(position = "dodge") +
+  xlab("Treatment") +
+  ylab("Cell Counts") + 
+  ggtitle("Counts of Non-Apoptotic Perkinsus") + 
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12, angle= 90, hjust=1.0)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_fill_manual(name="Cell Type", labels=c("Parasite Control", "Treatment Groups"), 
+                    values = c("#50b47b",
+                               "#7f63b8")) 
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_treat_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_treat_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
+# Remember, each pool got a different amount of Dermo cells..even the ones for the same pool had different amounts
+# each of the Perk pools has less Perk though than their pools. Pretty standard amount of non-apoptotic perkinsus in each one though
+
+## What is the counts ratio in the PERK only pool of apoptotic to non apoptotic cells
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all <- Dermo_Inhibitor_2020_APOP_join %>% 
+  filter(Gate == "Q16-LL" | Gate == "Q16-UL") %>% filter(Treat == "PERK" ) %>% 
+  mutate(sample_ID = paste(ID, Treat, sep = "-"))
+# calculate ratio
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all %>% dplyr::group_by(ID, Gate) %>%
+  summarise(apop_ratio = Counts[Gate == "Q16-UL"] / Counts[Gate == "Q16-LL"]) %>% ungroup() %>% summarise(mean = mean(apop_ratio))
+#apop_ratio: average is 0.39
+# apop ratio is between 35% and 46%..so about 40% of the perkinsus cells are apoptotic...so I can roughly calculate what the ratio would
+# be for the other assay
+
+#Plot 
+ggplot(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all, aes(x= sample_ID, y = Counts, fill = Gate)) + 
+  geom_col(position = "dodge")
+
+## Calculate rough counts of apoptotic parasite based on Q16-LR apoptotic parasite ratio from the perkinsus only assay
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat_approx_perk_apop <- Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat %>% 
+  mutate(apop_parasite_alone = Counts * 0.39) %>%
+  mutate(Percent_of_this_plot = NA, Percent_of_this_plot_arcsine = NA) %>%
+  # gather this column
+  gather("Gate", "Counts", apop_parasite_alone)
+
+# now add this gate and counts back in to the treatments table and subtract the apop_parasite_counts from the Q16-UR
+Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat <- 
+  # subset the Q16-UR for all the assays
+  Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-UR") %>%
+  filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD") %>% 
+  mutate(sample_ID = paste(ID, Treat, sep = "-"))
+# join the calculated number of counts that need to be subtracted
+rbind(.,Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat_approx_perk_apop) %>%
+  group_by(sample_ID) %>%
+  # subtract the apop_parasite_alone counts
+  summarise(counts_minus_apop_parasite = Counts[Gate == "Q16-UR"] - Counts[Gate == "apop_parasite_alone"])
+
+# now recalculate the percentage of hemocytes in each quadrant for the Perkinsus , after removing the Q16-LR from the percentages
+Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc <- Dermo_Inhibitor_2020_APOP_join %>% 
+  filter(Gate == "Q16-LL" | Gate == "Q16-UL") %>% filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD" ) %>%
+  mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
+  # add back in the recalculated Q16-UR
+  rbind(., Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat)
+
+Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc_done <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc %>% 
+  # group by sample
+  dplyr::group_by(sample_ID) %>% 
+  # get total counts
+  dplyr::mutate(total_counts = sum(Counts)) %>%
+  ungroup() %>% 
+  # calculate percentage in each quadrant based on total counts
+  mutate(Percent_of_this_plot_recalc = Counts/total_counts*100)
+
+# calculate new arcsine values for the recalculated percentages
+Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc_done$Percent_of_this_plot_recalc_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc_done$Percent_of_this_plot_recalc*0.01)
+
+## Recalculate the percentage of apoptotic hemocytes that have engulfed beads
+Dermo_Inhibitor_2020_APOP_join_beads_recalc <- 
+  # subset the Q16-UR for all the assays
+  Dermo_Inhibitor_2020_APOP_join %>%
+  filter(Treat == "BEADS_LPS") %>% 
+  # keep all Q16 quadrants except the beads only Q16-LR
+  filter(Gate == "Q16-UR" | Gate == "Q16-LL" | Gate == "Q16-UL") %>% 
+  # add in sample ID
+  dplyr::mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
+  # group_by and calculate the new total counts
+  dplyr::group_by(sample_ID) %>% 
+  # get total counts
+  dplyr::mutate(total_counts = sum(Counts)) %>%
+  ungroup() %>% 
+  # calculate percentage in each quadrant based on total counts
+  mutate(Percent_of_this_plot_recalc = Counts/total_counts*100)
+
+# calculate new arcsine values for the recalculated percentages
+Dermo_Inhibitor_2020_APOP_join_beads_recalc$Percent_of_this_plot_recalc_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_beads_recalc$Percent_of_this_plot_recalc*0.01)
+
+# isolate the control hemocyte levels, but don't need to recalculate percentages
+Dermo_Inhibitor_2020_APOP_join_control <- Dermo_Inhibitor_2020_APOP_join %>%
+  filter(Treat == "Control_hemo" & Plot_number == "4") %>% 
+  dplyr::mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
+  #rename columns for joining with other altered dataframes
+  dplyr::rename(.,Percent_of_this_plot_recalc_arcsine = Percent_of_this_plot_arcsine) %>%
+  dplyr::rename(.,Percent_of_this_plot_recalc = Percent_of_this_plot) 
+Dermo_Inhibitor_2020_APOP_join_control <- as.data.frame(Dermo_Inhibitor_2020_APOP_join_control)
+
+## Combine the recalculated beads percentage and the parasite percentage so I can plot both 
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc <- rbind(Dermo_Inhibitor_2020_APOP_join_beads_recalc[,c("ID","Treat","Assay","Plot_number","Channel","Gate",
+                                                                                                             "Percent_of_this_plot_recalc","Counts" ,"Cell_type",
+                                                                                                             "Percent_of_this_plot_recalc_arcsine", "sample_ID")], 
+                                                              Dermo_Inhibitor_2020_APOP_join_granular_approx_perk_apop_treat_recalc_perc_done[,c("ID","Treat","Assay","Plot_number","Channel","Gate",
+                                                                                                                                                 "Percent_of_this_plot_recalc","Counts" ,"Cell_type",
+                                                                                                                                                 "Percent_of_this_plot_recalc_arcsine", "sample_ID")],
+                                                              Dermo_Inhibitor_2020_APOP_join_control)
+### Plotting granular cell data
+
+# change treatment labels, remember that we are not plotting here parasite alone or the UV
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc$Treat, 
+                                                                     levels = c( "BEADS_LPS","Control_hemo", "Dermo","Dermo_GDC","Dermo_ZVAD"),
+                                                                     labels = c( "Beads and\n LPS", "Control hemocytes",    "P. mar to\n Hemocytes\n" , 
+                                                                                 "P. mar to\n Hemocytes\n GDC",  
+                                                                                 "P. mar to\n Hemocytes\n ZVAD"))
+# Make plot of percentage of apoptotic hemocytes with parasite and without
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_plot <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
+  # plot percentage of apoptotic hemocytes with and without parasite
+  filter(Gate == "Q16-UR" | Gate == "Q16-UL") %>%
+  ggplot(data=., aes(y=Percent_of_this_plot_recalc, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
+  geom_boxplot() +
+  xlab("Treatment") +
+  ylab("Percent of Granulocytes") + 
+  ggtitle("Percent of Apoptotic Granulocytes") + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,40), breaks = c(0,5,10,20,30,40)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_color_manual(name="Cell Type", labels=c("Apoptotic\nGranular", "Apoptotic Granular,\nwith P. mar., or Beads"), 
+                     values = c("#56b464", "#5b2c90")) 
+
 # color options
 #"#cc57b4", "#88bf3b", "#aa4dce", "#56b464", "#5b2c90"
 #"#c89832", "#5a6ee6", "#ca4e33", "#7e78d4", "#cd4272"
+
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
+
+# Plot just the Q16-UR 
+# Make plot 
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot <- 
+  Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
+  # plot only UR and remove the control hemocyte
+  filter(Gate == "Q16-UR") %>% 
+  ggplot(., aes(y=Percent_of_this_plot_recalc, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
+  geom_boxplot() +
+  xlab("Treatment") +
+  ylab("Percent of Granulocytes") + 
+  ggtitle("Percent of Apoptotic Granulocytes") + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_color_manual(name="Cell Type", labels=c("Apoptotic Granular,\nwith P. mar., or Beads"), 
+                     values = c("#5b2c90")) 
 
 #save
 ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
+# Also plot the pool since there is a significant difference with the pools
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot <- 
+  Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
+  # plot only UR and remove the control hemocyte
+  filter(Gate == "Q16-UR") %>% 
+  ggplot(., aes(y=Percent_of_this_plot_recalc, x=Treat, fill=ID)) + geom_col(position = "dodge") + 
+  xlab("Treatment") +
+  ylab("Percent of Granulocytes") + 
+  ggtitle("Percent of Apoptotic Granulocytes") + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=12), 
+        axis.title.y=element_text(family="serif",size=12),
+        axis.title.x=element_text(family="serif",size=12),
+        legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=12)) + 
+  theme(axis.text.x = element_text(size=12)) +
+  theme(legend.text = element_text(size=12)) +
+  scale_fill_manual(name="Cell Type", labels=c("Pool 1", "Pool 2", "Pool3"), 
+                    values = c("#7f63b8", "#50b47b", "#ba583b")) 
+
+#save
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 5, width = 10)
 ### ANALYSIS QUESTIONS ###
 
-### Do cell types differ in apoptosis levels? - YES granular cells undergo more apoptosis  ###
-# Need to run the FSW control test as a separate t.test because I'm comparing the UL quadrants instead of UR
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_cell_type_AOV <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>%
-  filter(Treat == "Beads to\n Hemocytes\n 1:1" | Treat ==  "Heat-Killed\n P. mar to\n Hemocytes\n 1:1"| Treat ==   "P. mar to\n Hemocytes\n 1:1" | 
-           Treat == "P. mar to\n Hemocytes\n 5:1" | Treat == "P. mar to\n Hemocytes\n 10:1"| Treat == "P. mar to\n Hemocytes\n 25:1"|
-           Treat ==  "Perkinsus\n Only\n Control" ) %>%
-  filter(Gate == "Q1-UR" | Gate == "Q2-UR") %>%
-  group_by(Treat) %>%
-  do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Gate, data = .)))  %>%
-  ungroup
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_cell_type_AOV %>% filter(p.value <= 0.05)
-# granular have more apoptosis in all categories
+### Do the beads and parasite hemocyte treatments differ in granular apoptosis levels?
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>% filter(Gate == "Q16-UR")
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat, data= Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop)
+summary(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_AOV)
+#Df  Sum Sq  Mean Sq F value  Pr(>F)   
+#Treat        4 0.03267 0.008169   10.67 0.00124 **
 
-# FSW alone t.test
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>%
-  filter(Treat == "FSW and\n Hemocytes" ) %>% filter(Gate == "Q1-UL" | Gate == "Q2-UL")
-t.test(Percent_of_this_plot_arcsine ~ Gate , data =MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW) 
-# p-value = 0.056
-
-### Does Perkinsus cause significantly greater granular apoptosis than beads? ### - not correcting for amount of apoptosis caused by Perkinsus alone
-# comparing only the 1:1
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>% 
-  filter(Treat == "Beads to\n Hemocytes\n 1:1"  | Treat == "P. mar to\n Hemocytes\n 1:1") %>% 
-  # filter out just the granulocytes
-  filter(Gate == "Q1-UR")
-
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo_ttest <- t.test(Percent_of_this_plot_arcsine ~ Treat, data = MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo)
-# p-value = 0.01898 YES at 1:1
-
-# test all concentrations with AOV
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo_aov <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>% 
-  filter(Treat == "Beads to\n Hemocytes\n 1:1"  | Treat == "P. mar to\n Hemocytes\n 1:1" | Treat == "P. mar to\n Hemocytes\n 5:1" |
-           Treat == "P. mar to\n Hemocytes\n 10:1" | Treat == "P. mar to\n Hemocytes\n 25:1") %>% 
-  # filter out just the granulocytes
-  filter(Gate == "Q1-UR")
-
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo_aov <- aov(Percent_of_this_plot_arcsine ~ Treat, data = MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo_aov)
-TukeyHSD(MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_beads_vs_hemo_aov)
-## All concentrations have significantly different granular apoptosis as compared to the beads
-#P. mar to\n Hemocytes\n 1:1-Beads to\n Hemocytes\n 1:1     0.1808952647  0.106362878 0.25542765 0.0000906
-#P. mar to\n Hemocytes\n 5:1-Beads to\n Hemocytes\n 1:1     0.2446070627  0.170074676 0.31913945 0.0000061
-#P. mar to\n Hemocytes\n 10:1-Beads to\n Hemocytes\n 1:1    0.2455003691  0.170967982 0.32003276 0.0000059
-#P. mar to\n Hemocytes\n 25:1-Beads to\n Hemocytes\n 1:1    0.2068743120  0.132341925 0.28140670 0.0000278
-
-### Does Perkinsus cause significantly greater apoptosis than FSW? - not correcting for amount of apoptosis caused by Perkinsus alone ###
-
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW_granular <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>% 
-  filter(Treat == "FSW and\n Hemocytes" & Gate == "Q1-UL")
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_hemo_granular <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>% 
-  filter(Treat == "P. mar to\n Hemocytes\n 1:1" | Treat == "P. mar to\n Hemocytes\n 5:1" |
-           Treat == "P. mar to\n Hemocytes\n 10:1" | Treat == "P. mar to\n Hemocytes\n 25:1") %>% filter(Gate == "Q1-UR")        
-
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW_hemo_granular <- rbind(MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW_granular, MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_hemo_granular)
-
-# test with AOV
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW_vs_hemo_aov <- aov(Percent_of_this_plot_arcsine ~ Treat, data = MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW_hemo_granular)
-TukeyHSD(MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_FSW_vs_hemo_aov )  
-
-
-# Does granular apoptosis differ between the different MOIs?
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_MOI <- MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic %>% 
-  filter(Treat == "P. mar to\n Hemocytes\n 1:1"  | Treat == "P. mar to\n Hemocytes\n 5:1" | Treat == "P. mar to\n Hemocytes\n 10:1" |
-           Treat == "P. mar to\n Hemocytes\n 25:1") %>% 
-  # filter out just the granulocytes
-  filter(Gate == "Q1-UR")
-
-MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_MOI_aov <- aov(Percent_of_this_plot_arcsine ~ Treat,
-                                                                   data = MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_MOI)
-# 0.008868341
-TukeyHSD(MOI_1hr_2019_APOP_join_Agranular_Granular_apoptotic_MOI_aov)
+# tukey
+TukeyHSD(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_AOV)
 #$Treat
-#diff         lwr        upr     p adj
-#P. mar to\n Hemocytes\n 5:1-P. mar to\n Hemocytes\n 1:1    0.0637117980  0.01479372 0.11262988 0.0132664
-#P. mar to\n Hemocytes\n 10:1-P. mar to\n Hemocytes\n 1:1   0.0646051044  0.01568703 0.11352318 0.0122823
-#P. mar to\n Hemocytes\n 25:1-P. mar to\n Hemocytes\n 1:1   0.0259790473 -0.02293903 0.07489713 0.3827332
-#P. mar to\n Hemocytes\n 10:1-P. mar to\n Hemocytes\n 5:1   0.0008933065 -0.04802477 0.04981139 0.9999218
-#P. mar to\n Hemocytes\n 25:1-P. mar to\n Hemocytes\n 5:1  -0.0377327506 -0.08665083 0.01118533 0.1401163
-#P. mar to\n Hemocytes\n 25:1-P. mar to\n Hemocytes\n 10:1 -0.0386260571 -0.08754414 0.01029202 0.1291663
+#diff          lwr        upr     p adj
+#Control hemocytes-Beads and\n LPS                        0.9870437
+#P. mar to\n Hemocytes\n-Beads and\n LPS                  0.0221725
+#P. mar to\n Hemocytes\n GDC-Beads and\n LPS              0.7575550
+#P. mar to\n Hemocytes\n ZVAD-Beads and\n LPS             0.0057946
+#P. mar to\n Hemocytes\n-Control hemocytes                0.0105875
+#P. mar to\n Hemocytes\n GDC-Control hemocytes            0.4887769
+#P. mar to\n Hemocytes\n ZVAD-Control hemocytes           0.0028907
+#P. mar to\n Hemocytes\n GDC-P. mar to\n Hemocytes\n      0.1380722
+#P. mar to\n Hemocytes\n ZVAD-P. mar to\n Hemocytes\n     0.8937251
+#P. mar to\n Hemocytes\n ZVAD-P. mar to\n Hemocytes\n GDC 0.0351358
 
-## Not significant
-# 5:1 vs 1:1 
-# 10:1 vs 1:1
+# two way aov with the pool
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_pool_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat + ID, data= Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop)
+summary(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_pool_AOV)
+#Df  Sum Sq  Mean Sq F value   Pr(>F)    
+#Treat        4 0.03267 0.008169  20.405 0.000295 ***
+#ID           2 0.00445 0.002227   5.562 0.030625 * 
+TukeyHSD(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_treat_pool_AOV)
+#$Treat
+#diff            p adj
+#Control hemocytes-Beads and LPS                  0.9574639
+#P. mar to Hemocytes-Beads and LPS                0.0048861
+#P. mar to Hemocytes GDC-Beads and LPS            0.5122712
+#P. mar to Hemocytes ZVAD-Beads and LPS           0.0012562
+#P. mar to Hemocytes-Control hemocytes            0.0022834
+#P. mar to Hemocytes GDC-Control hemocytes        0.2331101
+#P. mar to Hemocytes ZVAD-Control hemocytes       0.0006433
+#P. mar to Hemocytes GDC-P. mar to Hemocytes      0.0392944
+#P. mar to Hemocytes ZVAD-P. mar to Hemocytes     0.7348395
+#P. mar to Hemocytes ZVAD-P. mar to Hemocytes GDC 0.0079997
+#
+#$ID
+#diff         
+#Pool2-Pool1 0.0529475
+#Pool3-Pool1 0.0434216
+#Pool3-Pool2 0.9900067
 
-## Significant
-# 25:1 vs 1:1
-# 10:1 vs 5:1
-# 25:1 vs. 5:1
-# 25:1 vs 10:1
+# t.test GDC and P.mar hemocytes
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_GDC <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop %>% filter(Treat == "P. mar to\n Hemocytes\n GDC" | Treat == "P. mar to\n Hemocytes\n")
+t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_GDC)
+#  p-value = 0.1042
 
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop %>% filter(Treat == "P. mar to\n Hemocytes\n ZVAD" | Treat == "P. mar to\n Hemocytes\n")
+t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD)
+#  p-value = 0.5433
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD_GDC <- Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop %>% filter(Treat == "P. mar to\n Hemocytes\n ZVAD" | Treat ==  "P. mar to\n Hemocytes\n GDC")
+t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD_GDC)
+#  p-value = 0.04644
 
