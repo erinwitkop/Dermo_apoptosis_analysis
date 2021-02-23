@@ -4,13 +4,13 @@
 # reanalyzes the summer data from 2018 Dermo in vivo challenge that was not optimized in last years script (Dermo_Apoptosis_Assay_Data_analysis.R)
 
 #### Load Packages ####
-library(tidyverse)
 library(metafor)
 library(car)
 library(lsmeans)
 library(rgr)
 library(multcompView)
 library(ggpubr)
+library(rstatix)
 library(RColorBrewer)
 library(readxl)
 library(magrittr)
@@ -21,7 +21,9 @@ library(scales)
 library(export) # graph2ppt() function
 library(broom)
 library(ggbiplot)
+library(ggtext)
 library(factoextra)
+library(tidyverse)
 
 ##### LOAD ASSAY CSV'S and format #####
 getwd()
@@ -4383,6 +4385,47 @@ ggsave(plot = Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 6)
 
+# Granular Agranular plot formatted for multipanel figure 
+# calculate sd and mean 
+Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_sd <- Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular %>%
+  # get mean and sd
+  dplyr::group_by(Gate) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot)) 
+
+Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_sd,
+  aes(y=Percent_of_this_plot, x=Gate)) + geom_bar(aes(fill= Gate),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 1, aes(fill = Gate)) + 
+  xlab(NULL) +
+  ylab("% Hemocytes") + 
+  theme_classic() +
+  theme(text=element_text(size=12, face = "bold"), 
+                 axis.title.y=element_text(size=12, face = "bold"),
+                 axis.title.x=element_text(size=12,face = "bold"),
+        axis.text.x=element_text(size=12,face = "bold"),
+        axis.text.y=element_text(size=12,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("P3" = "Agranular", "P4"= "Granular")) + 
+  scale_fill_manual(name="Cell Type", labels=c("Agranular","Granular"), values=c("#6c81d9","#50b47b")) 
+
+# Perform t.test and plot results onto boxplot 
+stat.test <- as.data.frame(Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_sd) %>%
+  # make sure to use the arcsine values 
+  t_test(Percent_of_this_plot_arcsine ~ Gate) %>%
+  add_significance() %>% 
+  add_xy_position(x = "Gate")
+
+Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig <- 
+  Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel + stat_pvalue_manual(
+  stat.test, label = "p",  tip.length = 0.02, y.position = 75)
+
+# Average granular and agranular cells
+Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular %>% dplyr::group_by(Gate) %>% summarise_at(vars(Percent_of_this_plot), list(name = mean))
+  #Gate   name
+  #<chr> <dbl>
+  #1 P3     59.8
+  #2 P4     40.4
+
 # Compare the percent of dead cells
 Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Dermo_Inhibitor_hemo_2020_VIA_join %>%
   # filter for granular and agranular dead hemocytes
@@ -4402,11 +4445,60 @@ Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Dermo_Inhi
     scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,20)) +
   scale_fill_manual(name="Cell Type", labels=c("Percent Dead Agranular","Percent Dead Granular"), values=c("#5b2c90", "#88bf3b")) 
 
-
 #save
 ggsave(plot = Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 6)
+
+# Plot Dead hemocytes as live and prepare for multi-panel figure 
+Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd <- Dermo_Inhibitor_hemo_2020_VIA_join %>%
+  # filter for granular and agranular dead hemocytes
+  filter(Gate=="V1-R" |Gate=="V4-R") %>%
+  mutate(Percent_of_this_plot_live = (100 - Percent_of_this_plot)) %>%
+  # get mean and sd
+  dplyr::group_by(Gate) %>% mutate(mean = mean(Percent_of_this_plot_live), sd = sd(Percent_of_this_plot_live)) 
+
+# add arcine transformed percentages 
+Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd$Percent_of_this_plot_live_arcsine <- transf.arcsin(Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd$Percent_of_this_plot_live*0.01)
+
+# Make plot of live hemocytes 
+Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd,
+         aes(y=Percent_of_this_plot_live, x=Gate)) + geom_bar(aes(fill= Gate),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 1, aes(fill = Gate)) + 
+  xlab(NULL) +
+  ylab("% Live Hemocytes") + 
+  theme_classic() +
+  theme(text=element_text(size=12, face = "bold"), 
+        axis.title.y=element_text(size=12, face = "bold"),
+        axis.title.x=element_text(size=12,face = "bold"),
+        axis.text.x=element_text(size=12,face = "bold"),
+        axis.text.y=element_text(size=12,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("V1-R" = "Agranular", "V4-R"= "Granular")) + 
+  scale_fill_manual(name="Cell Type", labels=c("Agranular","Granular"), values=c("#6c81d9","#50b47b")) 
+
+# Perform t.test and plot results onto boxplot 
+stat.test <- as.data.frame(Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd) %>%
+  # make sure to use the arcsine values 
+  t_test(Percent_of_this_plot_live_arcsine ~ Gate) %>%
+  add_significance() %>% 
+  add_xy_position(x = "Gate")
+
+Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig <- 
+  Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel + stat_pvalue_manual(
+    stat.test, label = "p",  tip.length = 0.02, y.position = 100)
+
+## Analysis of dead hemocytes
+Dermo_Inhibitor_hemo_2020_VIA_join %>%
+  # filter for granular and agranular dead hemocytes
+  filter(Gate=="V1-R" |Gate=="V4-R") %>% dplyr::group_by(Gate) %>% summarise_at(vars(Percent_of_this_plot), list(name = mean))
+
+#Gate   name
+#<chr> <dbl>
+#1 V1-R   1.33
+#2 V4-R   7.94
 
 ### Viability Analysis for Parasite
 
@@ -4432,6 +4524,43 @@ Dermo_Inhibitor_2020_VIA_join_Percent_PERK_DEAD_plot <- Dermo_Inhibitor_perk_202
 ggsave(plot = Dermo_Inhibitor_2020_VIA_join_Percent_PERK_DEAD_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_VIA_join_Percent_PERK_DEAD_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 6)
+
+## Reformat plot to match others for multi-panel
+Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel <- 
+  Dermo_Inhibitor_perk_2020_VIA_join %>%
+  # filter for granular dead P. marinus
+  filter(Gate=="V4-R") %>% 
+  # plot LIVE
+  mutate(Percent_of_this_plot_live = 100 - Percent_of_this_plot) %>%
+  dplyr::group_by(Gate) %>% mutate(mean = mean(Percent_of_this_plot_live), sd = sd(Percent_of_this_plot_live)) %>%
+  ggplot(data=.,
+         aes(y=Percent_of_this_plot_live, x=Gate)) + geom_bar(aes(fill= Gate),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 1, aes(fill = Gate)) +
+  labs(x = NULL , y ="% Live P. marinus") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 12, face= "bold"),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("V4-R" = "*P. marinus*")) + 
+  scale_fill_manual(name="Cell Type", labels=c("*P. marinus*"), values=c("#5b2c90")) 
+
+Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig <- 
+  Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel + 
+  theme(axis.text.x=ggtext::element_markdown(),
+   legend.text = ggtext::element_markdown()) 
+
+  # Analysis of dead P. marinus
+Dermo_Inhibitor_perk_2020_VIA_join %>%
+  # filter for granular and agranular dead hemocytes
+  filter(Gate=="V4-R") %>% dplyr::group_by(Gate) %>% summarise_at(vars(Percent_of_this_plot), list(name = mean))
+
+#Gate   name
+#<chr> <dbl>
+#  1 V4-R   4.98
 
 #### 2020 Dermo and Inhibitors PHAGOCYTOSIS ASSAY ####
 
@@ -4518,6 +4647,48 @@ ggsave(plot = Dermo_Inhibitor_2020_PHAGO_join_phago_granular_plot , device = "ti
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 6.5)
 
+## Format plot for multi-panel figure 
+Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR <- Dermo_Inhibitor_2020_PHAGO_join_phago_combined %>%
+  filter(Gate == "Q1-UR") %>% 
+  dplyr::group_by(Treat) %>% mutate(mean = mean(revised_percent_of_this_plot), sd = sd(revised_percent_of_this_plot)) 
+
+Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel <- 
+  Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR %>%
+  ggplot(data=.,
+         aes(y=revised_percent_of_this_plot, x=Treat)) + geom_bar(aes(fill= Treat),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 1, aes(fill = Treat)) +
+  labs(x = NULL , y ="% Phagocytosed") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 12, face= "bold"),
+       legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("PERK_hemo" = "*P. marinus*", "BEADS_LPS"="Beads")) + 
+  scale_fill_manual(name="Treatment", labels=c("Beads","*P. marinus*"), values=c("#88bf3b","#5b2c90")) 
+
+Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig <- 
+  Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+  
+# Perform t.test and plot results onto boxplot 
+stat.test <- as.data.frame(Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR) %>%
+  # make sure to use the arcsine values 
+  t_test(revised_percent_of_this_plot_arcsine ~ Treat) %>%
+  add_significance() %>% 
+  add_xy_position(x = "Treat")
+
+Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig <- 
+  Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig + stat_pvalue_manual(
+    stat.test, label = "p",  tip.length = 0.02, y.position = 25)
+
+# Analysis of Phagocytic cells percentages
+Dermo_Inhibitor_2020_PHAGO_join_phago_combined %>%
+  filter(Gate == "Q1-UR")  %>% dplyr::group_by(Treat) %>% summarise_at(vars(revised_percent_of_this_plot), list(name = mean))
+
 ### Statistical analysis
 
 # goal is to compare the percent phagocytosis of beads vs parasite in agranulocytes
@@ -4531,6 +4702,21 @@ summary(aov(revised_percent_of_this_plot_arcsine~Treat, data =Dermo_Inhibitor_20
 #  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 # Perkinsus is phagocytosed significantly more than the BEADS treatment
+
+#### 2020 Dermo and Inhibitors Multi-panel figure ####
+
+# include two spaces to insert flow cytometry plots 
+VIA_PHAGO_multipanel <- cowplot::plot_grid( Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig, 
+# insert white space for hemocyte gating 
+          NULL, Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig, NULL,
+Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig, NULL,
+Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig, NULL,
+ncol = 4, nrow = 2, labels = c("A","B","C","D","E","F","G","H"),
+label_size = 14, label_fontface = "bold", align = "hv")
+
+ggsave(VIA_PHAGO_multipanel, device = "tiff", filename = "VIA_PHAGO_multipanel_plot.tiff",
+        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+        height = 8, width = 16 )
 
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
 
