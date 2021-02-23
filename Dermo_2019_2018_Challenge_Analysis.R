@@ -4657,7 +4657,7 @@ Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel <-
   ggplot(data=.,
          aes(y=revised_percent_of_this_plot, x=Treat)) + geom_bar(aes(fill= Treat),position = "dodge", stat = "summary")  + 
   geom_point(shape = 1, aes(fill = Treat)) +
-  labs(x = NULL , y ="% Phagocytosed") + 
+  labs(x = NULL , y ="% Granular Phagocytosis") + 
   theme_classic() +
   theme(axis.text.y = element_text(size = 12, face= "bold"),
         axis.title.y = element_text(size = 12, face= "bold"),
@@ -4703,24 +4703,24 @@ summary(aov(revised_percent_of_this_plot_arcsine~Treat, data =Dermo_Inhibitor_20
 
 # Perkinsus is phagocytosed significantly more than the BEADS treatment
 
-#### 2020 Dermo and Inhibitors Multi-panel figure ####
+#### 2020 Dermo and Inhibitors Multi-panel VIA and PHAGO figure ####
 
 # include two spaces to insert flow cytometry plots 
 VIA_PHAGO_multipanel <- cowplot::plot_grid( Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig, 
 # insert white space for hemocyte gating 
-          NULL, Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig, NULL,
-Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig, NULL,
+          NULL, Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig, 
+Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig,
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig, NULL,
-ncol = 4, nrow = 2, labels = c("A","B","C","D","E","F","G","H"),
-label_size = 14, label_fontface = "bold", align = "hv")
+ncol = 2, nrow = 3, labels = c("A","B","C","D","E","F"),
+label_size = 16, label_fontface = "bold", align = "hv")
 
 ggsave(VIA_PHAGO_multipanel, device = "tiff", filename = "VIA_PHAGO_multipanel_plot.tiff",
         path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-        height = 8, width = 16 )
+        height = 10, width = 8 )
 
-#### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
+#### 2020 Dermo and Inhibitors APOPTOSIS ASSAY Statistics and Plotting ####
 
-Dermo_Inhibitor_2020_CASP_join
+Dermo_Inhibitor_2020_APOP_join
 
 ## Adjusting the percentages after noramlizing for the amount of perkinsus alone apoptosis 
 ## Start by comparing the number of parasite cells in Q16-LR in the stained dermo plots to the Q16-LL in the unstained Dermo plots
@@ -4793,8 +4793,30 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_non_apop_granular_apoptotic_perkins
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
+## Plot percent of apoptotic perkinsus and format for multi-panel figure
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_sd <- Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all %>%
+  group_by(Gate) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
 
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel <- 
+ggplot(data=Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_sd,
+         aes(fill = factor(Gate,levels = c("Q16-UL","Q16-LL")), y=Percent_of_this_plot, x=Assay)) + geom_bar(position="fill", stat="identity")  + 
+  labs(x = NULL , y ="% Apoptotic P. marinus") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 12, face= "bold"),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = scales::percent) +
+ scale_x_discrete(labels = c("APOP" = "*P. marinus*")) + 
+  scale_fill_manual(name="Apoptosis Status", labels=c("Apoptotic *P. marinus*", "Non-Apoptotic *P. marinus*"),
+                   values=c("#a44f9a","#5b2c90")) 
 
+Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
 
 ## Calculate rough counts of apoptotic parasite based on Q16-LR apoptotic parasite ratio from the perkinsus only assay
 Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat_approx_perk_apop <- Dermo_Inhibitor_2020_APOP_join_non_apop_granular_treat %>% 
@@ -4940,6 +4962,11 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plo
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
+## Plot apoptosis granulocytes in format for multipanel figure with multiple comparisons run 
+
+
+
+
 # Also plot the pool since there is a significant difference with the pools
 Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot <- 
   Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
@@ -5029,8 +5056,29 @@ Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD_GDC <- Dermo_Inhi
 t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_ZVAD_GDC)
 #  p-value = 0.04644
 
-#### 2020 Dermo and Inhibitors APOPTSIS ASSAY Statistics and Plotting ####
-Dermo_Inhibitor_2020_APOP_join
+#### 2020 Dermo and Inhibitors Multi-panel APOP figure ####
+
+APOP_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel_sig)
+                                           
+                                           
+# include two spaces to insert flow cytometry plots 
+VIA_PHAGO_multipanel <- cowplot::plot_grid( Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig, 
+                                           # insert white space for hemocyte gating 
+                                           NULL, Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig, 
+                                           Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig,
+                                           Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig, NULL,
+                                           ncol = 2, nrow = 3, labels = c("A","B","C","D","E","F"),
+                                           label_size = 16, label_fontface = "bold", align = "hv")
+
+ggsave(VIA_PHAGO_multipanel, device = "tiff", filename = "VIA_PHAGO_multipanel_plot.tiff",
+      path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+      height = 10, width = 8 )
+                                           
+                                           
+                                           
+
+#### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
+Dermo_Inhibitor_2020_CASP_join
 # # Apoptosis for the FSW hemocytes, and parasite alone is anything in the UL quadrant because both of these treatments were unstained
 
 ## Adjusting the percentages after noramlizing for the amount of perkinsus alone apoptosis 
