@@ -4976,7 +4976,7 @@ APOP_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granul
 
 ggsave(APOP_2020_multipanel, device = "tiff", filename = "APOP_2020_multipanel.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 4, width = 11 )       
+       height = 4, width = 11.2 )       
                                 
 
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
