@@ -4899,27 +4899,27 @@ Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd$Treat <- factor(Dermo_Inhib
 Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel <- 
 ggplot(data=Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd,
        aes(y=Percent_of_this_plot, x=Treat)) + 
-  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", width = 1)  + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
   labs(x = NULL , y ="% Granular Apoptotic") + 
   theme_classic() +
-  theme(axis.text.y = element_text(size = 10, face= "bold"),
-        axis.title.y = element_text(size = 10, face= "bold"),
-        axis.text.x = element_text(size = 8, face= "bold"),
-        legend.text = element_text(size = 10, face= "bold"),
-        legend.title = element_text(size = 10, face= "bold")) +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,20)) +
-  scale_x_discrete(labels = c("BEADS_LPS"="Beads and<br> LPS",
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
                               "Control_hemo"="Control",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) + 
-  scale_fill_manual(name="Treatment", labels=c("Beads and LPS","Control","*P. mar*",
-                                               "*P. mar*, GDC-0152",
-                                               "*P. mar*, Z-VAD-fmk"), values=c("#88bf3b", "#6c81d9","#5b2c90",
-                                                                                               "#ba4b41","#bfac3e")) 
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
+ # scale_fill_manual(name="Treatment", labels=c("Beads and LPS","Control","*P. mar*",
+ #                                              "*P. mar*, GDC-0152",
+ #                                              "*P. mar*, Z-VAD-fmk"), values=c("#88bf3b", "#6c81d9","#5b2c90",
+ #                                                                                              "#ba4b41","#bfac3e")) 
 
 Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel <- 
   Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel  + 
@@ -4940,7 +4940,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel_sig <-
     stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8, 9, 10,11,12,14), size = 3) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
-  labs(subtitle = "Two-Way AOV: Arcsine Percent ~ Treat + Pool, Tukey HSD")
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
 
 ## Plot pool since my statistical analysis revealed Pool is significant 
 Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot <- 
@@ -4968,16 +4968,6 @@ Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot <-
 ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
-
-#### 2020 Dermo and Inhibitors Multi-panel APOP figure ####
-
-APOP_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel_sig, NULL,
-                                           ncol = 2, labels = c("A","B"), label_size = 16, label_fontface = "bold")
-
-ggsave(APOP_2020_multipanel, device = "tiff", filename = "APOP_2020_multipanel.tiff",
-       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 4, width = 11.2 )       
-                                
 
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
 
@@ -5057,99 +5047,17 @@ Dermo_Inhibitor_2020_CASP_join_non_CASP_granular_perk_all_multipanel_sig <-
         legend.text = ggtext::element_markdown(),
         legend.title = ggtext::element_markdown()) 
 
-## Calculate rough counts of Caspase active parasite based on Q10-LR Caspase active parasite ratio from the perkinsus only assay
-Dermo_Inhibitor_2020_CASP_join_non_CASP_granular_treat_approx_perk_CASP <- Dermo_Inhibitor_2020_CASP_join_non_CASP_granular_treat %>% 
-  mutate(CASP_parasite_alone = Counts * 0.409) %>%
-  mutate(Percent_of_this_plot = NA, Percent_of_this_plot_arcsine = NA) %>%
-  # gather this column
-  gather("Gate", "Counts", CASP_parasite_alone)
-
-# now add this gate and counts back in to the treatments table and subtract the CASP_parasite_counts from the Q10-UR
-Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat <- 
-  # subset the Q10-UR for all the assays
-  Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UR") %>%
-  filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD") %>% 
-  mutate(sample_ID = paste(ID, Treat, sep = "-"))
-# join the calculated number of counts that need to be subtracted
-rbind(.,Dermo_Inhibitor_2020_CASP_join_non_CASP_granular_treat_approx_perk_CASP) %>%
-  group_by(sample_ID) %>%
-  # subtract the CASP_parasite_alone counts
-  summarise(counts_minus_CASP_parasite = Counts[Gate == "Q10-UR"] - Counts[Gate == "CASP_parasite_alone"])
-
-# now recalculate the percentage of hemocytes in each quadrant for the Perkinsus , after removing the Q10-LR from the percentages
-Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat_recalc_perc <- Dermo_Inhibitor_2020_CASP_join %>% 
-  filter(Gate == "Q10-LL" | Gate == "Q10-UL") %>% filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD" ) %>%
-  mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
-  # add back in the recalculated Q10-UR
-  rbind(., Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat)
-
-Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat_recalc_perc_done <- 
-  Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat_recalc_perc %>% 
-  # group by sample
-  dplyr::group_by(sample_ID) %>% 
-  # get total counts
-  dplyr::mutate(total_counts = sum(Counts)) %>%
-  ungroup() %>% 
-  # calculate percentage in each quadrant based on total counts
-  mutate(Percent_of_this_plot_recalc = Counts/total_counts*100)
-
-# calculate new arcsine values for the recalculated percentages
-Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat_recalc_perc_done$Percent_of_this_plot_recalc_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat_recalc_perc_done$Percent_of_this_plot_recalc*0.01)
-
-## Recalculate the percentage of CASPtotic hemocytes that have engulfed beads
-Dermo_Inhibitor_2020_CASP_join_beads_recalc <- 
-  # subset the Q10-UR for all the assays
-  Dermo_Inhibitor_2020_CASP_join %>%
-  filter(Treat == "BEADS_LPS") %>% 
-  # keep all Q10 quadrants except the beads only Q10-LR
-  filter(Gate == "Q10-UR" | Gate == "Q10-LL" | Gate == "Q10-UL") %>% 
-  # add in sample ID
-  dplyr::mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
-  # group_by and calculate the new total counts
-  dplyr::group_by(sample_ID) %>% 
-  # get total counts
-  dplyr::mutate(total_counts = sum(Counts)) %>%
-  ungroup() %>% 
-  # calculate percentage in each quadrant based on total counts
-  mutate(Percent_of_this_plot_recalc = Counts/total_counts*100)
-
-# calculate new arcsine values for the recalculated percentages
-Dermo_Inhibitor_2020_CASP_join_beads_recalc$Percent_of_this_plot_recalc_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_CASP_join_beads_recalc$Percent_of_this_plot_recalc*0.01)
-
-# isolate the control hemocyte levels, but don't need to recalculate percentages
-Dermo_Inhibitor_2020_CASP_join_control <- Dermo_Inhibitor_2020_CASP_join %>%
-  filter(Treat == "Control_hemo" & Plot_number == "4") %>% 
-  dplyr::mutate(sample_ID = paste(ID, Treat, sep = "-")) %>%
-  #rename columns for joining with other altered dataframes
-  dplyr::rename(.,Percent_of_this_plot_recalc_arcsine = Percent_of_this_plot_arcsine) %>%
-  dplyr::rename(.,Percent_of_this_plot_recalc = Percent_of_this_plot) 
-Dermo_Inhibitor_2020_CASP_join_control <- as.data.frame(Dermo_Inhibitor_2020_CASP_join_control)
-
-## Combine the recalculated beads percentage and the parasite percentage so I can plot both 
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc <- rbind(Dermo_Inhibitor_2020_CASP_join_beads_recalc[,c("ID","Treat","Assay","Plot_number","Channel","Gate",
-                                                                                                             "Percent_of_this_plot_recalc","Counts" ,"Cell_type",
-                                                                                                             "Percent_of_this_plot_recalc_arcsine", "sample_ID")], 
-                                                              Dermo_Inhibitor_2020_CASP_join_granular_approx_perk_CASP_treat_recalc_perc_done[,c("ID","Treat","Assay","Plot_number","Channel","Gate",
-                                                                                                                                                 "Percent_of_this_plot_recalc","Counts" ,"Cell_type",
-                                                                                                                                                 "Percent_of_this_plot_recalc_arcsine", "sample_ID")],
-                                                              Dermo_Inhibitor_2020_CASP_join_control)
 ### Plotting granular cell data
 
-# change treatment labels, remember that we are not plotting here parasite alone or the UV
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc$Treat <- factor(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc$Treat, 
-                                                                     levels = c( "BEADS_LPS","Control_hemo", "Dermo","Dermo_GDC","Dermo_ZVAD"),
-                                                                     labels = c( "Beads and\n LPS", "Control hemocytes",    "P. mar to\n Hemocytes\n" , 
-                                                                                 "P. mar to\n Hemocytes\n GDC",  
-                                                                                 "P. mar to\n Hemocytes\n ZVAD"))
-# Make plot of percentage of CASPtotic hemocytes with parasite and without
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_plot <- Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc %>%
-  # plot percentage of CASPtotic hemocytes with and without parasite
+# Make plot of percentage of casp hemocytes with parasite and without
+Dermo_Inhibitor_2020_CASP_join_granular_casp_plot <- Dermo_Inhibitor_2020_CASP_join %>%
+  # plot percentage of casp hemocytes with and without parasite
   filter(Gate == "Q10-UR" | Gate == "Q10-UL") %>%
-  ggplot(data=., aes(y=Percent_of_this_plot_recalc, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
+  ggplot(data=., aes(y=Percent_of_this_plot, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
   geom_boxplot() +
   xlab("Treatment") +
   ylab("Percent of Granulocytes") + 
-  ggtitle("Percent of CASPtotic Granulocytes") + 
+  ggtitle("Percent of casp Granulocytes") + 
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,40), breaks = c(0,5,10,20,30,40)) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
@@ -5160,7 +5068,7 @@ Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_plot <- Dermo_Inhibitor_202
   theme(text=element_text(size=12)) + 
   theme(axis.text.x = element_text(size=12)) +
   theme(legend.text = element_text(size=12)) +
-  scale_color_manual(name="Cell Type", labels=c("CASPtotic\nGranular", "CASPtotic Granular,\nwith P. mar., or Beads"), 
+  scale_color_manual(name="Cell Type", labels=c("casp\nGranular", "casp Granular,\nwith P. mar., or Beads"), 
                      values = c("#56b464", "#5b2c90")) 
 
 # color options
@@ -5168,48 +5076,78 @@ Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_plot <- Dermo_Inhibitor_202
 #"#c89832", "#5a6ee6", "#ca4e33", "#7e78d4", "#cd4272"
 
 #save
-ggsave(plot = Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_plot.tiff",
+ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_casp_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_granular_casp_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
-# Plot just the Q10-UR 
-# Make plot 
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_plot <- 
-  Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc %>%
+
+## Plot just the 16-UR data 
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UR") %>% filter(Treat !="UV") %>% filter(Treat !="PERK")
+
+##Plot CASPtosis granulocytes in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd <-   Dermo_Inhibitor_2020_CASP_join_granular_casp %>%
+  filter(Gate == "Q10-UR") %>% group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd$Treat <- factor(Dermo_Inhibitor_2020_CASP_join_granular_casp_sd$Treat,
+                                                                     levels = c("Control_hemo","BEADS_LPS","Dermo","Dermo_GDC","Dermo_ZVAD"))
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_CASP_join_granular_casp_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#b84c3f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Caspase 3/7 Active") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,20)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
+                              "Control_hemo"="Control",
+                              "Dermo"="*P. mar.*",
+                              "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
+  #scale_fill_manual(name="Treatment", labels=c("Beads and LPS","Control","*P. mar*",
+  #                                             "*P. mar*, GDC-0152",
+  #                                             "*P. mar*, Z-VAD-fmk"), values=c("black", "black","black",
+  #                                                                              "black","black")) 
+    # colors option: values=c("#88bf3b", "#6c81d9","#5b2c90","#ba4b41","#bfac3e")
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test instead and generate stats dataframe
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat + ID, Dermo_Inhibitor_2020_CASP_join_granular_casp_sd)
+summary(Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey[c(1,2,5,8,9,10),]
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8, 9, 10,11,12,14), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
+
+## Plot pool since my statistical analysis revealed Pool is significant 
+Dermo_Inhibitor_2020_CASP_join_granular_casp_pool_plot <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_casp %>%
   # plot only UR and remove the control hemocyte
   filter(Gate == "Q10-UR") %>% 
-  ggplot(., aes(y=Percent_of_this_plot_recalc, x=Treat, color=Gate)) + geom_point(position=position_dodge(width=0.75)) + 
-  geom_boxplot() +
+  ggplot(., aes(y=Percent_of_this_plot, x=Treat, fill=ID)) + geom_col(position = "dodge") + 
   xlab("Treatment") +
   ylab("Percent of Granulocytes") + 
-  ggtitle("Percent of CASPtotic Granulocytes") + 
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
-  theme(panel.background=element_blank(),
-        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
-        text=element_text(family="serif",size=12), 
-        axis.title.y=element_text(family="serif",size=12),
-        axis.title.x=element_text(family="serif",size=12),
-        legend.key=element_rect(fill=NA)) + 
-  theme(text=element_text(size=12)) + 
-  theme(axis.text.x = element_text(size=12)) +
-  theme(legend.text = element_text(size=12)) +
-  scale_color_manual(name="Cell Type", labels=c("CASPtotic Granular,\nwith P. mar., or Beads"), 
-                     values = c("#5b2c90")) 
-
-#save
-ggsave(plot = Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_plot.tiff",
-       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 5, width = 10)
-
-# Also plot the pool since there is a significant difference with the pools
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_pool_plot <- 
-  Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc %>%
-  # plot only UR and remove the control hemocyte
-  filter(Gate == "Q10-UR") %>% 
-  ggplot(., aes(y=Percent_of_this_plot_recalc, x=Treat, fill=ID)) + geom_col(position = "dodge") + 
-  xlab("Treatment") +
-  ylab("Percent of Granulocytes") + 
-  ggtitle("Percent of CASPtotic Granulocytes") + 
+  ggtitle("Percent of casp Granulocytes") + 
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
@@ -5224,154 +5162,18 @@ Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_pool_plot <-
                     values = c("#7f63b8", "#50b47b", "#ba583b")) 
 
 #save
-ggsave(plot = Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_only_pool_plot.tiff",
+ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_casp_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_granular_casp_pool_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
-## Plot CASPtosis granulocytes in format for multipanel figure with multiple comparisons run 
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd <-   Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc %>%
-  filter(Gate == "Q10-UR") %>% group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_recalc), sd = sd(Percent_of_this_plot_recalc))
+#### 2020 Dermo and Inhibitors Multi-panel APOP, CASP, JC-1, figure ####
 
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd$Treat <- factor(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd$Treat,
-                                                                        levels = c("Control hemocytes","Beads and\n LPS","P. mar to\n Hemocytes\n",
-                                                                                   "P. mar to\n Hemocytes\n GDC", 
-                                                                                   "P. mar to\n Hemocytes\n ZVAD"))
+Flow_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel_sig,
+                                           Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig, NULL,
+                                           ncol = 2, nrow = 3, labels = c("A","B"), label_size = 16, label_fontface = "bold")
 
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_multipanel <- 
-  ggplot(data=Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd,
-         aes(y=Percent_of_this_plot_recalc, x=Treat)) + 
-  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", width = 1)  + 
-  geom_point(aes(x= Treat, shape = ID), size = 3) +
-  labs(x = NULL , y ="% Granular CASPtotic") + 
-  theme_classic() +
-  theme(axis.text.y = element_text(size = 12, face= "bold"),
-        axis.title.y = element_text(size = 12, face= "bold"),
-        axis.text.x = element_text(size = 10, face= "bold"),
-        legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
-  scale_shape_manual(values = c(15,16,17)) +
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,20)) +
-  scale_x_discrete(labels = c("Beads and\n LPS"="Beads and<br> LPS",
-                              "Control hemocytes"="Control",
-                              "P. mar to\n Hemocytes\n"="*P. mar.*",
-                              "P. mar to\n Hemocytes\n GDC" ="*P. mar.*,<br>GDC-0152",
-                              "P. mar to\n Hemocytes\n ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) + 
-  scale_fill_manual(name="Treatment", labels=c("Beads and LPS","Control","*P. mar*",
-                                               "*P. mar*, GDC-0152",
-                                               "*P. mar*, Z-VAD-fmk"), values=c("#88bf3b", "#6c81d9","#5b2c90",
-                                                                                "#ba4b41","#bfac3e")) 
-
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_multipanel <- 
-  Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_multipanel  + 
-  theme(axis.text.x=ggtext::element_markdown(),
-        legend.text = ggtext::element_markdown()) 
-
-# Perform t_test with multiple comparisons and plot results onto boxplot 
-#stat.test <- as.data.frame(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd) %>%
-#  # make sure to use the arcsine values 
-#  t_test(Percent_of_this_plot_recalc_arcsine ~ Treat) %>%
-#  add_significance(p.col = "p") %>% 
-#  add_xy_position(x = "Treat")
-#
-## save only specific comparisons
-#stat.test <- stat.test[c(2,5,8,9,10),]
-
-# Perform anova with Tukey test instead and generate stats dataframe
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat + ID, Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd)
-summary(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_AOV)
-stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_AOV) %>%
-  add_significance(p.col = "p.adj")
-
-# take only the significant columns
-stat_test_tukey <- stat_test_tukey[c(1,2,5,8,9,10),]
-
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_multipanel_sig <- 
-  Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8, 9, 10,11,12,14), size = 3) +
-  # add overall anova values 
-  #stat_compare_means(method= "anova") +
-  labs(subtitle = "Two-Way AOV: Arcsine Percent ~ Treat + Pool, Tukey HSD")
-
-### ANALYSIS QUESTIONS ###
-
-### Do the beads and parasite hemocyte treatments differ in granular CASPtosis levels?
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP <- Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc %>% filter(Gate == "Q10-UR")
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_treat_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat, data= Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP)
-summary(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_treat_AOV)
-#Df  Sum Sq  Mean Sq F value  Pr(>F)   
-#Treat        4 0.03267 0.008169   10.67 0.00124 **
-
-# tukey
-TukeyHSD(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_treat_AOV)
-#$Treat
-#diff          lwr        upr     p adj
-#Control hemocytes-Beads and\n LPS                        0.9870437
-#P. mar to\n Hemocytes\n-Beads and\n LPS                  0.0221725
-#P. mar to\n Hemocytes\n GDC-Beads and\n LPS              0.7575550
-#P. mar to\n Hemocytes\n ZVAD-Beads and\n LPS             0.0057946
-#P. mar to\n Hemocytes\n-Control hemocytes                0.0105875
-#P. mar to\n Hemocytes\n GDC-Control hemocytes            0.4887769
-#P. mar to\n Hemocytes\n ZVAD-Control hemocytes           0.0028907
-#P. mar to\n Hemocytes\n GDC-P. mar to\n Hemocytes\n      0.1380722
-#P. mar to\n Hemocytes\n ZVAD-P. mar to\n Hemocytes\n     0.8937251
-#P. mar to\n Hemocytes\n ZVAD-P. mar to\n Hemocytes\n GDC 0.0351358
-
-# two way aov with the pool
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_treat_pool_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat + ID, data= Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP)
-summary(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_treat_pool_AOV)
-#Df  Sum Sq  Mean Sq F value   Pr(>F)    
-#Treat        4 0.03267 0.008169  20.405 0.000295 ***
-#ID           2 0.00445 0.002227   5.562 0.030625 * 
-TukeyHSD(Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_treat_pool_AOV)
-#$Treat
-#diff            p adj
-#Control hemocytes-Beads and LPS                  0.9574639
-#P. mar to Hemocytes-Beads and LPS                0.0048861
-#P. mar to Hemocytes GDC-Beads and LPS            0.5122712
-#P. mar to Hemocytes ZVAD-Beads and LPS           0.0012562
-#P. mar to Hemocytes-Control hemocytes            0.0022834
-#P. mar to Hemocytes GDC-Control hemocytes        0.2331101
-#P. mar to Hemocytes ZVAD-Control hemocytes       0.0006433
-#P. mar to Hemocytes GDC-P. mar to Hemocytes      0.0392944
-#P. mar to Hemocytes ZVAD-P. mar to Hemocytes     0.7348395
-#P. mar to Hemocytes ZVAD-P. mar to Hemocytes GDC 0.0079997
-#
-#$ID
-#diff         
-#Pool2-Pool1 0.0529475
-#Pool3-Pool1 0.0434216
-#Pool3-Pool2 0.9900067
-
-# t.test GDC and P.mar hemocytes
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_GDC <- Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP %>% filter(Treat == "P. mar to\n Hemocytes\n GDC" | Treat == "P. mar to\n Hemocytes\n")
-t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_GDC)
-#  p-value = 0.1042
-
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_ZVAD <- Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP %>% filter(Treat == "P. mar to\n Hemocytes\n ZVAD" | Treat == "P. mar to\n Hemocytes\n")
-t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_ZVAD)
-#  p-value = 0.5433
-
-Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_ZVAD_GDC <- Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP %>% filter(Treat == "P. mar to\n Hemocytes\n ZVAD" | Treat ==  "P. mar to\n Hemocytes\n GDC")
-t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_CASP_ZVAD_GDC)
-#  p-value = 0.04644
-
-#### 2020 Dermo and Inhibitors Multi-panel CASP figure ####
-
-CASP_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_CASP_join_non_CASP_granular_perk_all_multipanel_sig,
-                                           Dermo_Inhibitor_2020_CASP_join_beads_parasite_recalc_sd_multipanel_sig,
-                                           ncol = 2, labels = c("A","B"), label_size = 16, label_fontface = "bold", 
-                                           align = "hv", 
-                                           axis="b",
-                                           rel_widths = c(0.07,0.2))
-CASP_2020_multipanel_NULL <- cowplot::plot_grid(NULL,NULL,
-                                                ncol = 2, labels = c("C","D"), label_size = 16, label_fontface = "bold", 
-                                                rel_widths = c(0.07,0.2))
-
-CASP_2020_multipanel_comb <- cowplot::plot_grid(CASP_2020_multipanel, CASP_2020_multipanel_NULL, ncol=1)
-
-ggsave(CASP_2020_multipanel_comb, device = "tiff", filename = "CASP_2020_multipanel.tiff",
+ggsave(Flow_2020_multipanel, device = "tiff", filename = "Flow_2020_multipanel.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 9, width = 9 )       
+       height = 4, width = 11.2 ) 
 
 
