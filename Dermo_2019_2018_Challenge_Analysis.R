@@ -4412,12 +4412,12 @@ Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <-
 stat.test <- as.data.frame(Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_sd) %>%
   # make sure to use the arcsine values 
   t_test(Percent_of_this_plot_arcsine ~ Gate) %>%
-  add_significance() %>% 
+  add_significance(p.col = "p") %>% 
   add_xy_position(x = "Gate")
 
 Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig <- 
   Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel + stat_pvalue_manual(
-  stat.test, label = "p",  tip.length = 0.02, y.position = 75)
+  stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 75)
 
 # Average granular and agranular cells
 Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular %>% dplyr::group_by(Gate) %>% summarise_at(vars(Percent_of_this_plot), list(name = mean))
@@ -4483,12 +4483,12 @@ Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel <-
 stat.test <- as.data.frame(Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd) %>%
   # make sure to use the arcsine values 
   t_test(Percent_of_this_plot_live_arcsine ~ Gate) %>%
-  add_significance() %>% 
+  add_significance(p.col = "p") %>% 
   add_xy_position(x = "Gate")
 
 Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig <- 
   Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel + stat_pvalue_manual(
-    stat.test, label = "p",  tip.length = 0.02, y.position = 100)
+    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 100)
 
 ## Analysis of dead hemocytes
 Dermo_Inhibitor_hemo_2020_VIA_join %>%
@@ -4678,12 +4678,12 @@ Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig <-
 stat.test <- as.data.frame(Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR) %>%
   # make sure to use the arcsine values 
   t_test(revised_percent_of_this_plot_arcsine ~ Treat) %>%
-  add_significance() %>% 
+  add_significance(p.col = "p") %>% 
   add_xy_position(x = "Treat")
 
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig <- 
   Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig + stat_pvalue_manual(
-    stat.test, label = "p",  tip.length = 0.02, y.position = 25)
+    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 25)
 
 # Analysis of Phagocytic cells percentages
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined %>%
@@ -4806,11 +4806,13 @@ ggplot(data=Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_sd,
         axis.title.y = element_text(size = 12, face= "bold"),
         axis.text.x = element_text(size = 12, face= "bold"),
         legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
+        legend.title = element_text(size = 12, face= "bold"),
+        legend.position = "bottom") +
+  guides(fill=guide_legend(nrow=2, title.position = "top")) +
   #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = scales::percent) +
  scale_x_discrete(labels = c("APOP" = "*P. marinus*")) + 
-  scale_fill_manual(name="Apoptosis Status", labels=c("Apoptotic *P. marinus*", "Non-Apoptotic *P. marinus*"),
+  scale_fill_manual(name="Apoptosis Status", labels=c("Apoptotic", "Non-Apoptotic"),
                    values=c("#a44f9a","#5b2c90")) 
 
 Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel_sig <- 
@@ -4962,11 +4964,6 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_plo
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
-## Plot apoptosis granulocytes in format for multipanel figure with multiple comparisons run 
-
-
-
-
 # Also plot the pool since there is a significant difference with the pools
 Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot <- 
   Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
@@ -4987,12 +4984,78 @@ Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot <-
   theme(axis.text.x = element_text(size=12)) +
   theme(legend.text = element_text(size=12)) +
   scale_fill_manual(name="Cell Type", labels=c("Pool 1", "Pool 2", "Pool3"), 
-                     values = c("#7f63b8", "#50b47b", "#ba583b")) 
+                    values = c("#7f63b8", "#50b47b", "#ba583b")) 
 
 #save
 ggsave(plot = Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_apop_only_pool_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
+
+## Plot apoptosis granulocytes in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd <-   Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc %>%
+  filter(Gate == "Q16-UR") %>% group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_recalc), sd = sd(Percent_of_this_plot_recalc))
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd$Treat,
+                                                                         levels = c("Control hemocytes","Beads and\n LPS","P. mar to\n Hemocytes\n",
+                                                                                    "P. mar to\n Hemocytes\n GDC", 
+                                                                                    "P. mar to\n Hemocytes\n ZVAD"))
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_multipanel <- 
+ggplot(data=Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd,
+       aes(y=Percent_of_this_plot_recalc, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 12, face= "bold"),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,20)) +
+  scale_x_discrete(labels = c("Beads and\n LPS"="Beads and<br> LPS",
+                              "Control hemocytes"="Control",
+                              "P. mar to\n Hemocytes\n"="*P. marinus*<br> and<br> Hemocytes",
+                              "P. mar to\n Hemocytes\n GDC" ="*P. marinus*,<br>Hemocytes,<br>GDC-0152",
+                              "P. mar to\n Hemocytes\n ZVAD"= "*P. marinus*,<br>Hemocytes,<br>Z-VAD-fmk")) + 
+  scale_fill_manual(name="Treatment", labels=c("Beads and LPS","Control","*P. marinus* and Hemocytes",
+                                               "*P. marinus*, Hemocytes, GDC-0152",
+                                               "*P. marinus*, Hemocytes, Z-VAD-fmk"), values=c("#88bf3b", "#6c81d9","#5b2c90",
+                                                                                               "#ba4b41","#bfac3e")) 
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_multipanel <- 
+  Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform t_test with multiple comparisons and plot results onto boxplot 
+#stat.test <- as.data.frame(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd) %>%
+#  # make sure to use the arcsine values 
+#  t_test(Percent_of_this_plot_recalc_arcsine ~ Treat) %>%
+#  add_significance(p.col = "p") %>% 
+#  add_xy_position(x = "Treat")
+#
+## save only specific comparisons
+#stat.test <- stat.test[c(2,5,8,9,10),]
+
+# Perform anova with Tukey test instead and generate stats dataframe
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_AOV <- aov(Percent_of_this_plot_recalc_arcsine ~ Treat + ID, Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd)
+summary(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey[c(1,2,5,8,9,10),]
+
+Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8, 9, 10,11,12,14)) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Two-Way AOV: Arcsine Percent ~ Treat + Pool, Tukey HSD")
+
 ### ANALYSIS QUESTIONS ###
 
 ### Do the beads and parasite hemocyte treatments differ in granular apoptosis levels?
@@ -5058,24 +5121,16 @@ t.test(Percent_of_this_plot_recalc_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_jo
 
 #### 2020 Dermo and Inhibitors Multi-panel APOP figure ####
 
-APOP_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel_sig)
-                                           
-                                           
-# include two spaces to insert flow cytometry plots 
-VIA_PHAGO_multipanel <- cowplot::plot_grid( Dermo_Inhibitor_hemo_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig, 
-                                           # insert white space for hemocyte gating 
-                                           NULL, Dermo_Inhibitor_hemo_2020_VIA_join_LIVE_sd_multipanel_sig, 
-                                           Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig,
-                                           Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig, NULL,
-                                           ncol = 2, nrow = 3, labels = c("A","B","C","D","E","F"),
-                                           label_size = 16, label_fontface = "bold", align = "hv")
+APOP_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk_all_multipanel_sig,
+                                           Dermo_Inhibitor_2020_APOP_join_beads_parasite_recalc_sd_multipanel_sig, NULL,NULL,
+                                           ncol = 2, nrow = 2, labels = c("A","B","C","D"), label_size = 16, label_fontface = "bold", 
+                                           #align = "hv", axis="b")
+                                           rel_widths = c(0.1,0.5,1,1))
 
-ggsave(VIA_PHAGO_multipanel, device = "tiff", filename = "VIA_PHAGO_multipanel_plot.tiff",
-      path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-      height = 10, width = 8 )
-                                           
-                                           
-                                           
+ggsave(APOP_2020_multipanel, device = "tiff", filename = "APOP_2020_multipanel.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 9, width = 13 )          
+                                
 
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
 Dermo_Inhibitor_2020_CASP_join
