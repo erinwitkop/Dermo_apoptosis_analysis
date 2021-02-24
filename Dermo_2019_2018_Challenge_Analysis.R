@@ -3820,6 +3820,48 @@ ggsave(plot = Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot, device = 
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 10, width = 12)
 
+# Granular Agranular plot formatted for multipanel figure 
+# calculate sd and mean 
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_sd <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular %>%
+  # get mean and sd
+  dplyr::group_by(Gate) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot)) %>%
+  # add inhibitor column for faceting
+  mutate(inhibitor = case_when(grepl("GDC",Treat)~ "GDC",
+                               grepl("Z",Treat)~ "ZVAD",
+                               grepl("FSW", Treat)~"Control"))
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <- 
+  ggplot(data=Inhibitor_2020_VIA_join_Percent_Agranular_Granular_sd,
+         aes(y=Percent_of_this_plot, x=Gate)) + geom_bar(aes(fill= Gate) ,position = position_dodge(), stat = "summary")  + 
+  geom_point(aes(fill = Gate), size = 3, position=position_dodge(width = 0.9)) + 
+  #facet_grid(.~inhibitor, scales = "free") +
+  xlab(NULL) +
+  ylab("% Hemocytes") + 
+  theme_classic() +
+  theme(text=element_text(size=12, face = "bold"), 
+        axis.title.y=element_text(size=12, face = "bold"),
+        axis.title.x=element_text(size=12,face = "bold"),
+        axis.text.x=element_text(size=10,face = "bold", angle = 90, hjust = 1 ),
+        axis.text.y=element_text(size=12,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), position=position_dodge(width = 0.9), width = 0.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("P3" = "Agranular","P4"="Granular")) + 
+  scale_fill_manual(name="Cell Type", labels=c("Agranular","Granular"), values=c("#6c81d9","#50b47b")) 
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel +
+    theme(axis.text.x = ggtext::element_markdown())
+  
+# Perform t.test and plot results onto boxplot 
+stat.test <- as.data.frame(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_sd) %>%
+  # make sure to use the arcsine values 
+  t_test(Percent_of_this_plot_arcsine ~ Gate) %>%
+  add_significance(p.col = "p") %>% 
+  add_xy_position(x = "Gate")
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig <- 
+  Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel + stat_pvalue_manual(
+    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 75)
+
 # Compare the percent of dead cells between treatments
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Inhibitor_2020_VIA_join_ID_treat %>%
   # filter for granular, V7 from plot 20
@@ -3847,6 +3889,78 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Inhibitor_2020_V
 ggsave(plot = Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot , device = "tiff", filename = "Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 10, width = 12)
+
+## Calculate live cells using dead cell values and plot 
+
+# Plot Dead granular hemocytes as live and prepare for multi-panel figure 
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd <- Inhibitor_2020_VIA_join_ID_treat %>%
+  # filter for granular, V7 from plot 20
+  filter(Gate=="V5-R" |Gate=="V8-R") %>%
+  dplyr::group_by(Gate,Treat) %>%
+  mutate(Percent_of_this_plot_live = (100 - Percent_of_this_plot)) %>%
+  # get mean and sd
+  mutate(mean = mean(Percent_of_this_plot_live), sd = sd(Percent_of_this_plot_live)) %>%
+  mutate(inhibitor = case_when(grepl("GDC",Treat)~ "GDC",
+                               grepl("Z",Treat)~ "ZVAD",
+                               grepl("FSW", Treat)~"Control"))
+
+# add arcine transformed percentages 
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd$Percent_of_this_plot_live_arcsine <- transf.arcsin(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd$Percent_of_this_plot_live*0.01)
+
+# Make plot of live hemocytes for multipanel figure
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <- 
+  Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd %>% filter(Gate == "V8-R") %>%
+  ggplot(data=.,
+         aes(y=Percent_of_this_plot_live, x=Treat)) + geom_bar(aes(fill= inhibitor),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 15, aes(fill = inhibitor)) + 
+  #facet_grid(.~Gate) +
+  xlab(NULL) +
+  ylab("% Live Granular Hemocytes") + 
+  theme_classic() +
+  theme(text=element_text(size=12, face = "bold"), 
+        axis.title.y=element_text(size=12, face = "bold"),
+        axis.title.x=element_text(size=12,face = "bold"),
+        axis.text.x=element_text(size=10,face = "bold", angle = 90, hjust = 1),
+        axis.text.y=element_text(size=12,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,105), breaks = c(0,25,50,75,100)) +
+  scale_x_discrete(labels = c( "FSW_Control" = "Control", 
+                               "GDC_10_1HR"  = "GDC-0152<br>10um 1hr" ,
+                               "GDC_10_2HR"  = "GDC-0152<br>10um 2hr" ,
+                               "GDC_50_1HR"  = "GDC-0152<br>50um 1hr" ,
+                               "GDC_50_2HR"  = "GDC-0152<br>50um 2hr" ,
+                               "GDC_100_1HR" = "GDC-0152<br>100um 1hr", 
+                               "GDC_100_2HR" = "GDC-0152<br>100um 2hr", 
+                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 1hr", 
+                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 2hr", 
+                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 1hr", 
+                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 2hr",
+                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 1hr", 
+                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 2hr")) + 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + 
+  theme(axis.text.x = ggtext::element_markdown())
+
+# Perform aov and plot results onto boxplot # Fix this to be AOV! 
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_AOV <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd %>% 
+  filter(Gate == "V8-R") %>%
+  aov(Percent_of_this_plot_live_arcsine ~ Treat)
+
+stat.test_tukey <- as.data.frame(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd ) %>%
+  filter(Gate == "V8-R") %>%
+  # make sure to use the arcsine values 
+  tukey_hsd(Percent_of_this_plot_live_arcsine ~ Treat) %>%
+  add_significance(p.col = "p.adj") %>% 
+  add_xy_position(x = "Treat")
+
+# take only significant columns
+stat.test_tukey <- stat.test_tukey[]
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig <- 
+  Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + stat_pvalue_manual(
+    stat.test, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(97,101,105),
+    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
 
 ## ANALYSIS
 
@@ -4026,6 +4140,60 @@ ggsave(plot = Inhibitor_2020_CASP_join_ID_treat_combined_active, device = "tiff"
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 8)
 
+##Plot CASPtosis granulocytes in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd <-   Dermo_Inhibitor_2020_CASP_join_granular_casp %>%
+  filter(Gate == "Q10-UR") %>% group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd$Treat <- factor(Dermo_Inhibitor_2020_CASP_join_granular_casp_sd$Treat,
+                                                                levels = c("Control_hemo","BEADS_LPS","Dermo","Dermo_GDC","Dermo_ZVAD"))
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_CASP_join_granular_casp_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#b84c3f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Caspase 3/7 Active") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,20)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
+                              "Control_hemo"="Control",
+                              "Dermo"="*P. mar.*",
+                              "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
+#scale_fill_manual(name="Treatment", labels=c("Beads and LPS","Control","*P. mar*",
+#                                             "*P. mar*, GDC-0152",
+#                                             "*P. mar*, Z-VAD-fmk"), values=c("black", "black","black",
+#                                                                              "black","black")) 
+# colors option: values=c("#88bf3b", "#6c81d9","#5b2c90","#ba4b41","#bfac3e")
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test instead and generate stats dataframe
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat + ID, Dermo_Inhibitor_2020_CASP_join_granular_casp_sd)
+summary(Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey[c(1,2,5,8,9,10),]
+
+Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8, 9, 10,11,12,14), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
+
 ### ANALYSIS QUESTIONS ###
 
 ### Do cell types differ in apoptosis levels? 
@@ -4043,6 +4211,11 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular <- Inhibitor_2020_CASP_join_
 
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_TREAT_AOV <-  aov(Percent_of_this_plot_arcsine ~ Treat, data = Inhibitor_2020_CASP_join_ID_treat_combined_granular)
 TukeyHSD(Inhibitor_2020_CASP_join_ID_treat_combined_granular_TREAT_AOV)
+
+#### 2020 Inhibitor Assay Multipanel figure ####
+
+ggarrange(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig,
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig)
 
 
 #### 2020 Dermo and Inhibitor Experiment Load Data ####
@@ -5085,7 +5258,7 @@ ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_casp_plot, device = "tiff"
 
 Dermo_Inhibitor_2020_CASP_join_granular_casp <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UR") %>% filter(Treat !="UV") %>% filter(Treat !="PERK")
 
-##Plot CASPtosis granulocytes in format for multipanel figure with multiple comparisons run 
+##Plot Caspase active granulocytes in format for multipanel figure with multiple comparisons run 
 Dermo_Inhibitor_2020_CASP_join_granular_casp_sd <-   Dermo_Inhibitor_2020_CASP_join_granular_casp %>%
   filter(Gate == "Q10-UR") %>% group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
 
