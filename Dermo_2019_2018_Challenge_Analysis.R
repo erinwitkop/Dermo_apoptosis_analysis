@@ -4384,11 +4384,12 @@ TukeyHSD(Inhibitor_2020_CASP_join_ID_treat_combined_granular_TREAT_AOV)
 Inhibitor_2020_multipanel <- cowplot::plot_grid(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig,Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig, 
                                                  Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig, Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig, 
                                                  Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig,
-                                                 ncol = 2, nrow = 3, labels = "AUTO", label_size = 16, label_fontface = "bold")
+                                                 ncol = 2, nrow = 3, labels = "AUTO", label_size = 16, label_fontface = "bold", 
+                                                rel_widths = c(0.5,1))
 
 ggsave(Inhibitor_2020_multipanel, device = "tiff", filename = "Inhibitor_2020_multipanel.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 16, width = 11.2 ) 
+       height = 17, width = 12 ) 
 
 
 #### 2020 Dermo and Inhibitor Experiment Load Data ####
