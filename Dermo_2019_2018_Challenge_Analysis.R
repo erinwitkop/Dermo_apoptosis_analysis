@@ -5069,7 +5069,6 @@ ggsave(VIA_PHAGO_multipanel, device = "tiff", filename = "VIA_PHAGO_multipanel_p
 
 Dermo_Inhibitor_2020_APOP_join
 
-## Adjusting the percentages after noramlizing for the amount of perkinsus alone apoptosis 
 ## Start by comparing the number of parasite cells in Q16-LR in the stained dermo plots to the Q16-LL in the unstained Dermo plots
   # this will help assure my self that similar levels of non-apoptotic P. marinus are present in both
 Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-LL" & Treat == "PERK" ) %>% 
@@ -5320,7 +5319,6 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot, devic
 
 Dermo_Inhibitor_2020_CASP_join
 
-## Adjusting the percentages after noramlizing for the amount of perkinsus alone CASPase activity
 ## Start by comparing the number of parasite cells in Q10-LR in the stained dermo plots to the Q10-LL in the unstained Dermo plots
 
 Dermo_Inhibitor_2020_CASP_join_non_CASP_granular_perk <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-LL" & Treat == "PERK" ) %>% 
@@ -5428,7 +5426,7 @@ ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_casp_plot, device = "tiff"
        height = 5, width = 10)
 
 
-## Plot just the 16-UR data 
+## Plot just the 10-UR data 
 
 Dermo_Inhibitor_2020_CASP_join_granular_casp <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UR") %>% filter(Treat !="UV") %>% filter(Treat !="PERK")
 
@@ -5486,41 +5484,87 @@ Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig <-
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
 
-## Plot pool since my statistical analysis revealed Pool is significant 
-Dermo_Inhibitor_2020_CASP_join_granular_casp_pool_plot <- 
-  Dermo_Inhibitor_2020_CASP_join_granular_casp %>%
-  # plot only UR and remove the control hemocyte
-  filter(Gate == "Q10-UR") %>% 
-  ggplot(., aes(y=Percent_of_this_plot, x=Treat, fill=ID)) + geom_col(position = "dodge") + 
-  xlab("Treatment") +
-  ylab("Percent of Granulocytes") + 
-  ggtitle("Percent of casp Granulocytes") + 
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10), breaks = c(0,2,4,6,8,10)) +
-  theme(panel.background=element_blank(),
-        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
-        text=element_text(family="serif",size=12), 
-        axis.title.y=element_text(family="serif",size=12),
-        axis.title.x=element_text(family="serif",size=12),
-        legend.key=element_rect(fill=NA)) + 
-  theme(text=element_text(size=12)) + 
-  theme(axis.text.x = element_text(size=12)) +
-  theme(legend.text = element_text(size=12)) +
-  scale_fill_manual(name="Cell Type", labels=c("Pool 1", "Pool 2", "Pool3"), 
-                    values = c("#7f63b8", "#50b47b", "#ba583b")) 
+#### 2020 Dermo and Inhibitors JC1 ASSAY statistics and plotting ####
 
-#save
-ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_casp_pool_plot, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_granular_casp_pool_plot.tiff",
-       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 5, width = 10)
+Dermo_Inhibitor_2020_JC1_join
+
+# Plot 18 is what we care about for comparing between treatments(Q28-UL is mitochondria permeabilization positive hemocytes alone) (Q28-UR is mitochondria permeabilization positive hemocytes with parasite) 
+# however, to compare these treatments to control will be more difficult because this plot no longer applies
+# The CCCP data also has to be plotted separately
+
+### Plotting granular cell data due to the parasite across parasite treatment groups
+
+# isolate just the parasite or bead treated samples where plot 18 applies
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated <- Dermo_Inhibitor_2020_JC1_join %>% 
+  filter(Gate == "Q28-UR") %>% filter(Treat !="UV_JC1") %>%  filter(Treat !="UV") %>% filter(Treat !="PERK") %>% filter(Treat != "Control_hemo") %>% 
+  filter(Treat != "CCCP")
+
+# Plot mitochondria permeabilized granulocytes in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd <- Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd$Treat <- factor(Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd$Treat,
+                                                                levels = c("BEADS_LPS","Dermo","Dermo_GDC","Dermo_ZVAD"))
+class(Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd$Percent_of_this_plot)
+
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Mitochondria Permeabilized") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,25)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
+                              "Dermo"="*P. mar.*",
+                              "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
+
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test instead and generate stats dataframe
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat + ID, Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd)
+summary(Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05)
+
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(23,25), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
+
+## does T test make a difference?
+
+Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_dermo_GDC <- Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated %>% filter(Treat == "Dermo" | Treat == "Dermo_GDC") %>%
+  filter(ID == "Pool2" | ID == "Pool1") 
+
+# No the high variance in this data set makes there be not that much difference 
 
 #### 2020 Dermo and Inhibitors Multi-panel APOP, CASP, JC-1, figure ####
 
-Flow_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel_sig,
+Flow_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel_sig, NULL,
                                            Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig, NULL,
-                                           ncol = 2, nrow = 3, labels = c("A","B"), label_size = 16, label_fontface = "bold")
+                                           Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel_sig, NULL,
+                                           ncol = 2, nrow = 3, labels = "AUTO", label_size = 16, label_fontface = "bold")
 
 ggsave(Flow_2020_multipanel, device = "tiff", filename = "Flow_2020_multipanel.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 4, width = 11.2 ) 
-
+       height = 15, width = 11.2 ) 
 
