@@ -2988,43 +2988,28 @@ ggsave(plot = MOI_1hr_2019_VIA_join_Percent_Agranular_LIVE_DEAD_plot, device = "
   # apoptotic hemocyte both with the parasite and without so we are getting the total amount of hemocyte apoptosis. This is the only way to really compare 
   # the parasite apoptosis levels with the control no parasite group. Also subtract the average counts of parasite apoptosis alone 
 
-# calculate average granular parasite apoptosis 
-MOI_1hr_2019_APOP_join_perk <- MOI_1hr_2019_APOP_join %>% filter(Treat == "PERK") %>% filter(Gate  == "Q1-UR" | Gate == "Q1-LR")
-  # on average 23.1 percent of parasite cells in each sample are apoptotic 
-  # different number of counts for each pool...going to subtract that number of apoptotic cells from each hemocyte Q1-UR
+MOI_1hr_2019_APOP_join_Granular <- MOI_1hr_2019_APOP_join %>% filter(Plot_number == "4")
 
-MOI_1hr_2019_APOP_join_Granular_parasite_apop <- MOI_1hr_2019_APOP_join %>% filter(Gate == "Q1-UR") %>% filter(Treat !="PERK") %>% ungroup() %>% group_by(Treat) %>% 
-  mutate(Counts_minus = case_when(Treat == "P11" ~ Counts - 220,
-         Treat == "P51" ~ Counts - 1689,
-         Treat == "P101" ~ Counts - 3386,
-         Treat == "P251" ~ Counts - 6197))
-
-MOI_1hr_2019_APOP_join_Granular <-  MOI_1hr_2019_APOP_join %>% filter(Gate == "Q1-UL" | Gate == "Q1-LL" | Gate == "Q1-LR") %>% filter(Treat !="PERK")
-  
-  
-# remove the parasite only quadrant LR and recalculate the percentages, this allows comparison of hemocyte levels between the control groups and the parasite groups 
-MOI_1hr_2019_APOP_join_Granular_recalc <- MOI_1hr_2019_APOP_join_Granular %>%  %>% filter(Gate != "Q1-LR") %>% 
-   mutate(ID_full = paste(ID,Treat,Assay, sep = "_")) %>% ungroup() %>% group_by(ID_full) %>% mutate(total_counts = sum(Counts), Percent_of_this_plot_recalc = Counts/total_counts*100)
-
-# now combine the UL and UR quadrants to get combined apoptosis levels 
-MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic <- MOI_1hr_2019_APOP_join_Granular_recalc %>% filter(Gate ==  "Q1-UR" | Gate ==  "Q1-UL") %>% 
-  #filter(Treat != "PERK") %>% 
-  ungroup() %>% group_by(ID_full) %>%
-  mutate(Percent_of_this_plot_recalc_combined = sum(Percent_of_this_plot_recalc))
+# combine the UL and UR quadrants to get combined apoptosis levels 
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic <- MOI_1hr_2019_APOP_join_Granular %>% filter(Gate ==  "Q1-UR" | Gate ==  "Q1-UL") %>% 
+  filter(Treat != "PERK") %>% 
+  mutate(ID_full = paste(ID, Treat, Assay, sep = "_")) %>%
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)
 
 # calculate the arcsine transformed percentages
-MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic$Percent_of_this_plot_recalc_combined_arcsine <- transf.arcsin(MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic$Percent_of_this_plot_recalc_combined*0.01)
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic$Percent_of_this_plot_combined_arcsine <- transf.arcsin(MOI_1hr_2019_APOP_join_Granular_combined_apoptotic$Percent_of_this_plot_combined*0.01)
 
 ##Plot apoptosis granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
-MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic_sd <-   MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic %>% ungroup() %>%
- group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_recalc_combined), sd = sd(Percent_of_this_plot_recalc_combined))
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd <-   MOI_1hr_2019_APOP_join_Granular_combined_apoptotic %>% ungroup() %>%
+ group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
 
-MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic_sd$Treat <- factor(MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic_sd$Treat,
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd$Treat <- factor(MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd$Treat,
                                                                        levels = c("Beads","FSW","HK","P11","P51","P101","P251","PERK"))
 
 MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel <- 
-  ggplot(data=MOI_1hr_2019_APOP_join_Granular_recalc_combined_apoptotic_sd,
-         aes(y=Percent_of_this_plot_recalc_combined, x=Treat)) + 
+  ggplot(data=MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd,
+         aes(y=Percent_of_this_plot_combined, x=Treat)) + 
   geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
   labs(x = NULL , y ="% Granular Apoptotic") + 
@@ -3034,16 +3019,17 @@ MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel <-
         axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
         legend.text = element_text(size = 12, face= "bold"),
         legend.title = element_text(size = 12, face= "bold")) +
-  scale_shape_manual(values = c(15,16,17)) +
+  #scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_x_discrete(labels = c("Beads"="Beads",
                               "FSW"="FSW",
+                              "HK" = "Heat Killed *P. mar.*",
                               "P101"="*P. mar.* 10:1",
                               "P11"="*P. mar.* 1:1",
                               "P51"="*P. mar.* 5:1",
-                              "P251"="*P. mar.* 25:1",
-                              "PERK"="*P. mar.* alone")) 
+                              "P251"="*P. mar.* 25:1"))
+                              #"PERK"="*P. mar.* alone")) 
 
 MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel <- 
   MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel  + 
@@ -3051,20 +3037,183 @@ MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel <-
         legend.text = ggtext::element_markdown()) 
 
 # Perform anova with Tukey test and generate stats dataframe
-MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel)
-summary(MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_AOV)
-stat_test_tukey <- tukey_hsd(MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_AOV) %>%
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd)
+summary(MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd_AOV)
+stat_test_tukey <- tukey_hsd(MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_sd_AOV) %>%
   add_significance(p.col = "p.adj")
 
 # take only the significant columns
-stat_test_tukey <- stat_test_tukey[c(1,2,5,8,9,10),]
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05)
 
 MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel_sig <- 
   MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8, 9, 10,11,12,14), size = 3) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(70, 73, 76, 79,82,85), size = 3) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel_sig, device = "tiff", filename = "MOI_1hr_2019_APOP_join_Granular_apoptotic_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+## Plot data as counts 
+# combine the UL and UR quadrants to get combined apoptosis levels 
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_counts <- MOI_1hr_2019_APOP_join_Granular %>% filter(Gate ==  "Q1-UR" | Gate ==  "Q1-UL") %>% 
+  #filter(Treat != "PERK") %>% 
+  mutate(ID_full = paste(ID, Treat, Assay, sep = "_")) %>%
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(counts_combined = sum(Counts)) %>% distinct(ID_full, .keep_all = TRUE)
+
+#Plot apoptosis granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_counts_sd <-   MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_counts %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(counts_combined), sd = sd(counts_combined))
+
+MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_counts_sd$Treat <- factor(MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_counts_sd$Treat,
+                                                                      levels = c("Beads","FSW","HK","P11","P51","P101","P251","PERK"))
+
+MOI_1hr_2019_APOP_join_Granular_apoptotic_counts_sd_multipanel <- 
+  ggplot(data=MOI_1hr_2019_APOP_join_Granular_combined_apoptotic_counts_sd,
+         aes(y=counts_combined, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", 
+          stat = "summary", 
+          fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  #geom_boxplot(aes(fill=Treat),fill = "#6d8dd7") + 
+  labs(x = NULL , y ="Granular Apoptotic Counts") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17,0,1,2,3)) +
+  #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  #scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("Beads"="Beads",
+                              "FSW"="FSW",
+                              "HK" = "Heat Killed *P. mar.*",
+                              "P101"="*P. mar.* 10:1",
+                              "P11"="*P. mar.* 1:1",
+                              "P51"="*P. mar.* 5:1",
+                              "P251"="*P. mar.* 25:1",
+                              "PERK"="*P. mar.* alone")) 
+
+MOI_1hr_2019_APOP_join_Granular_apoptotic_counts_sd_multipanel <- 
+  MOI_1hr_2019_APOP_join_Granular_apoptotic_counts_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# export plot 
+ggsave(plot = MOI_1hr_2019_APOP_join_Granular_apoptotic_counts_sd_multipanel, device = "tiff", filename = "MOI_1hr_2019_APOP_join_Granular_apoptotic_counts_sd_multipanel.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+## Plot total apoptotic parasite!
+View(MOI_1hr_2019_APOP_join)
+
+# The parasite counts were split up into "granular" and "Agranular" though these are really artificial separations. 
+# Going to add together the counts for both UR and LR quadrants and recalculate the percent apoptosis
+MOI_1hr_2019_APOP_join_total_PERK_apop <- MOI_1hr_2019_APOP_join %>% filter(Treat =="PERK") %>% filter(Plot_number == "4" | Plot_number == "7") %>% 
+  filter(Gate == "Q1-UR" | Gate == "Q1-LR" | Gate == "Q2-UR" | Gate == "Q2-LR") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), group = case_when(
+    grepl("UR", Gate) ~ "apoptotic",
+    grepl("LR",Gate) ~ "live")) %>% 
+  ungroup() %>% group_by(ID_full, group) %>% 
+  mutate(Counts_group_sum = sum(Counts)) %>% distinct(ID_full, group, .keep_all = TRUE) %>%
+  ungroup() %>%
+  group_by(ID_full) %>%
+  mutate(Counts_total = sum(Counts_group_sum), Percent_of_this_plot = Counts_group_sum / Counts_total * 100)
+
+MOI_1hr_2019_APOP_join_total_PERK_apop$ID <- factor(MOI_1hr_2019_APOP_join_total_PERK_apop$ID, levels = c("P11","P5","P101","P251"))
+
+# Make plot of the parasite PERK alone treatment counts and percentage when not separated out by "granular" or "agranular"
+MOI_1hr_2019_APOP_join_total_PERK_apop_counts <- 
+  ggplot(data=MOI_1hr_2019_APOP_join_total_PERK_apop,
+         aes(y=Counts_group_sum, x=ID)) + 
+  geom_bar(aes(fill=group), position="dodge", 
+           stat = "summary")  +
+  #geom_boxplot(aes(fill=Treat),fill = "#6d8dd7") + 
+  labs(x = NULL , y ="Combined Granular Agranular Counts") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_fill_manual(values=c("#6778d0","#b0923b"))
+
+MOI_1hr_2019_APOP_join_total_PERK_apop_perc <- MOI_1hr_2019_APOP_join_total_PERK_apop %>% filter(group == "apoptotic") %>%
+  ggplot(data=.,
+         aes(y=Percent_of_this_plot, x=ID)) + 
+  geom_bar(aes(fill=group), position="dodge", 
+           stat = "summary")  + 
+  #geom_boxplot(aes(fill=Treat),fill = "#6d8dd7") + 
+  labs(x = NULL , y ="Combined Granular Agranular Percent Apoptotic") +
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) + 
+  scale_fill_manual(values="#6778d0")
+
+## Plotting Apoptotic parasite in agranular plot to see changes in response to exposure to hemocytes
+
+MOI_1hr_2019_APOP_join_agraular_PERK <- MOI_1hr_2019_APOP_join %>% filter(Plot_number == "7") %>% filter(Gate ==  "Q2-UR" | Gate ==  "Q2-LR") %>% 
+  filter( Treat == "P11" | Treat == "P51" | Treat == "P101" | Treat == "P251" | Treat =="FSW" )
+  # put the PERK into the Treat column so I can plot side by side
+  
+MOI_1hr_2019_APOP_join_agraular_PERK_alone <- MOI_1hr_2019_APOP_join %>% filter(Plot_number == "7") %>% filter(Gate ==  "Q2-UR" | Gate ==  "Q2-LR") %>%
+  filter(Treat == "PERK") %>% mutate(Treat = paste(ID, Treat, sep = "_"))
+
+# combine two Dfs 
+MOI_1hr_2019_APOP_join_agraular_PERK_total <- rbind(MOI_1hr_2019_APOP_join_agraular_PERK, MOI_1hr_2019_APOP_join_agraular_PERK_alone)
+
+##Plot apoptosis granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+
+MOI_1hr_2019_APOP_join_agraular_PERK_total$Treat <- factor(MOI_1hr_2019_APOP_join_agraular_PERK_total$Treat,
+                                                                      levels = c("FSW","P11","P11_PERK","P51","P5_PERK",
+                                                                                 "P101","P101_PERK" ,"P251","P251_PERK"))
+
+MOI_1hr_2019_APOP_join_agraular_PERK_sd_plot <-
+  ggplot(data=MOI_1hr_2019_APOP_join_agraular_PERK_total,
+         aes(y=Counts, x=Treat)) + 
+  #geom_boxplot(aes(fill=Gate), position="dodge", 
+  ##         stat = "summary") +
+  ##         # fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), position= position_dodge(width = 1), size = 3) +
+  #facet_grid(.~Gate) + 
+  geom_boxplot(aes(fill=Gate)) + 
+  labs(x = NULL , y ="Agranular Apoptotic Q2-UR Counts") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17,0,1,2,3)) +
+  #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(limits=c(0,9500)) +
+  scale_x_discrete(labels = c(
+                              # "Beads"="Beads",
+                              "FSW"="FSW",
+                             # "HK" = "Heat Killed *P. mar.*",
+                              "P101"="*P. mar.* 10:1",
+                              "P11"="*P. mar.* 1:1",
+                              "P51"="*P. mar.* 5:1",
+                              "P251"="*P. mar.* 25:1")) 
+
+MOI_1hr_2019_APOP_join_agraular_PERK_sd_plot <- 
+  MOI_1hr_2019_APOP_join_agraular_PERK_sd_plot  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+
+# compare agranular apoptotic side by side for parasite alone and parasite plus hemocytes
+
+cowplot::plot_grid(MOI_1hr_2019_APOP_join_agraular_PERK_sd_plot,MOI_1hr_2019_APOP_join_agraular_PERK_alone_plot,nrow =1,axis = "b",align="hv" )
+
 
 ### ANALYSIS QUESTIONS ###
 
