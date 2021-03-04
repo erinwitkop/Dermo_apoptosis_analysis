@@ -5416,6 +5416,8 @@ ggsave(VIA_PHAGO_multipanel, device = "tiff", filename = "VIA_PHAGO_multipanel_p
 
 Dermo_Inhibitor_2020_APOP_join
 
+## NOTE this year the parasite in the parasite only control was not stained, while it was in the Perkinsus only control plots of 2019!
+
 ## Start by comparing the number of parasite cells in Q16-LR in the stained dermo plots to the Q16-LL in the unstained Dermo plots
   # this will help assure my self that similar levels of non-apoptotic P. marinus are present in both
 Dermo_Inhibitor_2020_APOP_join_non_apop_granular_perk <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-LL" & Treat == "PERK" ) %>% 
@@ -5662,6 +5664,146 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot, devic
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
+### CORRECTION OF DATA FOR APOPTOSIS OF FREE PARASITE ###
+
+### STRATEGY TO REMOVE CONTAMINATING FREE PARASITE APOPTOSIS FROM HEMOCYTE + LIVE PARASITE TREATMENTS 
+#1. Add together the total number of cells in quadrants across Q16 and Q15 
+#2. Get count of how many parasite cells were measured by adding together UR and LR 
+#3. To get the approximate amount of apoptotic parasite in granular P4 (Q16-UR) - multiply the total apoptotic cells by the average proportion of Dermo
+# cells that are usually in the granular cell plot (from the P1 plot P3 and P4 gate proportions for the perkinsus only control samples), 
+# then multiply that by the average proportion of granular cell apoptosis in the perkinsus only control samples. 
+#4. Multiply that number by the approximate amount of phagocytosis of granular sized cells from my 2020 assay. Subtract the amount of phagocytosed apoptotic granular from 
+# the estimated perkinsus apoptosis granular.
+#5. Subtract this final number of estimated non phagocytosed apoptotic granular perkinsus from the original Q16-UR quadrant for just the parasite samples 
+
+Dermo_Inhibitor_2020_APOP_join_total <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-UR" | Gate == "Q16-UL" | Gate == "Q16-LL" | Gate == "Q16-LR" | 
+                                                                    Gate == "Q15-UR" | Gate == "Q15-UL" | Gate == "Q15-LL" | Gate == "Q15-LR") %>%
+  separate(Gate, c("plot","quadrant"), sep = "-") %>%
+  mutate(ID_full = paste(ID, Treat, Assay)) %>% ungroup() %>% 
+  group_by(ID_full, quadrant) %>% 
+  mutate(Counts_total = sum(Counts)) %>% distinct(ID_full, quadrant, .keep_all = TRUE) %>% select(ID,Treat,Assay, ID_full, Channel,quadrant,Cell_type,Counts_total)
+
+Dermo_Inhibitor_2020_APOP_join_total_Perkinsus <- Dermo_Inhibitor_2020_APOP_join_total %>% filter(quadrant == "UR" | quadrant == "LR") %>% ungroup() %>%
+  group_by(ID_full) %>% mutate(Total_parasite_counts = sum(Counts_total)) %>% distinct(ID_full, .keep_all = TRUE) %>% select(ID, Treat, Assay, ID_full, Channel, Total_parasite_counts)
+
+# find average percent of perkinsus cells in perkinsus controls that are in the granular area of the plot 
+Dermo_Inhibitor_2020_APOP_join_granular_percent <-  Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "P4") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  summarize(mean = mean(Percent_of_this_plot))
+# mean = 7.57 percent 
+
+# find average percent of perkinsus cell apoptosis in the Q16-UL  granular apoptotic quadrant (UL bc PERK was not stained in controls)
+Dermo_Inhibitor_2020_APOP_join_granular_percent_perk_apop <-  Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-UL") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  summarize(mean = mean(Percent_of_this_plot))
+# mean = 28.3 
+
+# calculate approximate apoptotic granular perkinsus cells 
+Dermo_Inhibitor_2020_APOP_join_total_Perkinsus_apoptotic <- Dermo_Inhibitor_2020_APOP_join_total_Perkinsus %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(Parasite_granular = Total_parasite_counts * 0.0757, Parasite_granular_apoptosis = Parasite_granular * 0.283, Parasite_gran_apop_phago = Parasite_granular_apoptosis *0.13219,
+         Parasite_granular_apop_minus_phago = Parasite_granular_apoptosis - Parasite_gran_apop_phago) %>%
+  # ronud to whole numbers
+  mutate(across(6:9, ceiling))
+
+# Subtract granular apoptotic parasite from Q16-UR for hemocyte treatments by joining to original plot
+Dermo_Inhibitor_2020_APOP_join_Q16UR_hemo <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-UR") %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), sep = "_")
+
+Dermo_Inhibitor_2020_APOP_join_total_Perkinsus_apoptotic_Q16UR_join <- left_join(Dermo_Inhibitor_2020_APOP_join_total_Perkinsus_apoptotic, 
+                                                                        Dermo_Inhibitor_2020_APOP_join_Q16UR_hemo[,c("ID_full","Counts")], by = "ID_full") %>%
+  mutate(Counts_minus_free_PM_apop = Counts - Parasite_granular_apop_minus_phago) %>% select(ID,Treat,Assay, ID_full, Counts_minus_free_PM_apop) %>%
+  #create column that says gate for joining
+  mutate(Gate = "Q16-UR") %>%
+  # remove Counts_minus_free_PM_apop to counts for joining back with rest of hemocyte treatment data
+  rename(Counts = Counts_minus_free_PM_apop)
+
+# Separate dataframes so that I can bring them back together..
+Dermo_Inhibitor_2020_APOP_join_Q16_other_hemo <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q16-UL" | Gate == "Q16-LL" | Gate == "Q16-LR") %>% 
+  filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), sep = "_") %>%
+  # remove percent of this plot and percent of this plot arcsine since they will be recalculated 
+  select(ID, Treat, Assay, ID_full, Gate, Counts)
+
+# Join full hemo treatment quadrants and recalculate percent and percent of this plot arcsine, and focus on Q16 granular plot
+Dermo_Inhibitor_2020_APOP_join_hemo_recalc <- rbind(Dermo_Inhibitor_2020_APOP_join_Q16_other_hemo, Dermo_Inhibitor_2020_APOP_join_total_Perkinsus_apoptotic_Q16UR_join) %>%
+  ungroup()  %>% group_by(ID_full) %>%
+  mutate(Total_counts = sum(Counts)) %>% ungroup() %>%
+  mutate(Percent_of_this_plot = Counts/Total_counts * 100) %>% select(ID, Treat,Assay,ID_full, Gate,Counts, Percent_of_this_plot)
+
+Dermo_Inhibitor_2020_APOP_join_hemo_recalc$Percent_of_this_plot_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_hemo_recalc$Percent_of_this_plot*0.01)
+
+# Subset other treatments, with only granular plots that I want to compare and subset columns
+Dermo_Inhibitor_2020_APOP_join_granular_other <- Dermo_Inhibitor_2020_APOP_join %>% filter(Treat == "BEADS_LPS" |Treat == "Control_hemo"  |Treat == "UV") %>% 
+  filter(Gate == "Q16-UL" | Gate == "Q16-LL" | Gate == "Q16-LR" | Gate == "Q16-UR")  %>% mutate(ID_full = paste(ID, Treat, Assay, sep = "_")) %>%
+  select(ID, Treat,Assay,ID_full, Gate,Counts, Percent_of_this_plot, Percent_of_this_plot_arcsine)
+
+# Join all together into one data frame of just the adjusted granular, the treatments, and no Perkinsus only
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat <- rbind(as.data.frame(Dermo_Inhibitor_2020_APOP_join_hemo_recalc),as.data.frame(Dermo_Inhibitor_2020_APOP_join_granular_other))
+
+### Plotting percent combined apototic from all treatmetns (Q16-UR + Q16-UL)
+# combine the UL and UR quadrants to get combined apoptosis levels 
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat %>% filter(Gate ==  "Q16-UR" | Gate ==  "Q16-UL") %>% 
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)
+
+# calculate the arcsine transformed percentages
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic$Percent_of_this_plot_combined_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic$Percent_of_this_plot_combined*0.01)
+
+##Plot apoptosis granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd <-   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd$Treat,
+                                                                                       levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd,
+         aes(y=Percent_of_this_plot_combined, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                               "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd)
+summary(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !="UV") %>% filter(group1 != "BEADS_LPS")
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,55,60), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+
+
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
 
 Dermo_Inhibitor_2020_CASP_join
@@ -5831,6 +5973,136 @@ Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig <-
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
 
+
+### CORRECTION OF DATA FOR CASPASE ACTIVITY OF FREE PARASITE ###
+
+### STRATEGY TO REMOVE CONTAMINATING FREE PARASITE caspase 3/7 activity FROM HEMOCYTE + LIVE PARASITE TREATMENTS 
+#1. Add together the total number of cells in quadrants across Q10 and Q11 
+#2. Get count of how many parasite cells were measured by adding together UR and LR 
+#3. To get the approximate amount of casptotic parasite in granular P4 (Q10-UR) - multiply the total casptotic cells by the average proportion of Dermo
+# cells that are usually in the granular cell plot (from the P1 plot P3 and P4 gate proportions for the perkinsus only control samples), 
+# then multiply that by the average proportion of granular cell caspase 3/7 activity in the perkinsus only control samples. 
+#4. Multiply that number by the approximate amount of phagocytosis of granular sized cells from my 2020 assay. Subtract the amount of phagocytosed casptotic granular from 
+# the estimated perkinsus caspase 3/7 activity granular.
+#5. Subtract this final number of estimated non phagocytosed casptotic granular perkinsus from the original Q10-UR quadrant for just the parasite samples 
+
+Dermo_Inhibitor_2020_CASP_join_total <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UR" | Gate == "Q10-UL" | Gate == "Q10-LL" | Gate == "Q10-LR" | 
+                                                                                    Gate == "Q11-UR" | Gate == "Q11-UL" | Gate == "Q11-LL" | Gate == "Q11-LR") %>%
+  separate(Gate, c("plot","quadrant"), sep = "-") %>%
+  mutate(ID_full = paste(ID, Treat, Assay)) %>% ungroup() %>% 
+  group_by(ID_full, quadrant) %>% 
+  mutate(Counts_total = sum(Counts)) %>% distinct(ID_full, quadrant, .keep_all = TRUE) %>% select(ID,Treat,Assay, ID_full, Channel,quadrant,Cell_type,Counts_total)
+
+Dermo_Inhibitor_2020_CASP_join_total_Perkinsus <- Dermo_Inhibitor_2020_CASP_join_total %>% filter(quadrant == "UR" | quadrant == "LR") %>% ungroup() %>%
+  group_by(ID_full) %>% mutate(Total_parasite_counts = sum(Counts_total)) %>% distinct(ID_full, .keep_all = TRUE) %>% select(ID, Treat, Assay, ID_full, Channel, Total_parasite_counts)
+
+# find average percent of perkinsus cells in perkinsus controls that are in the granular area of the plot 
+Dermo_Inhibitor_2020_CASP_join_granular_percent <-  Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "P4") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  summarize(mean = mean(Percent_of_this_plot))
+# mean = 5.24 percent 
+
+# find average percent of perkinsus cell caspase 3/7 activity in the Q10-UL  granular casptotic quadrant (UL bc PERK was not stained in controls)
+Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp <-  Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UL") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  summarize(mean = mean(Percent_of_this_plot))
+# mean = 29.0 
+
+# calculate approximate casptotic granular perkinsus cells 
+Dermo_Inhibitor_2020_CASP_join_total_Perkinsus_casptotic <- Dermo_Inhibitor_2020_CASP_join_total_Perkinsus %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(Parasite_granular = Total_parasite_counts * 0.0524, Parasite_granular_casp = Parasite_granular * 0.290, Parasite_gran_casp_phago = Parasite_granular_casp *0.13219,
+         Parasite_granular_casp_minus_phago = Parasite_granular_casp - Parasite_gran_casp_phago) %>%
+  # ronud to whole numbers
+  mutate(across(6:9, ceiling))
+
+# Subtract granular casptotic parasite from Q10-UR for hemocyte treatments by joining to original plot
+Dermo_Inhibitor_2020_CASP_join_Q10UR_hemo <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UR") %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), sep = "_")
+
+Dermo_Inhibitor_2020_CASP_join_total_Perkinsus_casptotic_Q10UR_join <- left_join(Dermo_Inhibitor_2020_CASP_join_total_Perkinsus_casptotic, 
+                                                                                 Dermo_Inhibitor_2020_CASP_join_Q10UR_hemo[,c("ID_full","Counts")], by = "ID_full") %>%
+  mutate(Counts_minus_free_PM_casp = Counts - Parasite_granular_casp_minus_phago) %>% select(ID,Treat,Assay, ID_full, Counts_minus_free_PM_casp) %>%
+  #create column that says gate for joining
+  mutate(Gate = "Q10-UR") %>%
+  # remove Counts_minus_free_PM_casp to counts for joining back with rest of hemocyte treatment data
+  rename(Counts = Counts_minus_free_PM_casp)
+
+# Separate dataframes so that I can bring them back together..
+Dermo_Inhibitor_2020_CASP_join_Q10_other_hemo <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UL" | Gate == "Q10-LL" | Gate == "Q10-LR") %>% 
+  filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), sep = "_") %>%
+  # remove percent of this plot and percent of this plot arcsine since they will be recalculated 
+  select(ID, Treat, Assay, ID_full, Gate, Counts)
+
+# Join full hemo treatment quadrants and recalculate percent and percent of this plot arcsine, and focus on Q10 granular plot
+Dermo_Inhibitor_2020_CASP_join_hemo_recalc <- rbind(Dermo_Inhibitor_2020_CASP_join_Q10_other_hemo, Dermo_Inhibitor_2020_CASP_join_total_Perkinsus_casptotic_Q10UR_join) %>%
+  ungroup()  %>% group_by(ID_full) %>%
+  mutate(Total_counts = sum(Counts)) %>% ungroup() %>%
+  mutate(Percent_of_this_plot = Counts/Total_counts * 100) %>% select(ID, Treat,Assay,ID_full, Gate,Counts, Percent_of_this_plot)
+
+Dermo_Inhibitor_2020_CASP_join_hemo_recalc$Percent_of_this_plot_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_CASP_join_hemo_recalc$Percent_of_this_plot*0.01)
+
+# Subset other treatments, with only granular plots that I want to compare and subset columns
+Dermo_Inhibitor_2020_CASP_join_granular_other <- Dermo_Inhibitor_2020_CASP_join %>% filter(Treat == "BEADS_LPS" |Treat == "Control_hemo"  |Treat == "UV") %>% 
+  filter(Gate == "Q10-UL" | Gate == "Q10-LL" | Gate == "Q10-LR" | Gate == "Q10-UR")  %>% mutate(ID_full = paste(ID, Treat, Assay, sep = "_")) %>%
+  select(ID, Treat,Assay,ID_full, Gate,Counts, Percent_of_this_plot, Percent_of_this_plot_arcsine)
+
+# Join all together into one data frame of just the adjusted granular, the treatments, and no Perkinsus only
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat <- rbind(as.data.frame(Dermo_Inhibitor_2020_CASP_join_hemo_recalc),as.data.frame(Dermo_Inhibitor_2020_CASP_join_granular_other))
+
+### Plotting percent combined apototic from all treatmetns (Q10-UR + Q10-UL)
+# combine the UL and UR quadrants to get combined caspase 3/7 activity levels 
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat %>% filter(Gate ==  "Q10-UR" | Gate ==  "Q10-UL") %>% 
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)
+
+# calculate the arcsine transformed percentages
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic$Percent_of_this_plot_combined_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic$Percent_of_this_plot_combined*0.01)
+
+##Plot caspase 3/7 activity granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd <-   Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
+
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd$Treat <- factor(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd$Treat,
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd,
+         aes(y=Percent_of_this_plot_combined, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#b84c3f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd)
+summary(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_AOV) # no significant difference
+
+# nothing is significantly different
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+
 #### 2020 Dermo and Inhibitors JC1 ASSAY statistics and plotting ####
 
 Dermo_Inhibitor_2020_JC1_join
@@ -5904,9 +6176,152 @@ Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_dermo_GDC <- Dermo_Inhibitor_
 
 # No the high variance in this data set makes there be not that much difference 
 
+
+### STRATEGY TO REMOVE CONTAMINATING FREE PARASITE MITHOCHONDRIAL PERMEABILIZATION FROM HEMOCYTE + LIVE PARASITE TREATMENTS 
+
+# THE JC1 PROCEDURE IS GOING TO BE SLIGHTLY DIFFERENT FROM THE CASPASE AND APOPTOSIS ASSAYS. 
+  # FIRST - Need to go back to my optimized workspaces and add a plot to get a direct measure of how many parasite cells were measured in the sample, so I can see the percent of 
+    # the parasite cells that had permeabilized mitochondria 
+
+#1. Add together the total number of cells in quadrants across Q28 and Q11 
+#2. Get count of how many parasite cells were measured by adding together UR and LR 
+#3. To get the approximate amount of mito parasite in granular P4 (Q28-UR) - multiply the total mito cells by the average proportion of Dermo
+# cells that are usually in the granular cell plot (from the P1 plot P3 and P4 gate proportions for the perkinsus only control samples), 
+# then multiply that by the average proportion of granular cell mito in the perkinsus only control samples. 
+#4. Multiply that number by the approximate amount of phagocytosis of granular sized cells from my 2020 assay. Subtract the amount of phagocytosed mito granular from 
+# the estimated perkinsus mitochondrial permeabilization in the granular quadrant.
+#5. Subtract this final number of estimated non phagocytosed mitoc granular perkinsus from the original Q28-UR quadrant for just the parasite samples 
+
+Dermo_Inhibitor_2020_JC1_join_total <- Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "Q28-UR" | Gate == "Q28-UL" | Gate == "Q28-LL" | Gate == "Q28-LR" | 
+                                                                                    Gate == "Q11-UR" | Gate == "Q11-UL" | Gate == "Q11-LL" | Gate == "Q11-LR") %>%
+  separate(Gate, c("plot","quadrant"), sep = "-") %>%
+  mutate(ID_full = paste(ID, Treat, Assay)) %>% ungroup() %>% 
+  group_by(ID_full, quadrant) %>% 
+  mutate(Counts_total = sum(Counts)) %>% distinct(ID_full, quadrant, .keep_all = TRUE) %>% select(ID,Treat,Assay, ID_full, Channel,quadrant,Cell_type,Counts_total)
+
+Dermo_Inhibitor_2020_JC1_join_total_Perkinsus <- Dermo_Inhibitor_2020_JC1_join_total %>% filter(quadrant == "UR" | quadrant == "LR") %>% ungroup() %>%
+  group_by(ID_full) %>% mutate(Total_parasite_counts = sum(Counts_total)) %>% distinct(ID_full, .keep_all = TRUE) %>% select(ID, Treat, Assay, ID_full, Channel, Total_parasite_counts)
+
+# find average percent of perkinsus cells in perkinsus controls that are in the granular area of the plot 
+Dermo_Inhibitor_2020_JC1_join_granular_percent <-  Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "P4") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  summarize(mean = mean(Percent_of_this_plot))
+# mean = 7.98 percent 
+
+# find average percent of perkinsus cell mitochondrial permeabilization in the Q28-UR  granular mito quadrant (UR bc PERK was not stained in controls, and )
+Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito <-  Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "Q28-UR") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  summarize(mean = mean(Percent_of_this_plot))
+# mean = 28.3 
+
+# calculate approximate mito granular perkinsus cells 
+Dermo_Inhibitor_2020_JC1_join_total_Perkinsus_mito <- Dermo_Inhibitor_2020_JC1_join_total_Perkinsus %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(Parasite_granular = Total_parasite_counts * 0.0757, Parasite_granular_mitotosis = Parasite_granular * 0.283, Parasite_gran_mito_phago = Parasite_granular_mitotosis *0.13219,
+         Parasite_granular_mito_minus_phago = Parasite_granular_mitotosis - Parasite_gran_mito_phago) %>%
+  # ronud to whole numbers
+  mutate(across(6:9, ceiling))
+
+# Subtract granular mito parasite from Q28-UR for hemocyte treatments by joining to original plot
+Dermo_Inhibitor_2020_JC1_join_Q28UR_hemo <- Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "Q28-UR") %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), sep = "_")
+
+Dermo_Inhibitor_2020_JC1_join_total_Perkinsus_mito_Q28UR_join <- left_join(Dermo_Inhibitor_2020_JC1_join_total_Perkinsus_mito, 
+                                                                                 Dermo_Inhibitor_2020_JC1_join_Q28UR_hemo[,c("ID_full","Counts")], by = "ID_full") %>%
+  mutate(Counts_minus_free_PM_mito = Counts - Parasite_granular_mito_minus_phago) %>% select(ID,Treat,Assay, ID_full, Counts_minus_free_PM_mito) %>%
+  #create column that says gate for joining
+  mutate(Gate = "Q28-UR") %>%
+  # remove Counts_minus_free_PM_mito to counts for joining back with rest of hemocyte treatment data
+  rename(Counts = Counts_minus_free_PM_mito)
+
+# Separate dataframes so that I can bring them back together..
+Dermo_Inhibitor_2020_JC1_join_Q28_other_hemo <- Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "Q28-UL" | Gate == "Q28-LL" | Gate == "Q28-LR") %>% 
+  filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
+  mutate(ID_full = paste(ID,Treat,Assay), sep = "_") %>%
+  # remove percent of this plot and percent of this plot arcsine since they will be recalculated 
+  select(ID, Treat, Assay, ID_full, Gate, Counts)
+
+# Join full hemo treatment quadrants and recalculate percent and percent of this plot arcsine, and focus on Q28 granular plot
+Dermo_Inhibitor_2020_JC1_join_hemo_recalc <- rbind(Dermo_Inhibitor_2020_JC1_join_Q28_other_hemo, Dermo_Inhibitor_2020_JC1_join_total_Perkinsus_mito_Q28UR_join) %>%
+  ungroup()  %>% group_by(ID_full) %>%
+  mutate(Total_counts = sum(Counts)) %>% ungroup() %>%
+  mutate(Percent_of_this_plot = Counts/Total_counts * 100) %>% select(ID, Treat,Assay,ID_full, Gate,Counts, Percent_of_this_plot)
+
+Dermo_Inhibitor_2020_JC1_join_hemo_recalc$Percent_of_this_plot_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_JC1_join_hemo_recalc$Percent_of_this_plot*0.01)
+
+# Subset other treatments, with only granular plots that I want to compare and subset columns
+Dermo_Inhibitor_2020_JC1_join_granular_other <- Dermo_Inhibitor_2020_JC1_join %>% filter(Treat == "BEADS_LPS" |Treat == "Control_hemo"  |Treat == "UV") %>% 
+  filter(Gate == "Q28-UL" | Gate == "Q28-LL" | Gate == "Q28-LR" | Gate == "Q28-UR")  %>% mutate(ID_full = paste(ID, Treat, Assay, sep = "_")) %>%
+  select(ID, Treat,Assay,ID_full, Gate,Counts, Percent_of_this_plot, Percent_of_this_plot_arcsine)
+
+# Join all together into one data frame of just the adjusted granular, the treatments, and no Perkinsus only
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat <- rbind(as.data.frame(Dermo_Inhibitor_2020_JC1_join_hemo_recalc),as.data.frame(Dermo_Inhibitor_2020_JC1_join_granular_other))
+
+### Plotting percent combined apototic from all treatmetns (Q28-UR + Q28-UL)
+# combine the UL and UR quadrants to get combined mitotosis levels 
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito <- Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat %>% filter(Gate ==  "Q28-UR" | Gate ==  "Q28-UL") %>% 
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)
+
+# calculate the arcsine transformed percentages
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito$Percent_of_this_plot_combined_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito$Percent_of_this_plot_combined*0.01)
+
+##Plot mitotosis granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd <-   Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
+
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd$Treat <- factor(Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd$Treat,
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd,
+         aes(y=Percent_of_this_plot_combined, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd)
+summary(Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !="UV") %>% filter(group1 != "BEADS_LPS")
+
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,55,60), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_mito_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+
 #### 2020 Dermo and Inhibitors Multi-panel APOP, CASP, JC-1, figure ####
 
-Flow_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_sd_multipanel_sig, NULL,
+Flow_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig, NULL,
                                            Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig, NULL,
                                            Dermo_Inhibitor_2020_JC1_join_granular_JC1_treated_sd_multipanel_sig, NULL,
                                            ncol = 2, nrow = 3, labels = "AUTO", label_size = 16, label_fontface = "bold")
