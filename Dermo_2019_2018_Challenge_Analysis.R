@@ -5827,7 +5827,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_other <- Dermo_Inhibitor_2020_APOP_join 
 # Join all together into one data frame of just the adjusted granular, the treatments, and no Perkinsus only
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat <- rbind(as.data.frame(Dermo_Inhibitor_2020_APOP_join_hemo_recalc),as.data.frame(Dermo_Inhibitor_2020_APOP_join_granular_other))
 
-### Plotting percent combined apototic from all treatmetns (Q16-UR + Q16-UL)
+### Plotting percent combined apototic from all treatments (Q16-UR + Q16-UL)
 # combine the UL and UR quadrants to get combined apoptosis levels 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat %>% filter(Gate ==  "Q16-UR" | Gate ==  "Q16-UL") %>% 
   ungroup() %>% dplyr::group_by(ID_full) %>%
@@ -5891,7 +5891,118 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 8, width = 5)
 
+### Plotting percent apototic from hemocytes alone (Q16-UL)
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat %>% filter(Gate ==  "Q16-UL") %>% 
+  ungroup() %>% group_by(Treat) %>% 
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
 
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd$Treat,
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  ggtitle("Granular Apoptotic Hemocytes Alone") +
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd)
+summary(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !="UV") %>% filter(group1 != "BEADS_LPS")
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,55,60), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+##Plot apoptosis granulocytes from UR alone ##
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd <-   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat %>% ungroup() %>% filter(Gate == "Q16-UR") %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd$Treat,
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  ggtitle("Granular Apoptotic Hemocytes and Parasite") +
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd)
+summary(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !="UV") %>% filter(group1 != "BEADS_LPS")
+
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(6,7,8), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
 
 #### 2020 Dermo and Inhibitors CASPASE ASSAY Statistics and Plotting ####
 
