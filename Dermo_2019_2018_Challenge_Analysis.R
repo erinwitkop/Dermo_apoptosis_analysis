@@ -3396,7 +3396,7 @@ MOI_1hr_2019_APOP_join_granular_other <- MOI_1hr_2019_APOP_join %>% filter(Treat
 # Join all together into one data frame of just the adjusted granular, the treatments, and no Perkinsus only
 MOI_1hr_2019_APOP_join_granular_recalc_all_treat <- rbind(as.data.frame(MOI_1hr_2019_APOP_join_hemo_recalc),as.data.frame(MOI_1hr_2019_APOP_join_granular_other))
 
-### Plotting percent combined apototic from all treatmetns (Q1-UR + Q1-UL)
+### Plotting percent combined apototic from all treatments (Q1-UR + Q1-UL)
 # combine the UL and UR quadrants to get combined apoptosis levels 
 MOI_1hr_2019_APOP_join_granular_recalc_all_treat_combined_apoptotic <- MOI_1hr_2019_APOP_join_granular_recalc_all_treat %>% filter(Gate ==  "Q1-UR" | Gate ==  "Q1-UL") %>% 
   ungroup() %>% dplyr::group_by(ID_full) %>%
@@ -4917,12 +4917,12 @@ unique_Dermo_Inhibitor_2020_CASP_join <- unique(Dermo_Inhibitor_2020_CASP_join[,
 ## JC1 ASSAY
 # Make new header column
 Dermo_Inhibitor_2020_JC1_nms <-                                                                      
-  read_excel("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2020_Hemocyte_experiment/2020_Dermo_Inhibitors_main_exp/FORMATTED_CSVs/2020_Dermo_inhibitors_dermo_hemocyte_JC1_formatted.xlsx", range = cell_rows(1:3), col_names = F) %>%       
+  read_excel("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2020_Hemocyte_experiment/2020_Dermo_Inhibitors_main_exp/FORMATTED_CSVs/2020_Dermo_inhibitors_dermo_hemocyte_JC1_total_perk_added_formatted.xlsx", range = cell_rows(1:3), col_names = F) %>%       
   summarise_all(funs(paste(na.omit(.), collapse = "_"))) %>%                  
   unlist()
 
 # Set the new column names
-Dermo_Inhibitor_2020_JC1 <- read_excel("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2020_Hemocyte_experiment/2020_Dermo_Inhibitors_main_exp/FORMATTED_CSVs/2020_Dermo_inhibitors_dermo_hemocyte_JC1_formatted.xlsx", skip = 2) %>%                                    
+Dermo_Inhibitor_2020_JC1 <- read_excel("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2020_Hemocyte_experiment/2020_Dermo_Inhibitors_main_exp/FORMATTED_CSVs/2020_Dermo_inhibitors_dermo_hemocyte_JC1_total_perk_added_formatted.xlsx", skip = 2) %>%                                    
   magrittr::set_colnames(Dermo_Inhibitor_2020_JC1_nms)
 
 # Split column 1 by space and remove
@@ -4931,12 +4931,12 @@ Dermo_Inhibitor_2020_JC1 <- Dermo_Inhibitor_2020_JC1 %>%
 
 # Separate new column 1 by dash, remove spaces from column names
 Dermo_Inhibitor_2020_JC1 <- Dermo_Inhibitor_2020_JC1[,-1] %>% separate(ID, sep="-", into=c("ID","Treat","Assay"))
-Dermo_Inhibitor_2020_JC1_percent <- Dermo_Inhibitor_2020_JC1[,c(1:3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43)]
-Dermo_Inhibitor_2020_JC1_counts <-  Dermo_Inhibitor_2020_JC1[,c(1:4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42)]
+Dermo_Inhibitor_2020_JC1_percent <- Dermo_Inhibitor_2020_JC1[,c(1:3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51)]
+Dermo_Inhibitor_2020_JC1_counts <-  Dermo_Inhibitor_2020_JC1[,c(1:4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50)]
 
 # Gather count and percent columns separately
-Dermo_Inhibitor_2020_JC1_percent <- Dermo_Inhibitor_2020_JC1_percent %>% group_by(ID,Assay,Treat) %>%  gather(key = "Plot_name_percent", value="Percent_of_this_plot", c(4:23))
-Dermo_Inhibitor_2020_JC1_counts <-  Dermo_Inhibitor_2020_JC1_counts %>% group_by(ID,Assay,Treat) %>%  gather(key = "Plot_name_counts", value="Counts", c(4:23))
+Dermo_Inhibitor_2020_JC1_percent <- Dermo_Inhibitor_2020_JC1_percent %>% group_by(ID,Assay,Treat) %>%  gather(key = "Plot_name_percent", value="Percent_of_this_plot", c(4:27))
+Dermo_Inhibitor_2020_JC1_counts <-  Dermo_Inhibitor_2020_JC1_counts %>% group_by(ID,Assay,Treat) %>%  gather(key = "Plot_name_counts", value="Counts", c(4:27))
 
 Dermo_Inhibitor_2020_JC1_percent <- Dermo_Inhibitor_2020_JC1_percent %>% separate(Plot_name_percent, into = c("Plot_name","Plot_number", "Gate"), sep=' ') %>% separate(Gate, into=c("Channel","Gate","%"), sep="_")
 Dermo_Inhibitor_2020_JC1_counts <-  Dermo_Inhibitor_2020_JC1_counts %>% separate(Plot_name_counts, into = c("Plot_name","Plot_number", "Gate"), sep=' ') %>% separate(Gate, into=c("Channel","Gate","Count"), sep="_")
@@ -4952,17 +4952,17 @@ Dermo_Inhibitor_2020_JC1_join <- Dermo_Inhibitor_2020_JC1_join %>% filter(Gate !
 
 # Add in cell type column based on plot number and gate
 Dermo_Inhibitor_2020_JC1_cell_type <- data.frame(Plot_number = c("5", "5","8","8", "14","14","14","14","16","16","17","17","17","17","18","18",
-                                                         "19","19","20","20"),     
+                                                         "19","19","20","20","4","4"),     
                                          Gate= c("V1-L","V1-R", "P3","P4","H11-1","H11-2","H11-3","H11-4","Q11-UL","Q11-UR",
                                                  "H10-1","H10-2","H10-3","H10-4","Q28-UL","Q28-UR","Q6-UL","Q6-UR",
-                                                 "Q7-UL","Q7-UR"),
+                                                 "Q7-UL","Q7-UR","V2-L","V2-R"),
                                          Cell_type=c("dead_non_stained_perkinsus","live_perkinsus", "agranular","granular", 
                                                      "normal_agranular", "normal_agranular", "apoptotic_agranular","unstained_agranular", 
                                                      "apoptotic_agranular_no_parasite", "apoptotic_agranular_parasite",
                                                     "normal_granular", "normal_granular", "apoptotic_granular","unstained_granular", 
                                                     "apoptotic_granular_no_parasite", "apoptotic_granular_parasite",
                                                     "normal_agranular_no_parasite", "normal_agranular_parasite",
-                                                    "normal_agranular_no_parasite", "normal_agranular_parasite"))
+                                                    "normal_agranular_no_parasite", "normal_agranular_parasite","non-parasite_P1","parasite_P1"))
 # Join cell type
 Dermo_Inhibitor_2020_JC1_join <- left_join(Dermo_Inhibitor_2020_JC1_join, Dermo_Inhibitor_2020_JC1_cell_type, by=c("Plot_number","Gate"))
 
@@ -5664,6 +5664,73 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_apoptotic_pool_plot, devic
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 10)
 
+### Plotting percent combined apototic from all treatmetns WITHOUT PARASITE CORRECTION (Q16-UR + Q16-UL)
+# combine the UL and UR quadrants to get combined apoptosis levels 
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate ==  "Q16-UR" | Gate ==  "Q16-UL") %>% 
+   filter(Treat !="PERK") %>% mutate(ID_full = paste(ID,Treat,Assay)) %>%
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)
+
+# calculate the arcsine transformed percentages
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic$Percent_of_this_plot_combined_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic$Percent_of_this_plot_combined*0.01)
+
+##Plot apoptosis granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd <-   Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
+
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd$Treat,
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd,
+         aes(y=Percent_of_this_plot_combined, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd)
+summary(Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05)
+
+Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,55,60,65), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptotic_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
+
+
 ### CORRECTION OF DATA FOR APOPTOSIS OF FREE PARASITE ###
 
 ### STRATEGY TO REMOVE CONTAMINATING FREE PARASITE APOPTOSIS FROM HEMOCYTE + LIVE PARASITE TREATMENTS 
@@ -5973,16 +6040,71 @@ Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig <-
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat + Pool")
 
+### Plotting percent combined caspase 3/7 active from all treatments WITHOUT PARASITE CORRECTION (Q10-UR + Q10-UL)
+# combine the UL and UR quadrants to get combined caspase 3/7 activity levels 
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase <- Dermo_Inhibitor_2020_CASP_join %>% filter(Gate ==  "Q10-UR" | Gate ==  "Q10-UL") %>% 
+  filter(Treat != "PERK") %>% mutate(ID_full = paste(ID, Treat, Assay)) %>% 
+  ungroup() %>% dplyr::group_by(ID_full) %>% 
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)
+
+# calculate the arcsine transformed percentages
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase$Percent_of_this_plot_combined_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase$Percent_of_this_plot_combined*0.01)
+
+##Plot caspase 3/7 activity granulocytes with BOTH parasite and non-parasite combined in format for multipanel figure with multiple comparisons run 
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd <-   Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
+
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd$Treat <- factor(Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd$Treat,
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd,
+         aes(y=Percent_of_this_plot_combined, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#b84c3f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_multipanel <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_AOV <- aov(Percent_of_this_plot_combined_arcsine ~ Treat, Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd)
+summary(Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_AOV) # no significant difference
+
+# nothing is significantly different
+
+# export plot 
+ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_multipanel, device = "tiff", filename = "Dermo_Inhibitor_2020_CASP_join_granular_all_treat_combined_caspase_sd_multipanel.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
 
 ### CORRECTION OF DATA FOR CASPASE ACTIVITY OF FREE PARASITE ###
 
 ### STRATEGY TO REMOVE CONTAMINATING FREE PARASITE caspase 3/7 activity FROM HEMOCYTE + LIVE PARASITE TREATMENTS 
 #1. Add together the total number of cells in quadrants across Q10 and Q11 
 #2. Get count of how many parasite cells were measured by adding together UR and LR 
-#3. To get the approximate amount of casptotic parasite in granular P4 (Q10-UR) - multiply the total casptotic cells by the average proportion of Dermo
+#3. To get the approximate amount of caspase active parasite in granular P4 (Q10-UR) - multiply the total caspase active cells by the average proportion of Dermo
 # cells that are usually in the granular cell plot (from the P1 plot P3 and P4 gate proportions for the perkinsus only control samples), 
 # then multiply that by the average proportion of granular cell caspase 3/7 activity in the perkinsus only control samples. 
-#4. Multiply that number by the approximate amount of phagocytosis of granular sized cells from my 2020 assay. Subtract the amount of phagocytosed casptotic granular from 
+#4. Multiply that number by the approximate amount of phagocytosis of granular sized cells from my 2020 assay. Subtract the amount of phagocytosed caspase active granular from 
 # the estimated perkinsus caspase 3/7 activity granular.
 #5. Subtract this final number of estimated non phagocytosed casptotic granular perkinsus from the original Q10-UR quadrant for just the parasite samples 
 
@@ -6048,7 +6170,7 @@ Dermo_Inhibitor_2020_CASP_join_granular_other <- Dermo_Inhibitor_2020_CASP_join 
 # Join all together into one data frame of just the adjusted granular, the treatments, and no Perkinsus only
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat <- rbind(as.data.frame(Dermo_Inhibitor_2020_CASP_join_hemo_recalc),as.data.frame(Dermo_Inhibitor_2020_CASP_join_granular_other))
 
-### Plotting percent combined apototic from all treatmetns (Q10-UR + Q10-UL)
+### Plotting percent combined caspase 3/7 active from all treatments (Q10-UR + Q10-UL)
 # combine the UL and UR quadrants to get combined caspase 3/7 activity levels 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat %>% filter(Gate ==  "Q10-UR" | Gate ==  "Q10-UL") %>% 
   ungroup() %>% dplyr::group_by(ID_full) %>%
@@ -6320,6 +6442,8 @@ ggsave(plot = Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_combined_m
 
 
 #### 2020 Dermo and Inhibitors Multi-panel APOP, CASP, JC-1, figure ####
+
+# Need to switch out these plots below 
 
 Flow_2020_multipanel <- cowplot::plot_grid(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig, NULL,
                                            Dermo_Inhibitor_2020_CASP_join_granular_casp_sd_multipanel_sig, NULL,
