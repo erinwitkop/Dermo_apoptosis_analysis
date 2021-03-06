@@ -3670,6 +3670,69 @@ ggsave(plot = MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_sd_multipane
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 8, width = 5)
 
+## Hybrid plot of Q1-UR for just the parasite treatment and Q1-UL for the other treatments
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL <- MOI_1hr_2019_APOP_join_granular_recalc_all_treat %>% filter(Gate == "Q1-UL") %>%
+  filter(Treat == "Beads" | Treat == "FSW" | Treat == "HK") 
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_Q1UR_PERK <- MOI_1hr_2019_APOP_join_granular_recalc_all_treat %>% filter(Gate == "Q1-UR") %>%
+  filter(Treat == "P11") %>% select(ID, Treat, Assay, ID_full,Gate, Counts, Percent_of_this_plot, Percent_of_this_plot_arcsine)
+
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK <- rbind(MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL, MOI_1hr_2019_JC1_join_granular_recalc_all_treat_Q1UR_PERK)
+
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd <-  MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK%>% ungroup() %>%
+  dplyr::group_by(Treat) %>% 
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd$Treat <- factor(MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd$Treat,
+                                                                                levels = c("Beads","FSW","HK","P11"))
+
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel <- 
+  ggplot(data=MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  ggtitle("Granular Apoptotic Hemocytes and Parasite") +
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("Beads"="Beads",
+                              "FSW"="FSW",
+                              "HK" = "Heat Killed *P. mar.*",
+                              "P11"="*P. mar.* 1:1"))
+
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel <- 
+  MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd)
+summary(MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_AOV)
+stat_test_tukey <- tukey_hsd(MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05)
+
+MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel_sig <- 
+  MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,80,85,90, 95), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel_sig, device = "tiff", filename = "MOI_1hr_2019_APOP_join_granular_recalc_all_treat_Q1UL_Q1UR_PERK_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
 ### PI Assay Statistics and Plotting ####
 
 MOI_1hr_2019_PI_join
@@ -4152,6 +4215,68 @@ MOI_1hr_2019_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel
 ggsave(plot = MOI_1hr_2019_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_JC1_Q28_recalc_all_treat_replace_UL.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 9, width = 7)
+
+## Hybrid plot of Q28-UR for just the parasite treatment and H10-3 for the other treatments
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10 <- MOI_1hr_2019_JC1_join_granular_recalc_all_treat %>% filter(Gate == "H10-3") %>%
+  filter(Treat == "Beads" | Treat == "FSW" | Treat == "HK") 
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_Q28_PERK <- MOI_1hr_2019_JC1_join_granular_H10_Q28_recalc_all_treat_replace %>% filter(Gate == "Q28-UR") %>%
+  filter(Treat == "P11") %>% select(ID, Treat, Assay, ID_full,Gate, Counts, Percent_of_this_plot, Percent_of_this_plot_arcsine)
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK <- rbind(MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10, MOI_1hr_2019_JC1_join_granular_recalc_all_treat_Q28_PERK)
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd <-  MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK %>% ungroup() %>%
+  dplyr::group_by(Treat) %>% 
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd$Treat <- factor(MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd$Treat,
+                                                                   levels = c("Beads","FSW","HK","P11"))
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel <- 
+  ggplot(data=MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Granular Mitochondria Permeabilized") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,100)) +
+  scale_x_discrete(labels = c("Beads"="Beads",
+                              "FSW"="FSW",
+                              "HK" = "Heat Killed *P. mar.*",
+                              "P11"="*P. mar.* 1:1"))
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel <- 
+  MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test instead and generate stats dataframe
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd)
+summary(MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_AOV)
+stat_test_tukey <- tukey_hsd(MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) 
+
+MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel_sig <- 
+  MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(73,76,79), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel_sig, device = "tiff", filename = "MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_multipanel_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
+
 
 
 #### PCA ANALYSIS to help decide 2018 sequencing samples ####
@@ -6213,15 +6338,18 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_
        height = 8, width = 5)
 
 ##Plot apoptosis granulocytes from UR alone ##
-Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd <-   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat %>% ungroup() %>% filter(Gate == "Q16-UR") %>%
+# only compare Pmar treatments
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd <-   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat %>% ungroup() %>% 
+  filter(Gate == "Q16-UR") %>%
   group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd$Treat,
-                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+                                                                                               levels = c("BEADS_LPS" ,   "Control_hemo", "UV","Dermo","Dermo_GDC","Dermo_ZVAD" ))
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel <- 
-  ggplot(data=Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd,
-         aes(y=Percent_of_this_plot, x=Treat)) + 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd %>%
+  filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD") %>% 
+  ggplot(data=.,  aes(y=Percent_of_this_plot, x=Treat)) + 
   geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
   labs(x = NULL , y ="% Granular Apoptotic") + 
@@ -6235,10 +6363,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel <-
   #scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
-  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
-                              "Control_hemo"="FSW",
-                              "UV" = "UV-Killed *P. mar.*",
-                              "Dermo"="*P. mar.* 1:1",
+  scale_x_discrete(labels = c("Dermo"="*P. mar.* 1:1",
                               "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
                               "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
 
@@ -6254,11 +6379,12 @@ stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_
   add_significance(p.col = "p.adj")
 
 # take only the significant columns
-stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !="UV") %>% filter(group1 != "BEADS_LPS")
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 == "Dermo" | group1 == "Dermo_GDC")
+  #filter(group1 !="UV") %>% filter(group1 != "BEADS_LPS")
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(6,7,8), size = 3) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(6,7), size = 5) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
@@ -6984,7 +7110,9 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd$Tr
                                                                            levels = c("BEADS_LPS","Control_hemo","UV", "Dermo","Dermo_GDC","Dermo_ZVAD", "CCCP"))
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel <- 
-  ggplot(data=Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd,
+  Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd %>%
+  filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD") %>%
+  ggplot(data=.,
          aes(y=Percent_of_this_plot, x=Treat)) + 
   geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
@@ -6998,14 +7126,10 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_mu
         legend.title = element_text(size = 12, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,15)) +
-  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
-                              "Control_hemo" = "FSW",
-                              "UV" = "UV killed *P. mar.*",
-                              "Dermo"="*P. mar.*",
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,10)) +
+  scale_x_discrete(labels = c( "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk",
-                              "CCCP"="CCCP Control")) 
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel <- 
   Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel  + 
@@ -7016,20 +7140,21 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_mu
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd)
 summary(Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_AOV)
 stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_AOV) %>%
-  add_significance(p.col = "p.adj")
+  add_significance(p.col = "p.adj") 
 
 # take only the significant columns
-stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 == "Control_hemo" | group1 == "Dermo" | group1 == "Dermo_GDC" | group1 == "Dermo_ZVAD")
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 == "Dermo" | group1 == "Dermo_GDC" | group1 == "Dermo_ZVAD") %>%
+  filter(group2 != "CCCP")
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8,8.5,9,9.5,10,10.5), size = 3) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(8,8.5,9), size = 3) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
 # export plot 
-ggsave(plot = Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel_sig, device = "tiff", filename = "Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel_sig.tiff",
+ggsave(plot = Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel, device = "tiff", filename = "Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 9, width = 7)
 
