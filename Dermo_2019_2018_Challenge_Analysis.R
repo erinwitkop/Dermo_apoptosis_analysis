@@ -540,6 +540,54 @@ Day7_2019_APOP_ALL_Granular_D_vs_NC_plot <-ggplot(data=Day7_2019_APOP_Percent_co
                                                                                                                                     xmax = 1.3, annotation = "***",
                                                                                                                                     tip_length = 0.01)
 
+### Formatting the plot the same as 2020
+Day7_2019_APOP_Percent_combined_apop_granular_sd <- Day7_2019_APOP_Percent_combined_apop_granular %>% 
+  ungroup() %>% group_by(Treat) %>% 
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+Day7_2019_APOP_Percent_combined_apop_granular_sd$Treat <- factor(Day7_2019_APOP_Percent_combined_apop_granular_sd$Treat,
+                                                                                  levels = c("NC","D" ))
+
+Day7_2019_APOP_Percent_combined_apop_granular_sd_plot <- 
+  ggplot(data=Day7_2019_APOP_Percent_combined_apop_granular_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat), size = 3) +
+  labs(x = NULL , y ="% Granular Apoptotic") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("NC"="Control",
+                              "D"="*P. mar.*"))
+
+Day7_2019_APOP_Percent_combined_apop_granular_sd_plot <- 
+  Day7_2019_APOP_Percent_combined_apop_granular_sd_plot  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+stat_test_ttest <- as.data.frame(Day7_2019_APOP_Percent_combined_apop_granular_sd) %>%
+  t_test(Percent_of_this_plot_arcsine ~ Treat) %>%
+  add_significance(p.col = "p") %>%
+  add_xy_position(x = "Treat")
+
+Day7_2019_APOP_Percent_combined_apop_granular_sd_plot_sig <- 
+    Day7_2019_APOP_Percent_combined_apop_granular_sd_plot + stat_pvalue_manual(
+      stat_test_ttest, label = "{p} {p.signif}",  tip.length = 0.01, y.position = c(80), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "T.test, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Day7_2019_APOP_Percent_combined_apop_granular_sd_plot_sig, device = "tiff", filename = "Day7_2019_APOP_Percent_combined_apop_granular_sd_plot_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
 
 # ANOVA
 # Apop combined granular vs apop combined agranular within each treatment
@@ -678,6 +726,61 @@ Day7_2019_CASP_Granular_D_vs_NC_plot <-ggplot(data=Day7_2019_CASP_Granular_Agran
 ggsave(plot = Day7_2019_CASP_Granular_D_vs_NC_plot, path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        filename = "Day7_2019_CASP_Granular_D_vs_NC_plot.tiff", device = "tiff", units = "cm",
        width = 20, height = 15)
+
+### Formatting the plot the same as 2020 and focusing on granular cells 
+Day7_2019_CASP_Granular_Apop_combined <- Day7_2019_CASP_ALL_Granular_Agranular_Apop_combined %>% filter(Gate == "casp_apop_combined_granular") 
+class(Day7_2019_CASP_Granular_Apop_combined$Percent_of_this_plot)
+
+Day7_2019_CASP_Granular_Apop_combined_sd <- Day7_2019_CASP_Granular_Apop_combined %>% 
+  ungroup() %>% group_by(Treat) %>% 
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot))
+
+Day7_2019_CASP_Granular_Apop_combined_sd$Treat <- factor(Day7_2019_CASP_Granular_Apop_combined_sd$Treat,
+                                                                 levels = c("NC","D" ))
+Day7_2019_CASP_Granular_Apop_combined_sd$mean <- as.numeric(Day7_2019_CASP_Granular_Apop_combined_sd$mean)
+Day7_2019_CASP_Granular_Apop_combined_sd$sd <- as.numeric(Day7_2019_CASP_Granular_Apop_combined_sd$sd)
+
+
+Day7_2019_CASP_Granular_Apop_combined_sd_plot <- 
+  ggplot(data=Day7_2019_CASP_Granular_Apop_combined_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#b84c3f")  + 
+  geom_point(aes(x= Treat), size = 3) +
+  labs(x = NULL , y ="% Granular Caspase 3/7 Active") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 12, face= "bold"),
+        axis.title.y = element_text(size = 12, face= "bold"),
+        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 12, face= "bold"),
+        legend.title = element_text(size = 12, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("NC"="Control",
+                              "D"="*P. mar.*"))
+
+Day7_2019_CASP_Granular_Apop_combined_sd_plot <- 
+  Day7_2019_CASP_Granular_Apop_combined_sd_plot + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+stat_test_ttest <- as.data.frame(Day7_2019_CASP_Granular_Apop_combined_sd) %>%
+  t_test(Percent_of_this_plot_arcsine ~ Treat) %>%
+  add_significance(p.col = "p") %>%
+  add_xy_position(x = "Treat")
+
+Day7_2019_CASP_Granular_Apop_combined_sd_plot_sig <- 
+  Day7_2019_CASP_Granular_Apop_combined_sd_plot + stat_pvalue_manual(
+    stat_test_ttest, label = "{p} {p.signif}",  tip.length = 0.01, y.position = c(99), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "T.test, Arcsine Percent ~ Treat")
+
+# export plot 
+ggsave(plot = Day7_2019_CASP_Granular_Apop_combined_sd_plot_sig, device = "tiff", filename = "Day7_2019_CASP_Granular_Apop_combined_sd_plot_sig.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 8, width = 5)
 
 # ANOVA
 # Casp active combined granular vs apop combined agranular within each treatment
@@ -1173,6 +1276,7 @@ Day7_2019_APOP_ALL_Agranular_Granular_D_vs_NC_plot_no_outlier <-ggplot(data=Day7
   scale_fill_manual(name="Cell Type", labels=c("Dermo Injected","Notched Control"), values = c("#cc57b4", "#88bf3b")) + geom_signif(y_position = c(95,95), xmin = c(0.7,1.7), 
                                                                                                                                     xmax = c(1.3,2.3), annotation = c("**","***"),
                                                                                                                                     tip_length = 0.01)
+
 # ANOVA
 # Apop combined granular vs apop combined agranular within each treatment
 # Notched control
@@ -1520,9 +1624,9 @@ summary(Day7_2019_LMP_ALL_Agranular_intact_aov_no_outlier)
     #  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
-######## RE-ANALYSIS OF LAST YEAR'S DATA ########
+######## RE-ANALYSIS OF 2018 DATA ########
 
-##### LOAD ASSAY CSV'S and format #####
+# LOAD ASSAY CSV'S and format ##
 
 # Make new header column
 VIA_nms_Day7_2018 <-                                                                      
