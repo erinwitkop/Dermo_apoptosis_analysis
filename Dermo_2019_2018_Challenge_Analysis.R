@@ -24,6 +24,7 @@ library(ggbiplot)
 library(ggtext)
 library(factoextra)
 library(tidyverse)
+library(egg)
 
 ##### LOAD ASSAY CSV'S and format #####
 getwd()
@@ -6431,14 +6432,14 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_m
 # remove y axis labels and legend and labels from second plot
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig_no_labels <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig +
   theme(legend.position = "none") + 
-  labs(y = NULL, x = "Hemocytes without P. marinus") + theme(axis.text.y = element_blank(),
+  labs(y = NULL, x = "Granular Hemocytes\nwithout P. marinus") + theme(axis.text.y = element_blank(),
 axis.ticks.y = element_blank(),
 axis.title.y = element_blank(),
 axis.title.x = element_text(size = 16, face= "bold"))  + ggtitle(NULL)
 
 # fix axes on final plot
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel_sig_labs <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel_sig +
-  ggtitle(NULL) + labs(x = "Hemocytes with Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
+  ggtitle(NULL) + labs(x = "Granular Hemocytes\nwith Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
 
 apop_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig_no_legend,
                     Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig_no_labels, 
@@ -6928,14 +6929,14 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_m
 # remove y axis labels and legend and labels from second plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_labels <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel +
   theme(legend.position = "none") + 
-  labs(y = NULL, x = "Hemocytes without P. marinus") + theme(axis.text.y = element_blank(),
+  labs(y = NULL, x = "Granular Hemocytes\nwithout P. marinus") + theme(axis.text.y = element_blank(),
                                                              axis.ticks.y = element_blank(),
                                                              axis.title.y = element_blank(),
                                                              axis.title.x = element_text(size = 16, face= "bold"))  + ggtitle(NULL)
 
 # fix axes on final plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel +
-  ggtitle(NULL) + labs(x = "Hemocytes with Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
+  ggtitle(NULL) + labs(x = "Granul Hemocytes\nwith Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
 
 CASP_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend,
                                      Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_labels, 
@@ -7157,27 +7158,34 @@ Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd$Treat <- factor(Dermo
                                                                       levels = c("BEADS_LPS","Control_hemo","UV", "Dermo","Dermo_GDC","Dermo_ZVAD", "CCCP"))
 
 Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel <- 
-  ggplot(data=Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd,
+  Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd %>%
+  filter(Treat !="UV") %>%
+  ggplot(data=.,
          aes(y=Percent_of_this_plot, x=Treat)) + 
   geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
-  labs(x = NULL , y ="% Granular Mitochondria Permeabilized") + 
+  labs(x = NULL , y ="% Mitochondria Permeabilized") + 
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, face= "bold"),
-        axis.title.y = element_text(size = 12, face= "bold"),
-        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
-        legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
+  theme(axis.text.y = element_text(size = 16, face= "bold"),
+        axis.title.y = element_text(size = 16, face= "bold"),
+        axis.text.x = element_text(size = 16, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 16, face= "bold"),
+        legend.title = element_text(size = 16, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,100)) +
-  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo" = "FSW",
                               "UV" = "UV killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
                               "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk",
                               "CCCP"="CCCP Control")) 
+
+# create dataframe to export for PCA 
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_PCA <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd %>% 
+  filter(Treat !="UV") %>% select(-Counts, -mean, -sd)
 
 Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel <- 
   Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel  + 
@@ -7195,7 +7203,7 @@ stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 =
 
 Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,80,85,90,95,100), size = 3) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,80,85,90,95,100), size = 4) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
@@ -7220,20 +7228,25 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_mu
          aes(y=Percent_of_this_plot, x=Treat)) + 
   geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
-  labs(x = NULL , y ="% Granular Mitochondria Permeabilized") + 
+  labs(x = NULL , y ="% Mitochondria Permeabilized") + 
   ggtitle("Granular Mitchondria Permeabilized Hemocytes and Parasite") +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, face= "bold"),
-        axis.title.y = element_text(size = 12, face= "bold"),
-        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
-        legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
+  theme(axis.text.y = element_text(size = 16, face= "bold"),
+        axis.title.y = element_text(size = 16, face= "bold"),
+        axis.text.x = element_text(size = 16, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 16, face= "bold"),
+        legend.title = element_text(size = 16, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,10)) +
   scale_x_discrete(labels = c( "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
                               "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
+
+# create dataframe to export for PCA 
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA <- 
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd %>%
+  filter(Treat == "Dermo" | Treat == "Dermo_GDC" | Treat == "Dermo_ZVAD") %>% select(-Counts, -mean,-sd, -Total_counts)
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel <- 
   Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel  + 
@@ -7271,28 +7284,35 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd$Tr
                                                                                               levels = c("BEADS_LPS","Control_hemo","UV", "Dermo","Dermo_GDC","Dermo_ZVAD", "CCCP"))
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel <- 
-  ggplot(data=Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd,
+  Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd %>%
+  filter(Treat !="UV") %>%
+  ggplot(data=.,
          aes(y=Percent_of_this_plot, x=Treat)) + 
   geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
   geom_point(aes(x= Treat, shape = ID), size = 3) +
-  labs(x = NULL , y ="% Granular Mitochondria Permeabilized") + 
+  labs(x = NULL , y ="% Mitochondria Permeabilized") + 
   ggtitle("Granular Mitchondria Permeabilized Hemocytes Alone") +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, face= "bold"),
-        axis.title.y = element_text(size = 12, face= "bold"),
-        axis.text.x = element_text(size = 10, face= "bold", angle = 90, hjust = 1),
-        legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
+  theme(axis.text.y = element_text(size = 16, face= "bold"),
+        axis.title.y = element_text(size = 16, face= "bold"),
+        axis.text.x = element_text(size = 16, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 16, face= "bold"),
+        legend.title = element_text(size = 16, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,100)) +
-  scale_x_discrete(labels = c("BEADS_LPS"="Beads,<br> LPS",
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo" = "FSW",
                               "UV" = "UV killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
                               "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk",
                               "CCCP"="CCCP Control")) 
+
+# create dataframe to export for PCA 
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_PCA <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd %>%
+  filter(Treat !="UV") %>% select(-Counts, -mean, -sd, -Total_counts)
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel <- 
   Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel  + 
@@ -7307,10 +7327,11 @@ stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_reca
 
 # take only the significant columns
 stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 == "Control_hemo" | group1 == "Dermo" | group1 == "Dermo_GDC" | group1 == "Dermo_ZVAD")
+stat_test_tukey <- stat_test_tukey[-c(5,7,8),]
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,78,81,84,87,90,93,96), size = 3) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,80,85,90,95), size = 4) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
@@ -7325,28 +7346,28 @@ ggsave(plot = Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_re
 # edit plots so they will be formatted correctly for when I combine later
 
 # remove legend from initial plot
-Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel +
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel_sig_no_legend <- Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel_sig +
   theme(legend.position = "none",
-        axis.title.x = element_text(size = 16, face= "bold")) + labs(x = "All Granular Hemocytes", y = "% Caspase 3/7 Active")
+        axis.title.x = element_text(size = 16, face= "bold")) + labs(x = "All Granular Hemocytes")
 
 # remove y axis labels and legend and labels from second plot
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel_sig_no_labels <- Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel_sig +
   theme(legend.position = "none") + 
-  labs(y = NULL, x = "Hemocytes without P. marinus") + theme(axis.text.y = element_blank(),
+  labs(y = NULL, x = "Granular Hemocytes\nwithout P. marinus") + theme(axis.text.y = element_blank(),
                                                              axis.ticks.y = element_blank(),
                                                              axis.title.y = element_blank(),
                                                              axis.title.x = element_text(size = 16, face= "bold"))  + ggtitle(NULL)
 
 # fix axes on final plot
-Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel +
-  ggtitle(NULL) + labs(x = "Hemocytes with Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel_labs <- Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel +
+  ggtitle(NULL) + labs(x = "Granular Hemocytes\nwith Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
 
-CASP_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend,
+JC1_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel_sig_no_legend,
                                      Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel_sig_no_labels, 
-                                     Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs ,
+                                    Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_multipanel_labs ,
                                      nrow = 1)
 
-ggsave(CASP_all_hemo_2020, device = "tiff", filename = "CASP_all_hemo_2020.tiff",
+ggsave(JC1_all_hemo_2020, device = "tiff", filename = "JC1_all_hemo_2020.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 8, width = 12 ) 
 
@@ -7359,3 +7380,9 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_P
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA
+
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_PCA
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_PCA
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA
+
+# Combine all data frame 
