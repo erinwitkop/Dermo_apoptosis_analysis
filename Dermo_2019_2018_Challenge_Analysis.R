@@ -4596,11 +4596,11 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <-
   xlab(NULL) +
   ylab("% Hemocytes") + 
   theme_classic() +
-  theme(text=element_text(size=12, face = "bold"), 
-        axis.title.y=element_text(size=12, face = "bold"),
-        axis.title.x=element_text(size=12,face = "bold"),
-        axis.text.x=element_text(size=10,face = "bold", angle = 90, hjust = 1 ),
-        axis.text.y=element_text(size=12,face = "bold")) +
+  theme(text=element_text(size=16, face = "bold"), 
+        axis.title.y=element_text(size=16, face = "bold"),
+        axis.title.x=element_text(size=16,face = "bold"),
+        axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1 ),
+        axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), position=position_dodge(width = 0.9), width = 0.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_x_discrete(labels = c("P3" = "Agranular","P4"="Granular")) + 
@@ -4618,7 +4618,7 @@ stat.test <- as.data.frame(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_sd
 
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig <- 
   Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel + stat_pvalue_manual(
-    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 75)
+    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 75, size = 3) + labs(subtitle = "T-test, Arcsine Percent ~ Cell Type")
 
 # Compare the percent of dead cells between treatments
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Inhibitor_2020_VIA_join_ID_treat %>%
@@ -4674,26 +4674,26 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <-
   xlab(NULL) +
   ylab("% Live Granular Hemocytes") + 
   theme_classic() +
-  theme(text=element_text(size=12, face = "bold"), 
-        axis.title.y=element_text(size=12, face = "bold"),
-        axis.title.x=element_text(size=12,face = "bold"),
-        axis.text.x=element_text(size=10,face = "bold", angle = 90, hjust = 1),
-        axis.text.y=element_text(size=12,face = "bold")) +
+  theme(text=element_text(size=16, face = "bold"), 
+        axis.title.y=element_text(size=16, face = "bold"),
+        axis.title.x=element_text(size=16,face = "bold"),
+        axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+        axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,105), breaks = c(0,25,50,75,100)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
-                               "GDC_10_1HR"  = "GDC-0152<br>10um 1hr" ,
-                               "GDC_10_2HR"  = "GDC-0152<br>10um 2hr" ,
-                               "GDC_50_1HR"  = "GDC-0152<br>50um 1hr" ,
-                               "GDC_50_2HR"  = "GDC-0152<br>50um 2hr" ,
-                               "GDC_100_1HR" = "GDC-0152<br>100um 1hr", 
-                               "GDC_100_2HR" = "GDC-0152<br>100um 2hr", 
-                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 1hr", 
-                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 2hr", 
-                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 1hr", 
-                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 2hr",
-                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 1hr", 
-                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 2hr")) + 
+                               "GDC_10_1HR"  = "GDC-0152<br>10um 3hr" ,
+                               "GDC_10_2HR"  = "GDC-0152<br>10um 4hr" ,
+                               "GDC_50_1HR"  = "GDC-0152<br>50um 3hr" ,
+                               "GDC_50_2HR"  = "GDC-0152<br>50um 4hr" ,
+                               "GDC_100_1HR" = "GDC-0152<br>100um 3hr", 
+                               "GDC_100_2HR" = "GDC-0152<br>100um 4hr", 
+                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 3hr", 
+                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 4hr", 
+                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 3hr", 
+                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 4hr",
+                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 3hr", 
+                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + 
@@ -4711,7 +4711,7 @@ stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 =
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig <- 
   Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + stat_pvalue_manual(
     stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(97,101),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+    size = 3, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
 ## ANALYSIS
 
@@ -4826,26 +4826,26 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel <-
   xlab(NULL) +
   ylab("% Apoptotic Granular Hemocytes") + 
   theme_classic() +
-  theme(text=element_text(size=12, face = "bold"), 
-        axis.title.y=element_text(size=12, face = "bold"),
-        axis.title.x=element_text(size=12,face = "bold"),
-        axis.text.x=element_text(size=10,face = "bold", angle = 90, hjust = 1),
-        axis.text.y=element_text(size=12,face = "bold")) +
+  theme(text=element_text(size=16, face = "bold"), 
+        axis.title.y=element_text(size=16, face = "bold"),
+        axis.title.x=element_text(size=16,face = "bold"),
+        axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+        axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
-                               "GDC_10_1HR"  = "GDC-0152<br>10um 1hr" ,
-                               "GDC_10_2HR"  = "GDC-0152<br>10um 2hr" ,
-                               "GDC_50_1HR"  = "GDC-0152<br>50um 1hr" ,
-                               "GDC_50_2HR"  = "GDC-0152<br>50um 2hr" ,
-                               "GDC_100_1HR" = "GDC-0152<br>100um 1hr", 
-                               "GDC_100_2HR" = "GDC-0152<br>100um 2hr", 
-                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 1hr", 
-                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 2hr", 
-                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 1hr", 
-                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 2hr",
-                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 1hr", 
-                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 2hr")) + 
+                               "GDC_10_1HR"  = "GDC-0152<br>10um 3hr" ,
+                               "GDC_10_2HR"  = "GDC-0152<br>10um 4hr" ,
+                               "GDC_50_1HR"  = "GDC-0152<br>50um 3hr" ,
+                               "GDC_50_2HR"  = "GDC-0152<br>50um 4hr" ,
+                               "GDC_100_1HR" = "GDC-0152<br>100um 3hr", 
+                               "GDC_100_2HR" = "GDC-0152<br>100um 4hr", 
+                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 3hr", 
+                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 4hr", 
+                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 3hr", 
+                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 4hr",
+                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 3hr", 
+                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel <- Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel + 
@@ -4864,7 +4864,7 @@ stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05)
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig <- 
   Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel + stat_pvalue_manual(
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(24),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+    size = 3, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
 ## Plot with treatments combined and bars by inhibitor
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_inhibitor <- Inhibitor_2020_APOP_join_ID_treat_combined %>%
@@ -4908,7 +4908,7 @@ stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05)
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig <- 
   Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor + stat_pvalue_manual(
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(24,25),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ inhibitor")
+    size = 3, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ inhibitor")
 
 #save
 ggsave(plot = Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig, device = "tiff", filename = "Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig.tiff",
@@ -5038,26 +5038,26 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <-
   xlab(NULL) +
   ylab("% Caspase 3/7 Active Granular Hemocytes") + 
   theme_classic() +
-  theme(text=element_text(size=12, face = "bold"), 
-        axis.title.y=element_text(size=12, face = "bold"),
-        axis.title.x=element_text(size=12,face = "bold"),
-        axis.text.x=element_text(size=10,face = "bold", angle = 90, hjust = 1),
-        axis.text.y=element_text(size=12,face = "bold")) +
+  theme(text=element_text(size=16, face = "bold"), 
+        axis.title.y=element_text(size=16, face = "bold"),
+        axis.title.x=element_text(size=16,face = "bold"),
+        axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+        axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,30), breaks = c(0,5,15,20,25,30)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,30), breaks = c(0,5,10,15,20,25,30)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
-                               "GDC_10_1HR"  = "GDC-0152<br>10um 1hr" ,
-                               "GDC_10_2HR"  = "GDC-0152<br>10um 2hr" ,
-                               "GDC_50_1HR"  = "GDC-0152<br>50um 1hr" ,
-                               "GDC_50_2HR"  = "GDC-0152<br>50um 2hr" ,
-                               "GDC_100_1HR" = "GDC-0152<br>100um 1hr", 
-                               "GDC_100_2HR" = "GDC-0152<br>100um 2hr", 
-                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 1hr", 
-                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 2hr", 
-                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 1hr", 
-                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 2hr",
-                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 1hr", 
-                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 2hr")) + 
+                               "GDC_10_1HR"  = "GDC-0152<br>10um 3hr" ,
+                               "GDC_10_2HR"  = "GDC-0152<br>10um 4hr" ,
+                               "GDC_50_1HR"  = "GDC-0152<br>50um 3hr" ,
+                               "GDC_50_2HR"  = "GDC-0152<br>50um 4hr" ,
+                               "GDC_100_1HR" = "GDC-0152<br>100um 3hr", 
+                               "GDC_100_2HR" = "GDC-0152<br>100um 4hr", 
+                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 3hr", 
+                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 4hr", 
+                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 3hr", 
+                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 4hr",
+                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 3hr", 
+                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel + 
@@ -5074,9 +5074,11 @@ stat.test_tukey <-
 stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05)
 
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig <- 
-  Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel + stat_pvalue_manual(
-    stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(21,22,23,24,25,26,27),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+  Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel  
+  # 5_17_21 removing these significance bars since none are versus control and are beside the point of the paper
+  #stat_pvalue_manual(
+   # stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(21,22,23,24,25,26,27),
+  #  size = 3, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
 ## Plot with treatments combined and bars by inhibitor
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_inhibitor <- Inhibitor_2020_CASP_join_ID_treat_combined %>%
@@ -5120,7 +5122,7 @@ stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05)
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig <- 
   Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor + stat_pvalue_manual(
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(24),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ inhibitor")
+    size = 3, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ inhibitor")
 
 #save
 ggsave(plot = Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig , device = "tiff", filename = "Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig .tiff",
@@ -5154,9 +5156,9 @@ Inhibitor_2020_multipanel <- cowplot::plot_grid(Inhibitor_2020_VIA_join_Percent_
                                                  ncol = 2, nrow = 3, labels = "AUTO", label_size = 16, label_fontface = "bold", 
                                                 rel_widths = c(0.5,1))
 
-ggsave(Inhibitor_2020_multipanel, device = "tiff", filename = "Inhibitor_2020_multipanel.tiff",
+ggsave(Inhibitor_2020_multipanel, device = "tiff", filename = "Inhibitor_2020_multipanel_5_17_21.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 17, width = 12 ) 
+       height = 20, width = 17) 
 
 
 #### 2020 Dermo and Inhibitor Experiment Load Data ####
