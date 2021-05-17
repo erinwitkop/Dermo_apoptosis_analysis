@@ -26,6 +26,7 @@ library(factoextra)
 library(tidyverse)
 library(egg)
 
+
 ##### LOAD ASSAY CSV'S and format #####
 getwd()
 # In excel
@@ -6792,7 +6793,7 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_m
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd %>%
-  filter(Treat != "UV") %>% select(-Counts, -mean, -sd)
+  filter(Treat != "UV") %>% select(-Counts, -mean, -sd, -Percent_of_this_plot,-Percent_of_this_plot_arcsine)
 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel <- 
   Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel  + 
@@ -6936,7 +6937,7 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_
 
 # fix axes on final plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel +
-  ggtitle(NULL) + labs(x = "Granul Hemocytes\nwith Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
+  ggtitle(NULL) + labs(x = "Granular Hemocytes\nwith Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
 
 CASP_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend,
                                      Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_labels, 
@@ -7373,16 +7374,74 @@ ggsave(JC1_all_hemo_2020, device = "tiff", filename = "JC1_all_hemo_2020.tiff",
 
 
 #### FORMAT 2020 INHIBITOR DATA FOR TRANSCRIPTOME PCA ####
-Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_PCA
-Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_PCA
-Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_PCA
 
-Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA
-Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA
-Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA
+# Relabel each data column for the correct format for later PCA 
+# APOPTOSIS ASSAY
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_PCA_spread <-
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_APOP_hemo_alone = Percent_of_this_plot)
 
-Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_PCA
-Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_PCA
-Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_PCA_spread <- 
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_APOP_hemo_perk = Percent_of_this_plot)
 
-# Combine all data frame 
+# fix gate designation here to denote combined apop 
+Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_PCA_spread <-
+  Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot_combined) %>% 
+  dplyr::rename(Percent_of_this_plot_combined_APOP_hemo_comb = Percent_of_this_plot_combined)
+
+# CASPASE ASSAYS
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA_spread <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_CASP_hemo_alone = Percent_of_this_plot)
+  
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA_spread <- 
+  Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_CASP_hemo_perk = Percent_of_this_plot)
+
+# fix gate designation here to denote combined apop 
+Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA_spread <-
+  Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA %>% 
+  dplyr::select(ID, Treat, Percent_of_this_plot_combined) %>% 
+  dplyr::rename(Percent_of_this_plot_combined_CASP_hemo_comb = Percent_of_this_plot_combined)
+
+# JC1 ASSAY
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_PCA_spread <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_JC1_hemo_alone = Percent_of_this_plot)
+
+Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA_spread <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA %>%
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_JC1_hemo_perk = Percent_of_this_plot)
+    
+Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_PCA_spread <- 
+  Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_PCA %>%  
+  dplyr::select(ID, Treat, Percent_of_this_plot) %>% 
+  dplyr::rename(Percent_of_this_plot_JC1_hemo_comb = Percent_of_this_plot)
+  
+# Join all data frames by ID and sample
+PCA_pheno_2020 <- full_join(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_PCA_spread,
+                            Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_PCA_spread) %>%
+                  full_join(.,Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_PCA_spread) %>%
+  
+                  full_join(.,Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA_spread) %>%
+                  full_join(.,Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA_spread) %>%
+                  full_join(.,Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA_spread) %>%
+  
+                  full_join(.,Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_PCA_spread) %>%
+                  full_join(.,Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA_spread) %>%
+                  full_join(.,Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_PCA_spread)  %>%
+      # remove CCCP data
+      filter(Treat != "CCCP")
+
+# save as RData
+save(PCA_pheno_2020, file = "PCA_pheno_2020.RData")
+
+
