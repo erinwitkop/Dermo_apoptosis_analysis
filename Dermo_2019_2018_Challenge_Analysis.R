@@ -5044,7 +5044,7 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <-
         axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
         axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,30), breaks = c(0,5,10,15,20,25)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25), breaks = c(0,5,10,15,20,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
                                "GDC_10_1HR"  = "10um 3hr" ,
                                "GDC_10_2HR"  = "10um 4hr" ,
