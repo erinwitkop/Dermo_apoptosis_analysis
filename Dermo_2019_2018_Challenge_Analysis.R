@@ -6264,9 +6264,9 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_m
   scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo"="FSW",
                               "UV" = "UV-Killed *P. mar.*",
-                              "Dermo"="*P. mar.* 1:1",
-                               "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+                              "Dermo"="*P. mar.*",
+                               "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
 
 # create data frame for export to PCA 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_PCA <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd %>% 
@@ -6328,9 +6328,9 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel <-
   scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo"="FSW",
                               "UV" = "UV-Killed *P. mar.*",
-                              "Dermo"="*P. mar.* 1:1",
-                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+                              "Dermo"="*P. mar.*",
+                              "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel <- 
   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel  + 
@@ -6388,9 +6388,9 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel <-
   #scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
-  scale_x_discrete(labels = c("Dermo"="*P. mar.* 1:1",
-                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+  scale_x_discrete(labels = c("Dermo"="*P. mar.*",
+                              "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
 
 # create data frame to export for PCA
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_PCA <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd %>%
@@ -6809,9 +6809,9 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_m
   scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo"="FSW",
                               "UV" = "UV-Killed *P. mar.*",
-                              "Dermo"="*P. mar.* 1:1",
-                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+                              "Dermo"="*P. mar.*",
+                              "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd %>%
@@ -6862,9 +6862,9 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel <-
   scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo"="FSW",
                               "UV" = "UV-Killed *P. mar.*",
-                              "Dermo"="*P. mar.* 1:1",
-                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+                              "Dermo"="*P. mar.*",
+                              "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd %>% 
@@ -6916,9 +6916,9 @@ scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
 scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                             "Control_hemo"="FSW",
                             "UV" = "UV-Killed *P. mar.*",
-                            "Dermo"="*P. mar.* 1:1",
-                            "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
-                            "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+                            "Dermo"="*P. mar.*",
+                            "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
+                            "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd %>%
@@ -6947,19 +6947,22 @@ ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_
 # remove legend from initial plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel +
   theme(legend.position = "none",
-        axis.title.x = element_text(size = 16, face= "bold")) + labs(x = "All Granular Hemocytes", y = "% Caspase 3/7 Active")
+        axis.title.x = element_text(size = 16, face= "bold"), plot.caption = ggtext::element_markdown(size = 25, hjust = 0.5)) + 
+  labs(x = NULL, caption = "Panel 1:<br>Total Granular<br>Hemocytes", y = "% Caspase 3/7 Active")
 
 # remove y axis labels and legend and labels from second plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_labels <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel +
   theme(legend.position = "none") + 
-  labs(y = NULL, x = "Granular Hemocytes\nwithout P. marinus") + theme(axis.text.y = element_blank(),
+  labs(y = NULL, x = NULL, caption = "Panel 2:<br>Granular Hemocytes<br>without *P. marinus* **Only**") + theme(axis.text.y = element_blank(),
                                                              axis.ticks.y = element_blank(),
                                                              axis.title.y = element_blank(),
-                                                             axis.title.x = element_text(size = 16, face= "bold"))  + ggtitle(NULL)
+                                                             plot.caption = ggtext::element_markdown(size = 25, hjust = 0.5))  + ggtitle(NULL)
 
 # fix axes on final plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel +
-  ggtitle(NULL) + labs(x = "Granular Hemocytes\nwith Engulfed P. marinus", y = NULL) + theme(axis.title.x = element_text(size = 16, face= "bold"))
+  ggtitle(NULL) + labs(x = NULL, caption = "Panel 3:<br>Granular Hemocytes<br>with Engulfed *P. marinus* **Only**", y = "% Caspase 3/7 Active") + 
+  theme(axis.title.x = element_text(size = 16, face= "bold"),
+        plot.caption = ggtext::element_markdown(size = 25, hjust = 0.5))
 
 CASP_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend,
                                      Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_labels, 
