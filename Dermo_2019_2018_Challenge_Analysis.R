@@ -4694,7 +4694,7 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <-
                                "ZVAD_50_2HR" = "50um 4hr",
                                "ZVAD_100_1HR"= "100um 3hr", 
                                "ZVAD_100_2HR"= "100um 4hr")) + 
-  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + 
   theme(axis.text.x = ggtext::element_markdown())
@@ -4846,7 +4846,7 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel <-
                                "ZVAD_50_2HR" = "50um 4hr",
                                "ZVAD_100_1HR"= "100um 3hr", 
                                "ZVAD_100_2HR"= "100um 4hr")) + 
-  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel <- Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel + 
   theme(axis.text.x = ggtext::element_markdown())
@@ -4893,7 +4893,7 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor <-
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
   scale_x_discrete(labels = c( "GDC_0152" = "GDC-0152","Control"="Control","Z_VAD_fmk"="Z-VAD-fmk")) + 
-  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 # Perform aov and plot results onto barplot 
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ inhibitor, Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_inhibitor)
@@ -5058,7 +5058,7 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <-
                                "ZVAD_50_2HR" = "50um 4hr",
                                "ZVAD_100_1HR"= "100um 3hr", 
                                "ZVAD_100_2HR"= "100um 4hr")) + 
-  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel + 
   theme(axis.text.x = ggtext::element_markdown())
@@ -5107,7 +5107,7 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor <-
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
   scale_x_discrete(labels = c("Control"="Control","GDC_0152"="GDC-0152","Z_VAD_fmk"="Z-VAD-fmk")) + 
-scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
+scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 # Perform aov and plot results onto barplot 
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ inhibitor, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_inhibitor)
@@ -6266,7 +6266,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_m
                               "UV" = "UV-Killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                                "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-FMK"))
 
 # create data frame for export to PCA 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_PCA <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd %>% 
@@ -6330,7 +6330,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel <-
                               "UV" = "UV-Killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-FMK"))
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel <- 
   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel  + 
@@ -6390,7 +6390,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_multipanel <-
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
   scale_x_discrete(labels = c("Dermo"="*P. mar.*",
                               "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-FMK"))
 
 # create data frame to export for PCA
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd_PCA <- Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UR_sd %>%
@@ -6811,7 +6811,7 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_m
                               "UV" = "UV-Killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-FMK"))
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd %>%
@@ -6864,7 +6864,7 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel <-
                               "UV" = "UV-Killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
+                              "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-FMK"))
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd %>% 
@@ -6918,7 +6918,7 @@ scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                             "UV" = "UV-Killed *P. mar.*",
                             "Dermo"="*P. mar.*",
                             "Dermo_GDC" = "*P. mar.*,<br>GDC-0152",
-                            "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-fmk"))
+                            "Dermo_ZVAD" = "*P. mar.*,<br>Z-VAD-FMK"))
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_PCA <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd %>%
@@ -7205,7 +7205,7 @@ Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel <-
                               "UV" = "UV killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk",
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-FMK",
                               "CCCP"="CCCP Control")) 
 
 # create dataframe to export for PCA 
@@ -7267,7 +7267,7 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_mu
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,10)) +
   scale_x_discrete(labels = c( "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk")) 
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-FMK")) 
 
 # create dataframe to export for PCA 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UR_sd_PCA <- 
@@ -7332,7 +7332,7 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_mu
                               "UV" = "UV killed *P. mar.*",
                               "Dermo"="*P. mar.*",
                               "Dermo_GDC" ="*P. mar.*,<br>GDC-0152",
-                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-fmk",
+                              "Dermo_ZVAD"= "*P. mar.*,<br>Z-VAD-FMK",
                               "CCCP"="CCCP Control")) 
 
 # create dataframe to export for PCA 
