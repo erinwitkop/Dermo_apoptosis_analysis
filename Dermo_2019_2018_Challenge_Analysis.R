@@ -4682,18 +4682,18 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <-
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,105), breaks = c(0,25,50,75,100)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
-                               "GDC_10_1HR"  = "GDC-0152<br>10um 3hr" ,
-                               "GDC_10_2HR"  = "GDC-0152<br>10um 4hr" ,
-                               "GDC_50_1HR"  = "GDC-0152<br>50um 3hr" ,
-                               "GDC_50_2HR"  = "GDC-0152<br>50um 4hr" ,
-                               "GDC_100_1HR" = "GDC-0152<br>100um 3hr", 
-                               "GDC_100_2HR" = "GDC-0152<br>100um 4hr", 
-                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 3hr", 
-                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 4hr", 
-                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 3hr", 
-                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 4hr",
-                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 3hr", 
-                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 4hr")) + 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + 
@@ -4834,18 +4834,18 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel <-
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
-                               "GDC_10_1HR"  = "GDC-0152<br>10um 3hr" ,
-                               "GDC_10_2HR"  = "GDC-0152<br>10um 4hr" ,
-                               "GDC_50_1HR"  = "GDC-0152<br>50um 3hr" ,
-                               "GDC_50_2HR"  = "GDC-0152<br>50um 4hr" ,
-                               "GDC_100_1HR" = "GDC-0152<br>100um 3hr", 
-                               "GDC_100_2HR" = "GDC-0152<br>100um 4hr", 
-                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 3hr", 
-                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 4hr", 
-                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 3hr", 
-                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 4hr",
-                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 3hr", 
-                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 4hr")) + 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel <- Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel + 
@@ -4892,7 +4892,7 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor <-
         axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
-  scale_x_discrete(labels = c( "GDC_0152" = "IAP\nInhibitor","Control"="Control","Z_VAD_fmk"="Caspase\nInhibitor")) + 
+  scale_x_discrete(labels = c( "GDC_0152" = "GDC-0152","Control"="Control","Z_VAD_fmk"="Z-VAD-fmk")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","IAP Inhibitor","Caspase Inhibitor"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 # Perform aov and plot results onto barplot 
@@ -5046,18 +5046,18 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <-
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,30), breaks = c(0,5,10,15,20,25,30)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
-                               "GDC_10_1HR"  = "GDC-0152<br>10um 3hr" ,
-                               "GDC_10_2HR"  = "GDC-0152<br>10um 4hr" ,
-                               "GDC_50_1HR"  = "GDC-0152<br>50um 3hr" ,
-                               "GDC_50_2HR"  = "GDC-0152<br>50um 4hr" ,
-                               "GDC_100_1HR" = "GDC-0152<br>100um 3hr", 
-                               "GDC_100_2HR" = "GDC-0152<br>100um 4hr", 
-                               "ZVAD_10_1HR" = "Z-VAD-fmk<br>10um 3hr", 
-                               "ZVAD_10_2HR" = "Z-VAD-fmk<br>10um 4hr", 
-                               "ZVAD_50_1HR" = "Z-VAD-fmk<br>50um 3hr", 
-                               "ZVAD_50_2HR" = "Z-VAD-fmk<br>50um 4hr",
-                               "ZVAD_100_1HR"= "Z-VAD-fmk<br>100um 3hr", 
-                               "ZVAD_100_2HR"= "Z-VAD-fmk<br>100um 4hr")) + 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-fmk"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel + 
@@ -5106,7 +5106,7 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor <-
         axis.text.y=element_text(size=16,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
-  scale_x_discrete(labels = c("Control"="Control","GDC_0152"="IAP\nInhibitor","Z_VAD_fmk"="Caspase\nInhibitor")) + 
+  scale_x_discrete(labels = c("Control"="Control","GDC_0152"="GDC-0152","Z_VAD_fmk"="Z-VAD-fmk")) + 
 scale_fill_manual(name="Treatment", labels=c("Control","IAP Inhibitor","Caspase Inhibitor"), values=c("#b94973", "#45c097","#9fac3a")) 
 
 # Perform aov and plot results onto barplot 
@@ -7374,6 +7374,12 @@ ggsave(JC1_all_hemo_2020, device = "tiff", filename = "JC1_all_hemo_2020.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 8, width = 12 ) 
 
+#### 2020 DERMO AND INHIBITORS FIGURES WITH TOTAL, HEMOCYTES WITHOUT P. MARINUS, HEMOCYTES WITH PMARINUS ####
+
+apop_all_hemo_2020
+CASP_all_hemo_2020
+JC1_all_hemo_2020
+
 
 #### FORMAT 2020 INHIBITOR DATA FOR TRANSCRIPTOME PCA ####
 
@@ -7446,4 +7452,6 @@ PCA_pheno_2020 <- full_join(Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_t
 # save as RData
 save(PCA_pheno_2020, file = "PCA_pheno_2020.RData")
 
+#### SESSION INFO ####
 
+sessionInfo()
