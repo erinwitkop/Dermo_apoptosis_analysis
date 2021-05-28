@@ -2187,16 +2187,16 @@ Day7_2018_VIA_Percent_Live_Granular_plot <-
   ylab("% Live Granular Hemocytes") + 
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
-        text=element_text(family="serif",size=16), 
-        axis.title.y=element_text(family="serif",size=16),
-        axis.title.x=element_text(family="serif",size=16),
-        axis.text.x = element_text(size = 16),
+        text=element_text(family="serif",size=20, face = "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
         legend.key=element_rect(fill=NA),
-        legend.text = element_text(size=16)) +
+        legend.text = element_text(size=20)) +
   facet_grid(.~Family) + 
   scale_x_discrete(labels=c("Dermo"="D", "control"="C")) + 
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
-  scale_fill_manual(name="Cell Type", labels=c("Dermo Injected","Notched Control"), values=c("#6c81d9","#50b47b")) 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(50,100)) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control", "Dermo Injected"), values=c("#6c81d9","#50b47b")) 
 
 ggsave(Day7_2018_VIA_Percent_Live_Granular_plot , path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        device = "tiff", filename = "Day7_2018_VIA_Percent_Live_Granular_plot_5_27_21.tiff", width = 10, height =6 )
@@ -2339,6 +2339,29 @@ Day7_Day50_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Gr
 ggsave(plot = Day7_Day50_2018_APOP_Granular_Apop_just_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2018_Dermo_Challenge/Data/ANALYSIS FILES/APOPTOSIS_ANOVA/Figures/Day7_Day50_2018_APOP_Granular_Apop_just_combined_plot.tiff",
        device = "tiff")
 
+# Plot of just combined apoptotic granular in control and treated DAY 7
+# Used this figure for chapter 3 dissertation apoptosis figure
+Day7_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular") %>% 
+  filter(Day == 7) %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#7e78d4", "#cd4272")) 
+ggsave(plot = Day7_2018_APOP_Granular_Apop_just_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Granular_Apop_just_combined_plot.tiff",
+       device = "tiff", width = 10, height =6 )
+
+
 # ANOVA
 # Apop combined granular vs apop combined agranular within each treatment
 Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_AOV <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
@@ -2370,7 +2393,7 @@ Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_TREAT_AOV %>% filter(p.val
 #  1 A      7     apop_combined_agranular Treat     1 0.0293 0.0293      7.42  0.0234
 
 Day7_Day50_2018_APOP_Granular_Agranular_all_TREAT_AOV <-Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_full %>%
-  group_by(Family, Day, Gate) %>%
+  group_by(Family, Day, Gate) %>% 
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
 # significant include:
@@ -2382,8 +2405,16 @@ Day7_Day50_2018_APOP_Granular_Agranular_all_TREAT_AOV <-Day7_Day50_2018_APOP_Gra
   #D	7	Q12-UR	Treat	1	5.15E-03	5.15E-03	5.79E+00	0.05289778 #agranular
   #B	7	Q13-UL	Treat	1	7.32E-02	7.32E-02	4.94E+00	0.05696606 # granular
 
+## Combined granular combined control vs. treated for each family at Day 7 
 
-## Combined granular combined control vs. treated for each family
+Day7_2018_APOP_Granular_Apop_combined <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Day == 7 & Cell_type == "apop_combined_granular")
+
+Day7_2018_APOP_Granular_Apop_combined_aov_treat <- Day7_2018_APOP_Granular_Apop_combined %>% 
+  group_by(Family) %>% 
+  do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
+  ungroup
+
+#### SEPARATE APOPTOSIS PHENOTYPE INTO HIGH AND LOW PHENOTYPE GROUPS ####
 
 
 #### Caspase Assay Statistics ####
