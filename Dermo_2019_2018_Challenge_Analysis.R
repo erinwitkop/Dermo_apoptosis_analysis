@@ -2127,7 +2127,6 @@ Day7_Day50_2018_VIA_Percent_Agranular_Granular_cell_type_plot <- ggplot(data=Day
   scale_x_discrete(labels=c("E1"="Granular", "E3"="Agranular")) + 
   scale_fill_manual(name="Cell Type", labels=c("Dermo Injected","Notched Control"), values=c("#7e78d4",
                                                                                              "#cd4272")) 
-
 # VIA Granular vs. Agranular ANOVA with arcsine transformed
 
 # Perform one wway AOV for each family and treatment and day E1 vs E3 in loop with TukeyHSD
@@ -2160,6 +2159,63 @@ Day7_Day50_2018_VIA_Percent_Agranular_Granular_TREAT_AOV <- Day7_Day50_2018_VIA_
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
 # Family L day 50 significant
+
+### Viability Analysis of LIVE granular Day 7 
+## Used and analysis data from "Dermo_Viability_Assay_Data_analysis.Rmd" to assist in making this code 
+  # original code there was: (VI_PLOT9_E1_MINUS_V1R_BAD_REMOVED$COUNT_THIS_PLOT / VI_PLOT4_E1_E3_GATE_BAD_REMOVED$E1_COUNT)*100
+## Calculate the live granulocytes
+  # Procedure: isolate the day 7 granular cells in plots 4 and 9
+               # and divide the number of live granulocytes (number from flow cytometry plot 9) by the total granular cell counts from Plot 4
+Day7_2018_Live_granular_counts <- Day7_Day50_2018_all_assays_bad_removed_VI %>% filter(Day == 7) %>% filter(Plot_number == 4 | Plot_number == 9) %>% 
+  filter(grepl("granular", Cell_type) & !grepl("agranular", Cell_type)) %>% select(-Percent_of_this_plot, - Percent_of_this_plot_arcsine)
+
+# calculate percent live
+Day7_2018_Live_granular_percent <- Day7_2018_Live_granular_counts %>% group_by(Flow_Code) %>% 
+  summarise(Percent_live = (Counts[Plot_number == 9] / Counts[Plot_number == 4])*100) %>%
+  left_join(unique(Day7_Day50_2018_all_assays_bad_removed_VI[,c("Family","ID","Assay","Treat","Flow_Code")]))
+
+# arcsine transform percentage 
+Day7_2018_Live_granular_percent$Percent_live_arcsine <- transf.arcsin(Day7_2018_Live_granular_percent$Percent_live*0.01)
+
+
+## Create plot for Chapter 3 in dissertation
+Day7_2018_VIA_Percent_Live_Granular_plot <- 
+  ggplot(data=Day7_2018_Live_granular_percent,
+        aes(y=Percent_live, x=Treat, fill=Treat)) + geom_boxplot()+ 
+  geom_point(position=position_dodge(width=0.75))+ 
+  xlab("Treatment") +
+  ylab("% Live Granular Hemocytes") + 
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=16), 
+        axis.title.y=element_text(family="serif",size=16),
+        axis.title.x=element_text(family="serif",size=16),
+        axis.text.x = element_text(size = 16),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=16)) +
+  facet_grid(.~Family) + 
+  scale_x_discrete(labels=c("Dermo"="D", "control"="C")) + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_fill_manual(name="Cell Type", labels=c("Dermo Injected","Notched Control"), values=c("#6c81d9","#50b47b")) 
+
+ggsave(Day7_2018_VIA_Percent_Live_Granular_plot , path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       device = "tiff", filename = "Day7_2018_VIA_Percent_Live_Granular_plot_5_27_21.tiff", width = 10, height =6 )
+
+## Perform AOVs
+# compare granular treated only between treatments  
+Day7_2018_VIA_Percent_Granular_treated <- Day7_2018_Live_granular_percent %>%  
+  filter(Treat == "Dermo")
+
+Day7_2018_VIA_Percent_Granular_aov <- aov(Percent_live_arcsine ~ Family, data = Day7_2018_VIA_Percent_Granular_treated)  
+summary(Day7_2018_VIA_Percent_Granular_aov) # some sig difference between treatments  0.0274
+TukeyHSD(Day7_2018_VIA_Percent_Granular_aov) # no significantly difference between specific families
+
+## compare granular treated day 7 between control and treated within family
+Day7_2018_VIA_Percent_Granular_treat_aov <- Day7_2018_Live_granular_percent %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(Percent_live_arcsine ~ Treat, data = .)))  %>%
+  ungroup
+  # no effect of treatment
 
 #### Apoptosis Assay Statistics and Plotting ####
 
