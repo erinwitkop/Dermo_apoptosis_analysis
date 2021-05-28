@@ -2297,7 +2297,7 @@ ggsave(plot = Day7_Day50_2018_APOP_Granular_Apop_just_combined_plot, filename  =
 Day7_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular") %>% 
   filter(Day == 7) %>% 
   ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
-  ylab("% Granular Hemocytes") + 
+  ylab("% Granular Apoptotic Hemocytes") + 
   facet_grid(.~Family, scales="free") +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   theme(panel.background=element_blank(),
@@ -2313,7 +2313,6 @@ Day7_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular
                     values = c("#7e78d4", "#cd4272")) 
 ggsave(plot = Day7_2018_APOP_Granular_Apop_just_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Granular_Apop_just_combined_plot.tiff",
        device = "tiff", width = 10, height =6 )
-
 
 # ANOVA
 # Apop combined granular vs apop combined agranular within each treatment
@@ -2650,13 +2649,14 @@ ggbiplot(PCA_data_B, varname.adjust= 1, varname.abbrev = TRUE) +
   geom_text(vjust="inward",hjust="inward", 
             label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$caspase_combined)
 
-#### PLOT HIGH AND LOW APOPTOSIS PHENOTYPE for A,B,L AND FOR SEQUENCING SAMPLES####
+#### PLOT AND ANALYSIS OF HIGH AND LOW APOPTOSIS PHENOTYPE for A,B,L AND FOR SEQUENCING SAMPLES####
 
+# df with all samples apop and casp
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc
 
-
-# exploratory plot 
-Day7_2018_APOP_samples_sequencing_plot <- Day7_2018_APOP_samples_sequencing %>%
-  ggplot(aes(y=apoptosis_combined, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+# Plot all the A,B,L samples apop combined
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_plot <- Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc %>%
+  ggplot(aes(y=Percent_apop_granular, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
   ylab("% Granular Hemocytes") + 
   facet_grid(.~Family, scales="free") +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
@@ -2668,12 +2668,64 @@ Day7_2018_APOP_samples_sequencing_plot <- Day7_2018_APOP_samples_sequencing %>%
         axis.text.x = element_text(size = 20),
         legend.key=element_rect(fill=NA),
         legend.text = element_text(size=20)) +
-  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) 
-
-scale_fill_manual(name="Phenotype Group", labels=c("Notched Control","Dermo Injected"), 
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+scale_fill_manual(name="Treatment", labels=c("Notched Control","Dermo Injected"), 
                   values = c("#7e78d4", "#cd4272")) 
 
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_plot <- Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing %>%
+  ggplot(aes(y=Percent_apop_granular, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Treatment", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#7e78d4", "#cd4272")) 
 
+## Plot with high and low phenotype distinctions
+# Import from R the distinctions between high and low phenotype
+sequencing_pheno_group <- read.csv("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/sequencing_sample_selection_data_pre_post_correction/Day7_2018_apop_casp_SEQUENCING_SAMPLES_pheno_group.csv", header = TRUE)
+
+# join with apop, perc, and casp data
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group <- left_join(Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing, sequencing_pheno_group)
+
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot <- Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group %>%
+  ggplot(aes(y=Percent_apop_granular, x=Treat, fill=apoptosis_phenotype_group)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Apoptotic Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Group", labels=c("Control","High Phenotype","Low Phenotype"), 
+                    values = c("#7e78d4", "#cd4272","#50b47b"))
+
+ggsave(plot = Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot.tiff",
+       device = "tiff", width = 10, height =6 )
+
+### ANOVA TO ASSESS DIFFERENCES BETWEEN PHENOTYPE GROUPS
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group
+
+## compare granular treated day 7 between control and treated within family
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group_aov <- Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group %>%
+  filter(apoptosis_phenotype_group == "high" | apoptosis_phenotype_group == "low") %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(arcsine_apop ~ apoptosis_phenotype_group, data = .)))  %>%
+  ungroup
+# no effect of treatment
 
 #### COMBINED 2018 2019 PLOTS ####
 
