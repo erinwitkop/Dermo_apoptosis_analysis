@@ -2366,6 +2366,16 @@ Day7_2018_APOP_Granular_Apop_combined_aov_treat <- Day7_2018_APOP_Granular_Apop_
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
 
+## Combined granular combined treated compared between families for each family at Day 7 
+Day7_2018_APOP_Granular_Apop_combined_treated <-  Day7_2018_APOP_Granular_Apop_combined %>% 
+  filter(Treat == "Dermo")
+
+Day7_2018_APOP_Granular_Apop_combined_aov_treated_family <- aov(Percent_of_this_plot_arcsine ~ Family, data = Day7_2018_APOP_Granular_Apop_combined_treated)
+summary(Day7_2018_APOP_Granular_Apop_combined_aov_treated_family ) # p = 0.00504 **
+TukeyHSD(Day7_2018_APOP_Granular_Apop_combined_aov_treated_family)
+  #B-A  0.34816810  0.08287686 0.61345934 0.0041820
+  #D-A  0.30626264  0.01971535 0.59280993 0.0301393
+
 #### Caspase Assay Statistics ####
 
 Day7_Day50_2018_CASP <- Day7_Day50_2018_all_assays_bad_removed %>% filter(Assay=="C")
@@ -2467,6 +2477,26 @@ Day7_2018_CASP_Granular_casp_combined_just_combined_plot <- ggplot(data=Day7_201
 #export this plot
 ggsave("Day7_2018_CASP_Granular_casp_combined_just_combined_plot.tiff", plot = Day7_2018_CASP_Granular_casp_combined_just_combined_plot ,
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES", device = "tiff")
+
+# Plot only granular at Day 7, all families 
+Day7_2018_CASP_Granular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_granular" & Day == "7")  %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Caspase 3/7 Active Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#ad993c", "#b94e45")) 
+ggsave(plot = Day7_2018_CASP_Granular_casp_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_CASP_Granular_casp_combined_plot.tiff",
+       device = "tiff", width = 10, height =6 )
 
 # ANOVA
 # Casp active combined granular vs apop combined agranular within each treatment
@@ -2609,11 +2639,6 @@ ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
   geom_text(vjust="inward",hjust="inward", 
             label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$Treat)
 
-# plot by sequencing
-ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$sequencing)
-
 # plot by ave_log_pconc
 ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
   geom_text(vjust="inward",hjust="inward", 
@@ -2627,27 +2652,7 @@ ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
 # plot by apop
 ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
   geom_text(vjust="inward",hjust="inward", 
-            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$apoptosis_combined)
-
-## PCA for family B only, where they all have caspase samples
-
-# subset for family B 
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B <-  Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb %>%
-  filter(Family == "B" )
-
-#calculate PCA using, exclusing the caspase assay because samples are missing 
-PCA_data_B <- prcomp(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B[c(5,7,8)], center=TRUE, scale=TRUE)
-summary(PCA_data_B)
-
-# plot by treatment
-ggbiplot(PCA_data_B, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$Treat)
-
-# plot by caspase
-ggbiplot(PCA_data_B, varname.adjust= 1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$caspase_combined)
+            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$Percent_apop_granular)
 
 #### PLOT AND ANALYSIS OF HIGH AND LOW APOPTOSIS PHENOTYPE for A,B,L AND FOR SEQUENCING SAMPLES####
 
@@ -2726,6 +2731,16 @@ Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group_aov <
   do(broom::tidy(aov(arcsine_apop ~ apoptosis_phenotype_group, data = .)))  %>%
   ungroup
 # no effect of treatment
+
+#### 2018 MULTIPANEL FIGURE FOR CHAPTER 3 ####
+Chapter3_2018_multipanel <- cowplot::plot_grid(Day7_2018_VIA_Percent_Live_Granular_plot, Day7_2018_APOP_Granular_Apop_just_combined_plot,
+                   Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot, Day7_2018_CASP_Granular_casp_combined_plot,
+                   nrow = 2, ncol = 2, labels = c("A","B","C","D"), label_size = 20, label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_multipanel, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_multipanel.tiff",
+       device = "tiff", width = 21, height = 15)
+
+
 
 #### COMBINED 2018 2019 PLOTS ####
 
