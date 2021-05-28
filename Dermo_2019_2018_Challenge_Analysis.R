@@ -2022,53 +2022,6 @@ Day7_Day50_2018_all_assays_bad_removed$Percent_of_this_plot <- Day7_Day50_2018_a
 
 write.csv(file="Day7_Day50_2018_all_assays_bad_removed.csv", Day7_Day50_2018_all_assays_bad_removed)
 
-#### PICK SAMPLES FOR SEQUENCING ####
-
-### Create spread sheet with combined load data, apoptosis data, caspase, viability assay data side by side for comparison to pick samples for sequence
-## GOAL: Select samples with extreme high and low apoptosis phenotype - sort by high and low 
-
-# Load in qPCR data 
-QPCRDataQAed <- readxl::read_excel("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2018_Dermo_Challenge/Data/ANALYSIS FILES/ANALYSIS_CSVs_DAY7_BAD_2018_ANALYSIS/MASTER_DATA/MasterData_10.15.2018.XLSX",
-                                                           col_names = c("qPCR_plate", "ID" , "Pconc_rep1", "log_pconc_rep_1", "Pconc_rep2", "log_pconc_rep2", "ave_log_pconc", "notes"),
-                                                           sheet = "QPCRDataQAed", skip = 1)
-
-# keep avg_log pconc and combine with assay data by first putting back together the family and oyster ID info that matches the load data 
-Day7_Day50_2018_all_assays_bad_removed_pconc <- Day7_Day50_2018_all_assays_bad_removed %>% mutate(ID = paste(Family, Oyster_ID, sep ="-")) %>% 
-                                                    left_join(., QPCRDataQAed[,c("ID", "ave_log_pconc")], by = "ID")
-
-# Assess levels and which ones I should be viewing for comparison for which samples to select
-levels(factor(Day7_Day50_2018_all_assays_bad_removed_pconc$Cell_type))
-# levels of interest: "granular_live_apoptotic"  , "granular_dead_apoptotic", "granular_live_caspase_active" , "granular_dead_caspase_active"
-
-# Subset for these levels 
-subset_list <- c("granular_live_apoptotic"  , "granular_dead_apoptotic", "granular_live_caspase_active" , "granular_dead_caspase_active")
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp <- Day7_Day50_2018_all_assays_bad_removed_pconc %>% 
-  filter(Cell_type %in% subset_list, # subset for only the four types above
-          Day == "7") # subset for only day 7
-levels(factor(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp$Cell_type))
-
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_1 <- Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp %>% ungroup() %>% filter(Cell_type == "granular_live_apoptotic") %>% rename(granular_live_apoptotic_percent = Percent_of_this_plot) %>% 
-  dplyr::select(Family, ID, Day, Treat, ave_log_pconc, granular_live_apoptotic_percent)
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_2 <- Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp %>%  ungroup() %>% filter(Cell_type == "granular_dead_apoptotic") %>% rename(granular_dead_apoptotic_percent = Percent_of_this_plot) %>% 
-  dplyr::select(Family, ID, Day, Treat, ave_log_pconc, granular_dead_apoptotic_percent)
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_3 <- Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp %>%  ungroup() %>% filter(Cell_type == "granular_live_caspase_active") %>% rename(granular_live_caspase_percent = Percent_of_this_plot) %>% 
-  dplyr::select(Family, ID, Day, Treat, ave_log_pconc, granular_live_caspase_percent)
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_4 <- Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp %>%  ungroup() %>% filter(Cell_type == "granular_dead_caspase_active") %>% rename(granular_dead_caspase_percent = Percent_of_this_plot) %>% 
-  dplyr::select(Family, ID, Day, Treat, ave_log_pconc, granular_dead_caspase_percent)
-
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table <- left_join(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_1, Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_2)
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table <- left_join(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table, Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_3)
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table <- left_join(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table, Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_4)
-
-# create combined caspase and apoptosis columns
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb <- Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table %>% group_by(ID) %>% mutate(apoptosis_combined = granular_live_apoptotic_percent +granular_dead_apoptotic_percent) %>%
-  mutate(caspase_combined = granular_live_caspase_percent + granular_dead_caspase_percent) %>% dplyr::select(Family, ID, Day, Treat, ave_log_pconc, apoptosis_combined, caspase_combined) %>% 
-  # sort by apoptosis levels to get a feeling of high and low 
-  arrange(Family, Treat, desc(apoptosis_combined))
-  
-# Export this sheet to file to go through with Marta and Dina
-write.csv(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb, "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/Day7_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb.csv")
-
 #### PLOTS AND STATISTICS 2018 ####
 
 #Calculate mean and sd for all assays by family
@@ -2414,9 +2367,6 @@ Day7_2018_APOP_Granular_Apop_combined_aov_treat <- Day7_2018_APOP_Granular_Apop_
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
 
-#### SEPARATE APOPTOSIS PHENOTYPE INTO HIGH AND LOW PHENOTYPE GROUPS ####
-
-
 #### Caspase Assay Statistics ####
 
 Day7_Day50_2018_CASP <- Day7_Day50_2018_all_assays_bad_removed %>% filter(Assay=="C")
@@ -2454,7 +2404,7 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_full$Gate <- factor(Day7_D
                                                                           levels = c("Q2-UL", "Q6-UL","Q2-LL","Q6-LL","Q2-LR", "Q6-LR","Q2-UR", "Q6-UR","casp_active_combined_agranular" ,"casp_active_combined_granular" ))
 # Make plot 
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_full_plot <- ggplot(data=Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_full,
-                                                                     aes(y=Percent_of_this_plot, x=Treat, fill=Gate)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+                                                                          aes(y=Percent_of_this_plot, x=Treat, fill=Gate)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
   ylab("Percent Hemocytes") + 
   ggtitle("Percent Agranular and Granular Caspase Assay") + 
   facet_grid(Family~Day, scales="free") +
@@ -2476,7 +2426,7 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_full_plot <- ggplot(data=D
 
 # Plot only the apop combined 
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_just_combined_plot <- ggplot(data=Day7_Day50_2018_CASP_Granular_Agranular_casp_combined,
-                                                                          aes(y=Percent_of_this_plot, x=Treat, fill=Gate)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+                                                                                   aes(y=Percent_of_this_plot, x=Treat, fill=Gate)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
   ylab("Percent Hemocytes") + 
   ggtitle("Percent Agranular and Granular Caspase 3/7 Active Combined") + 
   facet_grid(Day~Family, scales="free") +
@@ -2497,7 +2447,7 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_just_combined_plot <- ggpl
 # Plot only granular at Day 7, families A and J removed because no control
 Day7_2018_CASP_Granular_casp_combined <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_granular" & Day == "7" & Family != "A" & Family !="J")
 Day7_2018_CASP_Granular_casp_combined_just_combined_plot <- ggplot(data=Day7_2018_CASP_Granular_casp_combined,
-                                                                                   aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+                                                                   aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
   ylab("Percent Hemocytes") + 
   ggtitle("Percent Granular Caspase 3/7 Active Combined 2018") + 
   facet_grid(Day~Family, scales="free") +
@@ -2547,7 +2497,7 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_TREAT_A_AOV <- Day7_Day50_
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_TREAT_B_AOV <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
-    group_by(Family, Gate, Day) %>% filter(Family == "B") %>% 
+  group_by(Family, Gate, Day) %>% filter(Family == "B") %>% 
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup 
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_TREAT_B_AOV %>% filter(p.value <= 0.05) # NONE significant
@@ -2583,7 +2533,7 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_DAY_B_AOV <- Day7_Day50_20
   group_by(Family, Gate, Treat) %>% filter(Family == "B") %>% 
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Day, data = .)))  %>%
   ungroup
-  # control Dermo for both agranular and granular are significantly different
+# control Dermo for both agranular and granular are significantly different
 
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_DAY_D_AOV <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
   group_by(Family, Gate, Treat) %>% filter(Family == "D") %>% 
@@ -2599,7 +2549,7 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_DAY_E_AOV <- Day7_Day50_20
 # Anova changes in granular hemocyte apoptosis between families in the treated group
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
   filter(Gate == "casp_active_combined_granular" & Treat == "Dermo") %>%
- aov(Percent_of_this_plot_arcsine ~ Family, data = .)
+  aov(Percent_of_this_plot_arcsine ~ Family, data = .)
 #Call:
 #  aov(formula = Percent_of_this_plot_arcsine ~ Family, data = .)
 #
@@ -2610,6 +2560,119 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
 #
 #Residual standard error: 0.227631
 #Estimated effects may be unbalanced
+
+#### PICK SAMPLES FOR SEQUENCING ####
+
+### Create spread sheet with combined load data, apoptosis data, caspase, viability assay data side by side for comparison to pick samples for sequence
+## GOAL: Select samples with extreme high and low apoptosis phenotype - sort by high and low 
+# NOTE: 5-28-21 - the code below here was changed to be corrected. Old incorrect code was removed on this date. 
+  
+# Load in qPCR data 
+QPCRDataQAed <- readxl::read_excel("/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/2018_Dermo_Challenge/Data/ANALYSIS FILES/ANALYSIS_CSVs_DAY7_BAD_2018_ANALYSIS/MASTER_DATA/MasterData_10.15.2018.XLSX",
+                                   col_names = c("qPCR_plate", "ID" , "Pconc_rep1", "log_pconc_rep_1", "Pconc_rep2", "log_pconc_rep2", "ave_log_pconc", "notes"),
+                                   sheet = "QPCRDataQAed", skip = 1)
+
+# keep avg_log pconc and combine with assay data
+Day7_Day50_2018_APOP_Granular_Apop_combined_casp_combined <- Day7_Day50_2018_APOP_Granular_Apop_combined %>% mutate(ID = paste(Family, Oyster_ID, sep ="-")) %>% 
+  left_join(., QPCRDataQAed[,c("ID", "ave_log_pconc")], by = "ID") %>% dplyr::rename("Percent_apop_granular" = "Percent_of_this_plot") %>% select(Treat,Family, Day, Percent_apop_granular, ID, ave_log_pconc)
+
+Day7_Day50_2018_CASP_Granular_casp_combined_only_data <- Day7_Day50_2018_CASP_Granular_casp_combined %>% mutate(ID = paste(Family, Oyster_ID, sep ="-")) %>% dplyr::rename("Percent_casp_granular" = "Percent_of_this_plot")  %>% 
+  select(Treat,Family, Day, Percent_casp_granular, ID)
+  
+Day7_Day50_2018_APOP_Granular_Apop_combined_casp_combined_pconc <- left_join(Day7_Day50_2018_APOP_Granular_Apop_combined_casp_combined, Day7_Day50_2018_CASP_Granular_casp_combined_only_data) 
+
+# Subset for just Day 7 and families A, B, L
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc <- Day7_Day50_2018_APOP_Granular_Apop_combined_casp_combined_pconc %>% filter(Day == 7) %>% filter(Family == "A" | Family == "B" | Family == "L")
+
+### import list of final selected samples for sequencing
+
+sequencing_list  <- c("A-23","A-15","A-36","A-158","A-147","A-142","A-163","A-152","A-180","B-14","B-20","B-171","B-188","B-146","B-176","B-155","B-183","L-24","L-20","L-165","L-152","L-157","L-146","L-177","L-142")
+
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing <- Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc[Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc$ID %in% sequencing_list,]
+
+# Export this sheet to file to go through with Marta and Dina
+write.csv(Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing, "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc.csv")
+
+
+#### PCA ANALYSIS OF 2018 sequencing samples ####
+
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing
+
+# arcsine transform the percentages for PCA analysis
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$arcsine_apop <- transf.arcsin(Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$Percent_apop_granular*0.01)
+
+#calculate PCA using only pconc and apoptosis arcsine, exclusing the caspase assay because samples are missing 
+PCA_data <- prcomp(Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing[c(7,9)], center=TRUE, scale=TRUE)
+summary(PCA_data)
+
+# plot by treatment
+ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$Treat)
+
+# plot by sequencing
+ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$sequencing)
+
+# plot by ave_log_pconc
+ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$ave_log_pconc)
+
+# plot by Family
+ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$Family)
+
+# plot by apop
+ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing$apoptosis_combined)
+
+## PCA for family B only, where they all have caspase samples
+
+# subset for family B 
+Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B <-  Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb %>%
+  filter(Family == "B" )
+
+#calculate PCA using, exclusing the caspase assay because samples are missing 
+PCA_data_B <- prcomp(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B[c(5,7,8)], center=TRUE, scale=TRUE)
+summary(PCA_data_B)
+
+# plot by treatment
+ggbiplot(PCA_data_B, varname.adjust= 0.1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$Treat)
+
+# plot by caspase
+ggbiplot(PCA_data_B, varname.adjust= 1, varname.abbrev = TRUE) +
+  geom_text(vjust="inward",hjust="inward", 
+            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$caspase_combined)
+
+#### PLOT HIGH AND LOW APOPTOSIS PHENOTYPE for A,B,L AND FOR SEQUENCING SAMPLES####
+
+
+
+# exploratory plot 
+Day7_2018_APOP_samples_sequencing_plot <- Day7_2018_APOP_samples_sequencing %>%
+  ggplot(aes(y=apoptosis_combined, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) 
+
+scale_fill_manual(name="Phenotype Group", labels=c("Notched Control","Dermo Injected"), 
+                  values = c("#7e78d4", "#cd4272")) 
+
 
 
 #### COMBINED 2018 2019 PLOTS ####
@@ -4367,108 +4430,6 @@ ggsave(plot = MOI_1hr_2019_JC1_join_granular_recalc_all_treat_H10_Q28_PERK_sd_mu
        height = 8, width = 5)
 
 
-
-#### PCA ANALYSIS to help decide 2018 sequencing samples ####
-
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb
-
-# arcsine transform the percentages for PCA analysis
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb$arcsine_apop <- transf.arcsin(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb$apoptosis_combined*0.01)
-
-# subset for families A, B and L
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset <-  Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb %>%
-  filter(Family =="A" | Family == "B" | Family == "L")
-
-## Add information about which samples are going to be sequenced or not 
-# only 6 samples are not going to be sequenced
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset <- Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset %>%
-  mutate(sequencing = case_when(
-    ID == "A-189" | ID == "A-166"| ID == "B-141"| ID == "B-159"| ID == "L-168"| ID == "L-187" ~ "no",
-    TRUE ~ "yes"))
-
-#calculate PCA using, exclusing the caspase assay because samples are missing 
-PCA_data <- prcomp(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset[c(5,8)], center=TRUE, scale=TRUE)
-summary(PCA_data)
-
-# plot by treatment
-ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset$Treat)
-
-# export plot 
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_TREAT.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
-
-# plot by sequencing
-ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset$sequencing)
-
-# export plot 
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_SEQ.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
-
-# plot by ave_log_pconc
-ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset$ave_log_pconc)
-
-# export plot 
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_PCONC.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
-
-# plot by Family
-ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset$Family)
-
-# export plot 
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_FAM.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
-
-# plot by apop
-ggbiplot(PCA_data, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_subset$apoptosis_combined)
-
-# export plot
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_APOP.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
-
-## PCA for family B only, where they all have caspase samples
-
-# subset for family B 
-Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B <-  Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb %>%
-  filter(Family == "B" )
-
-#calculate PCA using, exclusing the caspase assay because samples are missing 
-PCA_data_B <- prcomp(Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B[c(5,7,8)], center=TRUE, scale=TRUE)
-summary(PCA_data_B)
-
-# plot by treatment
-ggbiplot(PCA_data_B, varname.adjust= 0.1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$Treat)
-
-# export plot 
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_B.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
-
-# plot by caspase
-ggbiplot(PCA_data_B, varname.adjust= 1, varname.abbrev = TRUE) +
-  geom_text(vjust="inward",hjust="inward", 
-            label=Day7_Day50_2018_all_assays_bad_removed_pconc_Granular_apop_casp_table_comb_B$caspase_combined)
-
-# export plot 
-ggsave(plot = last_plot(), path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       filename = "Day7_Day50_2018_pconc_Granular_apop_comb_PCA_casp.tiff", device = "tiff", units = "cm",
-       width = 20, height = 20)
 
 ##### 2020 INHIBITOR CONCENTRATION ASSAYS #####
 
