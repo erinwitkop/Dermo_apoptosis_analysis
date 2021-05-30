@@ -2844,12 +2844,89 @@ Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group_aov <
 
 ## Back in 2018 I made a large script analyzing different methods for assessing relationship between apoptosis and resistance phenotype
   # the script was called "Regression_Modeling_PCA.R". Sadly this script was very messy and very exploratory. Going to repeat 
-  # essential parts of code here to make figures for publication
+  # parts of analysis here to make figures for publication
+
+## ASSESS RELATIONSHIP BETWEEN GRANULAR APOPTOSIS AND PCONC LEVELS FOR EACH FAMILY AT DAY 7 AND DAY 50 ###
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine <- Day7_Day50_2018_APOP_Granular_Apop_combined_casp_combined_pconc %>% select(-Percent_casp_granular)
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine$arcsine_apop <- transf.arcsin(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine$Percent_apop_granular*0.01)
+
+# test various models to assess significance #
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_only_pconc <- lm(arcsine_apop~ave_log_pconc,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+anova(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_only_pconc) # not significant
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_only_apop <- lm(ave_log_pconc~arcsine_apop,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+anova(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_only_apop) # not significant
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_fam <- lm(arcsine_apop~ave_log_pconc:Family ,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+anova(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_fam) # not significant
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_fam_pconc <- lm(ave_log_pconc~arcsine_apop:Family ,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+anova(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_fam_pconc) # not significant
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_pconc_apop <- lm(ave_log_pconc~arcsine_apop:Family:Day ,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+anova(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm_pconc_apop) # not significant
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm <- lm(arcsine_apop~ave_log_pconc:Family:Day ,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+anova(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm) # highly significant
+#Anova Table (Type II tests)
+#
+#Response: arcsine_apop
+#Sum Sq  Df F value    Pr(>F)    
+#ave_log_pconc:Family:Day 2.1710  12  5.9637 4.813e-08 ***
+#  Residuals                3.5798 118                      
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+summary(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm)
+#
+#Call:
+#  lm(formula = arcsine_apop ~ ave_log_pconc:Family:Day, data = Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine)
+#
+#Residuals:
+#  Min       1Q   Median       3Q      Max 
+#-0.41981 -0.09386  0.01408  0.11347  0.36141 
+#
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)                  0.748366   0.051493  14.533  < 2e-16 ***
+#ave_log_pconc:FamilyA:Day50 -0.048934   0.018015  -2.716  0.00759 ** 
+#ave_log_pconc:FamilyB:Day50 -0.030216   0.017756  -1.702  0.09143 .  
+#ave_log_pconc:FamilyD:Day50 -0.053318   0.022089  -2.414  0.01733 *  
+#ave_log_pconc:FamilyE:Day50 -0.036665   0.016241  -2.258  0.02581 *  
+#ave_log_pconc:FamilyJ:Day50 -0.045530   0.023835  -1.910  0.05853 .  
+#ave_log_pconc:FamilyL:Day50 -0.019011   0.021157  -0.899  0.37072    
+#ave_log_pconc:FamilyA:Day7  -0.018148   0.018005  -1.008  0.31553    
+#ave_log_pconc:FamilyB:Day7   0.047375   0.017678   2.680  0.00842 ** 
+#ave_log_pconc:FamilyD:Day7   0.055633   0.020890   2.663  0.00882 ** 
+#ave_log_pconc:FamilyE:Day7   0.013342   0.019195   0.695  0.48839    
+#ave_log_pconc:FamilyJ:Day7   0.020511   0.018769   1.093  0.27669    
+#ave_log_pconc:FamilyL:Day7  -0.006865   0.018111  -0.379  0.70531    
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#
+#Residual standard error: 0.1742 on 118 degrees of freedom
+#Multiple R-squared:  0.3775,	Adjusted R-squared:  0.3142 
+#F-statistic: 5.964 on 12 and 118 DF,  p-value: 4.813e-08
+
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_plot <-  ggplot(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine,aes(y=arcsine_apop, x=ave_log_pconc)) + geom_point() + 
+  facet_grid(Day~Family) + geom_smooth(method="lm") + 
+  #ggtitle("Change in P. marinus Load over Time Across Families") + 
+  ylab("Granular Apoptosis Arcsine-transformed") + xlab("Average Log copies/100ng DNA") +
+  theme(panel.background=element_blank(),panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20), axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=20)) + 
+  theme(axis.text.x = element_text(size=20)) +
+  theme(legend.text = element_text(size=20))  
 
 ## ASSESS CHANGE IN APOPTOSIS LEVELS THROUGH TIME - SIMILAR TO CHANGE IN LOAD THROUGH TIME ##
 Day7_Day50_2018_APOP_Granular_treated_arcsine <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular" & Treat == "Dermo")
 
-Day7_Day50_2018_APOP_Granular_treated_arcsine_lm <- lm(Percent_of_this_plot_arcsine~Family:Day,data=Day7_Day50_2018_APOP_Granular_treated_arcsine)
+# assess change in apoptosis between days for each family
+Day7_Day50_2018_APOP_Granular_treated_arcsine_lm <- lm(Percent_of_this_plot_arcsine~Day:Family,data=Day7_Day50_2018_APOP_Granular_treated_arcsine)
+
+
 
 # change to numeric after setting lm above 
 class(Day7_Day50_2018_APOP_Granular_treated_arcsine$Day)
@@ -2860,24 +2937,13 @@ Day7_Day50_2018_APOP_Granular_treated_arcsine_plot <-
   ggplot(Day7_Day50_2018_APOP_Granular_treated_arcsine,aes(y=Percent_of_this_plot, x=Day)) + geom_point() + facet_grid(.~Family) + geom_smooth(method="lm") + 
   #ggtitle("Change in P. marinus Load over Time Across Families") + 
   ylab("% Granular Apoptosis") + xlab("Days Post-Challenge") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   theme(panel.background=element_blank(),panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
         text=element_text(family="serif",size=20), axis.title.y=element_text(family="serif",size=20),
         axis.title.x=element_text(family="serif",size=20),legend.key=element_rect(fill=NA)) + 
   theme(text=element_text(size=20)) + 
   theme(axis.text.x = element_text(size=20)) +
   theme(legend.text = element_text(size=20))  
-
-anova(Day7_Day50_2018_APOP_Granular_treated_arcsine_lm)
-
-#Analysis of Variance Table
-#
-#Response: Percent_of_this_plot_arcsine
-#Df Sum Sq  Mean Sq F value    Pr(>F)    
-#Family:Day 11 2.1466 0.195148  7.8058 3.774e-09 ***
-#  Residuals  84 2.1000 0.025001                      
-#---
-#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
 
 #### 2018 MULTIPANEL FIGURES FOR CHAPTER 3 ####
 # Figure 2 - day 7 flow cytometry results
@@ -2898,6 +2964,13 @@ ggsave(Chapter3_2018_multipanel_Day50, filename = "/Users/erinroberts/Documents/
        device = "tiff", width = 21, height = 15)
 
 # Figure 3 - Apoptosis and resistance results
+
+Chapter3_2018_apoptosis_resistance <- cowplot::plot_grid(Day7_Day50_2018_APOP_Granular_treated_arcsine_plot,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_plot,
+                                                         ncol = 2, labels = c("A","B"), label_size = 20,
+                                                         label_fontfamily = "serif",label_fontface = "bold")
+ggsave(Chapter3_2018_apoptosis_resistance, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_multipanel_Day50.tiff",
+       device = "tiff", width = 20, height = 8)
+
 
 
 #### COMBINED 2018 2019 PLOTS ####
