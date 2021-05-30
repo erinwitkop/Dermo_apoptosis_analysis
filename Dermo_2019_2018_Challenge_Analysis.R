@@ -2909,8 +2909,61 @@ summary(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_lm)
 #Multiple R-squared:  0.3775,	Adjusted R-squared:  0.3142 
 #F-statistic: 5.964 on 12 and 118 DF,  p-value: 4.813e-08
 
+#separate DFs by family and day and run lm
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 7 & Family =="A")
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 7 & Family =="B")
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 7 & Family =="D")
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 7 & Family =="E")
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 7 & Family =="J")
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 7 & Family =="L")
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 50 & Family == "A")
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 50 & Family == "B")
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 50 & Family == "D")
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 50 & Family == "E")
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 50 & Family == "J")
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL <- Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine %>% filter(Day == 50 & Family == "L")
+
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA_lm <- lm(ave_log_pconc~arcsine_apop, Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA)
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB_lm <- lm(ave_log_pconc~arcsine_apop, Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB)
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD_lm <- lm(ave_log_pconc~arcsine_apop, Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD)
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE_lm <- lm(ave_log_pconc~arcsine_apop, Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE)
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ_lm <- lm(ave_log_pconc~arcsine_apop, Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ)
+Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL_lm <- lm(ave_log_pconc~arcsine_apop, Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL)
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA_lm <- lm(ave_log_pconc~arcsine_apop, Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA)
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB_lm <- lm(ave_log_pconc~arcsine_apop, Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB)
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD_lm <- lm(ave_log_pconc~arcsine_apop, Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD)
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE_lm <- lm(ave_log_pconc~arcsine_apop, Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE)
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ_lm <- lm(ave_log_pconc~arcsine_apop, Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ)
+Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL_lm <- lm(ave_log_pconc~arcsine_apop, Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL)
+
+summary(Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA_lm ) # not sig
+summary(Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB_lm ) # not sig
+summary(Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD_lm ) # not sig
+summary(Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE_lm ) # not sig
+summary(Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ_lm ) # 0.0493 * 
+summary(Day7_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL_lm ) # not sig
+summary(Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamA_lm) # 0.0388 *
+summary(Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamB_lm) # not sig
+summary(Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamD_lm) # not sig
+summary(Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamE_lm) # not sig
+summary(Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamJ_lm) # not sig
+summary(Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_FamL_lm) # not sig
+
+## Plot apoptosis and average log pconc
 Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_plot <-  ggplot(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine,aes(y=arcsine_apop, x=ave_log_pconc)) + geom_point() + 
   facet_grid(Day~Family) + geom_smooth(method="lm") + 
+  #ggtitle("Change in P. marinus Load over Time Across Families") + 
+  ylab("Granular Apoptosis Arcsine-transformed") + xlab("Average Log copies/100ng DNA") +
+  theme(panel.background=element_blank(),panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20), axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=20)) + 
+  theme(axis.text.x = element_text(size=20)) +
+  theme(legend.text = element_text(size=20))  
+
+## Plot load and apoptosis overall, not with respect to family 
+Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_ALL_plot <-  ggplot(Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine,aes(y=arcsine_apop, x=ave_log_pconc)) + geom_point() +
+ facet_grid(Day~.) + geom_smooth(method="lm") + 
   #ggtitle("Change in P. marinus Load over Time Across Families") + 
   ylab("Granular Apoptosis Arcsine-transformed") + xlab("Average Log copies/100ng DNA") +
   theme(panel.background=element_blank(),panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
@@ -2924,9 +2977,28 @@ Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_plot <-  ggpl
 Day7_Day50_2018_APOP_Granular_treated_arcsine <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular" & Treat == "Dermo")
 
 # assess change in apoptosis between days for each family
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamA <- Day7_Day50_2018_APOP_Granular_treated_arcsine %>% filter(Family == "A")
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamB <- Day7_Day50_2018_APOP_Granular_treated_arcsine %>% filter(Family == "B")
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamD <- Day7_Day50_2018_APOP_Granular_treated_arcsine %>% filter(Family == "D")
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamE <- Day7_Day50_2018_APOP_Granular_treated_arcsine %>% filter(Family == "E")
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamJ <- Day7_Day50_2018_APOP_Granular_treated_arcsine %>% filter(Family == "J")
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamL  <- Day7_Day50_2018_APOP_Granular_treated_arcsine %>% filter(Family == "L")
+
 Day7_Day50_2018_APOP_Granular_treated_arcsine_lm <- lm(Percent_of_this_plot_arcsine~Day:Family,data=Day7_Day50_2018_APOP_Granular_treated_arcsine)
 
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamA_lm <- lm(Percent_of_this_plot_arcsine~Day, data = Day7_Day50_2018_APOP_Granular_treated_arcsine_FamA)
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamB_lm <- lm(Percent_of_this_plot_arcsine~Day, data = Day7_Day50_2018_APOP_Granular_treated_arcsine_FamB)
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamD_lm <- lm(Percent_of_this_plot_arcsine~Day, data = Day7_Day50_2018_APOP_Granular_treated_arcsine_FamD)
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamE_lm <- lm(Percent_of_this_plot_arcsine~Day, data = Day7_Day50_2018_APOP_Granular_treated_arcsine_FamE)
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamJ_lm <- lm(Percent_of_this_plot_arcsine~Day, data = Day7_Day50_2018_APOP_Granular_treated_arcsine_FamJ)
+Day7_Day50_2018_APOP_Granular_treated_arcsine_FamL_lm <- lm(Percent_of_this_plot_arcsine~Day, data = Day7_Day50_2018_APOP_Granular_treated_arcsine_FamL)
 
+summary(Day7_Day50_2018_APOP_Granular_treated_arcsine_FamA_lm) # 0.066 . 
+summary(Day7_Day50_2018_APOP_Granular_treated_arcsine_FamB_lm) # 0.00369 **
+summary(Day7_Day50_2018_APOP_Granular_treated_arcsine_FamD_lm) # 8.52e-06 ***
+summary(Day7_Day50_2018_APOP_Granular_treated_arcsine_FamE_lm) #  0.0396 *
+summary(Day7_Day50_2018_APOP_Granular_treated_arcsine_FamJ_lm) # 0.000298 ***
+summary(Day7_Day50_2018_APOP_Granular_treated_arcsine_FamL_lm) # 0.63
 
 # change to numeric after setting lm above 
 class(Day7_Day50_2018_APOP_Granular_treated_arcsine$Day)
@@ -2964,12 +3036,13 @@ ggsave(Chapter3_2018_multipanel_Day50, filename = "/Users/erinroberts/Documents/
        device = "tiff", width = 21, height = 15)
 
 # Figure 3 - Apoptosis and resistance results
-
-Chapter3_2018_apoptosis_resistance <- cowplot::plot_grid(Day7_Day50_2018_APOP_Granular_treated_arcsine_plot,Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_plot,
-                                                         ncol = 2, labels = c("A","B"), label_size = 20,
+Chapter3_2018_apoptosis_resistance <- cowplot::plot_grid(Day7_Day50_2018_APOP_Granular_treated_arcsine_plot,
+                                                         Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_plot,
+                                                         Day7_Day50_2018_APOP_Granular_Apop_combined_combined_pconc_arcsine_ALL_plot,
+                                                         ncol = 2,nrow=2, labels = c("A","B","C"), label_size = 20,
                                                          label_fontfamily = "serif",label_fontface = "bold")
 ggsave(Chapter3_2018_apoptosis_resistance, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_multipanel_Day50.tiff",
-       device = "tiff", width = 20, height = 8)
+       device = "tiff", width = 20, height = 15)
 
 
 
