@@ -26,6 +26,8 @@ library(factoextra)
 library(tidyverse)
 library(egg)
 library(cowplot)
+library(survival)
+library(lsmeans)
 
 ##### LOAD ASSAY CSV'S and format #####
 getwd()
@@ -2170,6 +2172,58 @@ Day7_2018_VIA_Percent_Granular_treat_aov <- Day7_2018_Live_granular_percent %>%
   ungroup
   # no effect of treatment
 
+### Viability Analysis of LIVE granular Day 50 
+# Procedure: isolate the day 50 granular cells in plots 4 and 9
+# and divide the number of live granulocytes (number from flow cytometry plot 9) by the total granular cell counts from Plot 4
+Day50_2018_Live_granular_counts <- Day7_Day50_2018_all_assays_bad_removed_VI %>% filter(Day == 50) %>% filter(Plot_number == 4 | Plot_number == 9) %>% 
+  filter(grepl("granular", Cell_type) & !grepl("agranular", Cell_type)) %>% select(-Percent_of_this_plot, - Percent_of_this_plot_arcsine)
+
+# calculate percent live
+Day50_2018_Live_granular_percent <- Day50_2018_Live_granular_counts %>% group_by(Flow_Code) %>% 
+  summarise(Percent_live = (Counts[Plot_number == 9] / Counts[Plot_number == 4])*100) %>%
+  left_join(unique(Day7_Day50_2018_all_assays_bad_removed_VI[,c("Family","ID","Assay","Treat","Flow_Code")]))
+
+# arcsine transform percentage 
+Day50_2018_Live_granular_percent$Percent_live_arcsine <- transf.arcsin(Day50_2018_Live_granular_percent$Percent_live*0.01)
+
+## Create plot for Chapter 3 in dissertation
+Day50_2018_VIA_Percent_Live_Granular_plot <- 
+  ggplot(data=Day50_2018_Live_granular_percent,
+         aes(y=Percent_live, x=Treat, fill=Treat)) + geom_boxplot()+ 
+  geom_point(position=position_dodge(width=0.505))+ 
+  xlab("Treatment") +
+  ylab("% Live Granular Hemocytes") + 
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face = "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  facet_grid(.~Family) + 
+  scale_x_discrete(labels=c("Dermo"="D", "control"="C")) + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(50,100)) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control", "Dermo Injected"), values=c("#6c81d9","#50b47b")) 
+
+## Perform AOVs
+# compare granular treated only between treatments  
+Day50_2018_VIA_Percent_Granular_treated <- Day50_2018_Live_granular_percent %>%  
+  filter(Treat == "Dermo")
+
+Day50_2018_VIA_Percent_Granular_aov <- aov(Percent_live_arcsine ~ Family, data = Day50_2018_VIA_Percent_Granular_treated)  
+summary(Day50_2018_VIA_Percent_Granular_aov) #0.033 *
+TukeyHSD(Day50_2018_VIA_Percent_Granular_aov) 
+  # L-B -0.102963662 -0.19926926 -0.006658066 0.0298898
+  # E-B -0.090349007 -0.17861454 -0.002083471 0.0420807
+
+## compare granular treated day 50 between control and treated within family
+Day50_2018_VIA_Percent_Granular_treat_aov <- Day50_2018_Live_granular_percent %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(Percent_live_arcsine ~ Treat, data = .)))  %>%
+  ungroup
+# no significant differences
+
 #### Apoptosis Assay Statistics and Plotting ####
 
 Day7_Day50_2018_APOP <- Day7_Day50_2018_all_assays_bad_removed %>% filter(Assay=="A")
@@ -2314,6 +2368,26 @@ Day7_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular
 ggsave(plot = Day7_2018_APOP_Granular_Apop_just_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Granular_Apop_just_combined_plot.tiff",
        device = "tiff", width = 10, height =6 )
 
+# Plot of just combined apoptotic granular in control and treated DAY 50
+# Used this figure for chapter 3 dissertation apoptosis figure
+Day50_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular") %>% 
+  filter(Day == 50) %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Apoptotic Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#7e78d4", "#cd4272")) 
+
 # ANOVA
 # Apop combined granular vs apop combined agranular within each treatment
 Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_AOV <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
@@ -2358,10 +2432,17 @@ Day7_Day50_2018_APOP_Granular_Agranular_all_TREAT_AOV <-Day7_Day50_2018_APOP_Gra
   #B	7	Q13-UL	Treat	1	7.32E-02	7.32E-02	4.94E+00	0.05696606 # granular
 
 ## Combined granular combined control vs. treated for each family at Day 7 
-
 Day7_2018_APOP_Granular_Apop_combined <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Day == 7 & Cell_type == "apop_combined_granular")
 
 Day7_2018_APOP_Granular_Apop_combined_aov_treat <- Day7_2018_APOP_Granular_Apop_combined %>% 
+  group_by(Family) %>% 
+  do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
+  ungroup
+
+## Combined granular combined control vs. treated for each family at Day 50 
+Day50_2018_APOP_Granular_Apop_combined <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Day == 50 & Cell_type == "apop_combined_granular")
+
+Day50_2018_APOP_Granular_Apop_combined_aov_treat <- Day50_2018_APOP_Granular_Apop_combined %>% 
   group_by(Family) %>% 
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
@@ -2375,6 +2456,16 @@ summary(Day7_2018_APOP_Granular_Apop_combined_aov_treated_family ) # p = 0.00504
 TukeyHSD(Day7_2018_APOP_Granular_Apop_combined_aov_treated_family)
   #B-A  0.34816810  0.08287686 0.61345934 0.0041820
   #D-A  0.30626264  0.01971535 0.59280993 0.0301393
+
+## Combined granular combined treated compared between families for each family at Day 50 
+Day50_2018_APOP_Granular_Apop_combined_treated <-  Day50_2018_APOP_Granular_Apop_combined %>% 
+  filter(Treat == "Dermo")
+
+Day50_2018_APOP_Granular_Apop_combined_aov_treated_family <- aov(Percent_of_this_plot_arcsine ~ Family, data = Day50_2018_APOP_Granular_Apop_combined_treated)
+summary(Day50_2018_APOP_Granular_Apop_combined_aov_treated_family ) # 0.0825 .
+TukeyHSD(Day50_2018_APOP_Granular_Apop_combined_aov_treated_family)
+#B-A  0.34816810  0.08287686 0.61345934 0.0041820
+#D-A  0.30626264  0.01971535 0.59280993 0.0301393
 
 #### Caspase Assay Statistics ####
 
@@ -2498,6 +2589,24 @@ Day7_2018_CASP_Granular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Agr
 ggsave(plot = Day7_2018_CASP_Granular_casp_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_CASP_Granular_casp_combined_plot.tiff",
        device = "tiff", width = 10, height =6 )
 
+# Plot only granular at Day 50, all families 
+Day50_2018_CASP_Granular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_granular" & Day == "50")  %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Granular Caspase 3/7 Active Hemocytes") + 
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#ad993c", "#b94e45")) 
+
 # ANOVA
 # Casp active combined granular vs apop combined agranular within each treatment
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_AOV <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
@@ -2547,7 +2656,6 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_TREAT_J_AOV <- Day7_Day50_
   group_by(Family, Gate, Day) %>% filter(Family == "J") %>% 
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
   ungroup
-
 
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_TREAT_L_AOV <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% # not enough samples
   group_by(Family, Gate, Day) %>% filter(Family == "L") %>% 
@@ -2732,7 +2840,47 @@ Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group_aov <
   ungroup
 # no effect of treatment
 
-#### 2018 MULTIPANEL FIGURE FOR CHAPTER 3 ####
+#### 2018 PCONC AND APOPTOSIS REGRESSION MODELING ####
+
+## Back in 2018 I made a large script analyzing different methods for assessing relationship between apoptosis and resistance phenotype
+  # the script was called "Regression_Modeling_PCA.R". Sadly this script was very messy and very exploratory. Going to repeat 
+  # essential parts of code here to make figures for publication
+
+## ASSESS CHANGE IN APOPTOSIS LEVELS THROUGH TIME - SIMILAR TO CHANGE IN LOAD THROUGH TIME ##
+Day7_Day50_2018_APOP_Granular_treated_arcsine <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular" & Treat == "Dermo")
+
+Day7_Day50_2018_APOP_Granular_treated_arcsine_lm <- lm(Percent_of_this_plot_arcsine~Family:Day,data=Day7_Day50_2018_APOP_Granular_treated_arcsine)
+
+# change to numeric after setting lm above 
+class(Day7_Day50_2018_APOP_Granular_treated_arcsine$Day)
+Day7_Day50_2018_APOP_Granular_treated_arcsine$Day <- as.numeric(Day7_Day50_2018_APOP_Granular_treated_arcsine$Day)
+class(Day7_Day50_2018_APOP_Granular_treated_arcsine$Day)
+
+Day7_Day50_2018_APOP_Granular_treated_arcsine_plot <-  
+  ggplot(Day7_Day50_2018_APOP_Granular_treated_arcsine,aes(y=Percent_of_this_plot, x=Day)) + geom_point() + facet_grid(.~Family) + geom_smooth(method="lm") + 
+  #ggtitle("Change in P. marinus Load over Time Across Families") + 
+  ylab("% Granular Apoptosis") + xlab("Days Post-Challenge") +
+  theme(panel.background=element_blank(),panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20), axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),legend.key=element_rect(fill=NA)) + 
+  theme(text=element_text(size=20)) + 
+  theme(axis.text.x = element_text(size=20)) +
+  theme(legend.text = element_text(size=20))  
+
+anova(Day7_Day50_2018_APOP_Granular_treated_arcsine_lm)
+
+#Analysis of Variance Table
+#
+#Response: Percent_of_this_plot_arcsine
+#Df Sum Sq  Mean Sq F value    Pr(>F)    
+#Family:Day 11 2.1466 0.195148  7.8058 3.774e-09 ***
+#  Residuals  84 2.1000 0.025001                      
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+#### 2018 MULTIPANEL FIGURES FOR CHAPTER 3 ####
+# Figure 2 - day 7 flow cytometry results
 Chapter3_2018_multipanel <- cowplot::plot_grid(Day7_2018_VIA_Percent_Live_Granular_plot, Day7_2018_APOP_Granular_Apop_just_combined_plot,
                    Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot, Day7_2018_CASP_Granular_casp_combined_plot,
                    nrow = 2, ncol = 2, labels = c("A","B","C","D"), label_size = 20, label_fontfamily = "serif",label_fontface = "bold")
@@ -2740,6 +2888,16 @@ Chapter3_2018_multipanel <- cowplot::plot_grid(Day7_2018_VIA_Percent_Live_Granul
 ggsave(Chapter3_2018_multipanel, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_multipanel.tiff",
        device = "tiff", width = 21, height = 15)
 
+# Supplementary Figure 1 - day 50 flow cytometry results
+Chapter3_2018_multipanel_Day50 <- cowplot::plot_grid(Day50_2018_VIA_Percent_Live_Granular_plot, Day50_2018_APOP_Granular_Apop_just_combined_plot,
+                                                    Day50_2018_CASP_Granular_casp_combined_plot,
+                                                     nrow = 2, ncol = 2, labels = c("A","B","C"), label_size = 20, 
+                                                    label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_multipanel_Day50, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_multipanel_Day50.tiff",
+       device = "tiff", width = 21, height = 15)
+
+# Figure 3 - Apoptosis and resistance results
 
 
 #### COMBINED 2018 2019 PLOTS ####
