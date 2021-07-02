@@ -5267,7 +5267,7 @@ Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-
   geom_point(shape = 15, aes(fill = inhibitor)) + 
   #facet_grid(.~Gate) +
   xlab(NULL) +
-  ylab("% Apoptotic Hemocytes") + 
+  ylab("% Apoptotic Agranular Hemocytes") + 
   theme_classic() +
   theme(
     axis.title.y=element_text(size=16, face = "bold"),
@@ -5306,7 +5306,6 @@ stat.test_tukey <-
 
 # take only significant columns
 stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05) # none significantly different
-
 
 ## Plot just the granular apoptosis for multi-panel figure 
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd <- Inhibitor_2020_APOP_join_ID_treat_combined %>%
@@ -6664,6 +6663,73 @@ ggsave(plot = Dermo_Inhibitor_2020_APOP_join_granular_all_treat_combined_apoptot
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 8, width = 5)
 
+## 7/2/21 Plot just agranular apoptotic cells from plot Q15 
+
+# first add together Q15-UL and Q-15-UR, combine the UL and UR quadrants to get combined apoptosis levels 
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic <- Dermo_Inhibitor_2020_APOP_join %>% filter(Gate == "Q15-UR" | Gate == "Q15-UL") %>% 
+  filter(Treat !="UV") %>% filter(Treat !="PERK") %>%
+  mutate(ID_full = paste(ID,Treat,Assay)) %>%
+  ungroup() %>% dplyr::group_by(ID_full) %>%
+  mutate(Percent_of_this_plot_combined = sum(Percent_of_this_plot)) %>% distinct(ID_full, .keep_all = TRUE)  
+
+# calculate the arcsine transformed percentages
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic$Percent_of_this_plot_combined_arcsine <- transf.arcsin(Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic$Percent_of_this_plot_combined*0.01)
+
+# calculate mean and sd
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd <-   Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic %>% ungroup() %>%
+  group_by(Treat) %>% mutate(mean = mean(Percent_of_this_plot_combined), sd = sd(Percent_of_this_plot_combined))
+
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd$Treat,
+                                                                                        levels = c("BEADS_LPS" ,  "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd$Treat <- factor(Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd$Treat,
+                                                                                        levels = c("BEADS_LPS" ,   "Control_hemo", "UV", "Dermo","Dermo_GDC","Dermo_ZVAD" ))
+
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_multipanel <- 
+  ggplot(data=Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#6d8dd7")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Agranular Apoptotic") + 
+  theme_classic() +
+  theme_classic() +
+  theme(
+    axis.title.y=element_text(size=16, face = "bold"),
+    axis.title.x=element_text(size=16,face = "bold"),
+    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=16,face = "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("BEADS_LPS"="Beads",
+                              "Control_hemo"="FSW",
+                              "UV" = "UV-Killed *P. mar.*",
+                              "Dermo"="*P. mar.* 1:1",
+                              "Dermo_GDC" = "*P. mar.* 1:1,<br>GDC-0152",
+                              "Dermo_ZVAD" = "*P. mar.* 1:1,<br>Z-VAD-fmk"))
+
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_multipanel <- 
+  Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_multipanel  + 
+  theme(axis.text.x=ggtext::element_markdown(),
+        legend.text = ggtext::element_markdown()) 
+
+# Perform anova with Tukey test and generate stats dataframe
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd)
+summary(Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_AOV)
+stat_test_tukey <- tukey_hsd(Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 != "BEADS_LPS")
+# agranular apoptosis is also suppressed, though this may likely be to immune activation since levels of phagocytosis were so low
+
+Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_multipanel_sig <- 
+  Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_multipanel + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(20,24,28), size = 3) +
+  # add overall anova values 
+  #stat_compare_means(method= "anova") +
+  labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
 ### CORRECTION OF DATA FOR APOPTOSIS OF FREE PARASITE ###
 
@@ -7941,7 +8007,14 @@ ggsave(hemo_2020_compiled, device = "tiff", filename = "hemo_2020_compiled.tiff"
 
 #### 2020 DERMO AND INHIBITORS AGRANULAR SUPPLEMENTARY FIGURE ####
 
-Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel
+agranular_apop_2020_combined <- cowplot::plot_grid(Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel,
+                                                   Dermo_Inhibitor_2020_APOP_join_agranular_combined_apoptotic_sd_multipanel_sig,
+                                                   nrow = 2, labels = c("A","B"), label_size = 16, label_fontface = "bold", align = "hv")
+
+# save the plot
+ggsave(agranular_apop_2020_combined, device = "tiff", filename = "agranular_apop_2020_combined.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 12, width = 8 ) 
 
 #### FORMAT 2020 INHIBITOR DATA FOR TRANSCRIPTOME PCA ####
 
