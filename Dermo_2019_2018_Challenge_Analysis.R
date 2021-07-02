@@ -2684,19 +2684,38 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_DAY_E_AOV <- Day7_Day50_20
   ungroup
 
 # Anova changes in granular hemocyte apoptosis between families in the treated group
-Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
-  filter(Gate == "casp_active_combined_granular" & Treat == "Dermo") %>%
+Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
+  filter(Gate == "casp_active_combined_granular" & Treat == "Dermo" & Day == 7) %>%
   aov(Percent_of_this_plot_arcsine ~ Family, data = .)
-#Call:
-#  aov(formula = Percent_of_this_plot_arcsine ~ Family, data = .)
+TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov)
+
+Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
+  filter(Gate == "casp_active_combined_granular" & Treat == "Dermo" & Day == 50) %>%
+  aov(Percent_of_this_plot_arcsine ~ Family, data = .)
+TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov)
+# day 50 differences in granular between families: E-A, E-B
+#Tukey multiple comparisons of means
+#95% family-wise confidence level
 #
-#Terms:
-#  Family Residuals
-#Sum of Squares  0.223390  3.471664
-#Deg. of Freedom        5        67
+#Fit: aov(formula = Percent_of_this_plot_arcsine ~ Family, data = .)
 #
-#Residual standard error: 0.227631
-#Estimated effects may be unbalanced
+#$Family
+#diff         lwr         upr     p adj
+#B-A -0.02286143 -0.27909099 0.233368133 0.9998041
+#D-A  0.07923695 -0.18598585 0.344459739 0.9463723
+#E-A  0.25471252  0.01163181 0.497793222 0.0351905
+#J-A  0.22084663 -0.03538293 0.477076191 0.1267499
+#L-A  0.01181047 -0.25341233 0.277033259 0.9999937
+#D-B  0.10209837 -0.16312442 0.367321167 0.8577415
+#E-B  0.27757394  0.03449324 0.520654649 0.0170031
+#J-B  0.24370806 -0.01252150 0.499937619 0.0705359
+#L-B  0.03467189 -0.23055090 0.299894686 0.9987418
+#E-D  0.17547557 -0.07706704 0.428018183 0.3200583
+#J-D  0.14160968 -0.12361311 0.406832477 0.6069921
+#L-D -0.06742648 -0.34134740 0.206494442 0.9763916
+#J-E -0.03386589 -0.27694659 0.209214818 0.9982920
+#L-E -0.24290205 -0.49544466 0.009640561 0.0655060
+#L-J -0.20903616 -0.47425896 0.056186628 0.1965315
 
 #### PICK SAMPLES FOR SEQUENCING ####
 
@@ -5215,6 +5234,79 @@ Inhibitor_2020_APOP_join_ID_treat_combined_apoptotic <- Inhibitor_2020_APOP_join
 ggsave(plot = Inhibitor_2020_APOP_join_ID_treat_combined_apoptotic, device = "tiff", filename = "Inhibitor_2020_APOP_join_ID_treat_combined_apoptotic.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 5, width = 8)
+
+## 7/2/21 Format plot above with both agranular apoptosis for multipanel supplementary plot
+Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd <- Inhibitor_2020_APOP_join_ID_treat_combined %>%
+  filter(Gate == "apop_combined_agranular") %>%
+  group_by(Treat, Gate) %>% 
+  # get mean and sd
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot)) %>%
+  mutate(inhibitor = case_when(grepl("GDC",Treat)~ "GDC_0152",
+                               grepl("Z",Treat)~ "Z_VAD_fmk",
+                               grepl("FSW", Treat)~"Control")) %>%
+  mutate(time = case_when(
+    grepl("1HR",Treat) ~ "1hr",
+    grepl("2HR", Treat)~ "2hr",
+    grepl("FSW",Treat)~"Control")) %>%
+  mutate(level = case_when(
+    grepl("10_",Treat) ~ "10",
+    grepl("50_",Treat) ~ "50",
+    grepl("100_",Treat) ~ "100",
+    grepl("FSW",Treat )~ "Control"
+  ))
+
+# change label of gate levels so they display correctly in facet
+Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd$Gate <- factor(Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd$Gate, 
+                                                                                levels = c("apop_combined_agranular"), 
+                                                                                labels = c("Apoptotic Agranular Hemocytes"))
+
+# Make plot 
+Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <- 
+  ggplot(data=Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd ,
+         aes(y=Percent_of_this_plot, x=Treat)) + geom_bar(aes(fill= inhibitor),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 15, aes(fill = inhibitor)) + 
+  #facet_grid(.~Gate) +
+  xlab(NULL) +
+  ylab("% Apoptotic Hemocytes") + 
+  theme_classic() +
+  theme(
+    axis.title.y=element_text(size=16, face = "bold"),
+    axis.title.x=element_text(size=16,face = "bold"),
+    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=16,face = "bold"),
+    strip.text.x = element_text(size = 16),
+    strip.background = element_blank()) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
+  scale_x_discrete(labels = c( "FSW_Control" = "Control", 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
+
+Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel + 
+  theme(axis.text.x = ggtext::element_markdown())
+
+# Perform aov and plot results onto barplot 
+Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd)
+summary(Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_AOV) # 0.398
+
+stat.test_tukey <- 
+  tukey_hsd(Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_AOV) %>%
+  add_significance(p.col = "p.adj")
+
+# take only significant columns
+stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05) # none significantly different
+
 
 ## Plot just the granular apoptosis for multi-panel figure 
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd <- Inhibitor_2020_APOP_join_ID_treat_combined %>%
@@ -7846,6 +7938,10 @@ hemo_2020_compiled <- cowplot::plot_grid(apop_all_hemo_2020_no_lab, JC1_all_hemo
 ggsave(hemo_2020_compiled, device = "tiff", filename = "hemo_2020_compiled.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 20, width = 15 ) 
+
+#### 2020 DERMO AND INHIBITORS AGRANULAR SUPPLEMENTARY FIGURE ####
+
+Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel
 
 #### FORMAT 2020 INHIBITOR DATA FOR TRANSCRIPTOME PCA ####
 
