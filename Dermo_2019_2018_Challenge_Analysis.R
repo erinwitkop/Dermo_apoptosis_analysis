@@ -2532,6 +2532,52 @@ Day50_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granula
   scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
                     values = c("#7e78d4", "#cd4272")) 
 
+## Repeat plots for agranular
+# Plot of just combined apoptotic granular in control and treated DAY 7
+# Used this figure for chapter 3 dissertation apoptosis figure
+Day7_2018_APOP_Agranular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_agranular") %>% 
+  filter(Day == 7) %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Agranular Apoptotic Hemocytes") + 
+  ggtitle("Day 7 Post-Challenge") +
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#7e78d4", "#cd4272")) 
+ggsave(plot = Day7_2018_APOP_Granular_Apop_just_combined_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Agranular_Apop_just_combined_plot.tiff",
+       device = "tiff", width = 10, height =6 )
+
+# Plot of just combined apoptotic Agranular in control and treated DAY 50
+# Used this figure for chapter 3 dissertation apoptosis figure
+Day50_2018_APOP_Agranular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_agranular") %>% 
+  filter(Day == 50) %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Agranular Apoptotic Hemocytes") + 
+  ggtitle("Day 50 Post-Challenge") +
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#7e78d4", "#cd4272")) 
+
+
 # ANOVA
 # Apop combined granular vs apop combined agranular within each treatment
 Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_AOV <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
@@ -3252,7 +3298,7 @@ ggsave(Chapter3_2018_viability_pheno_agranular, filename = "/Users/erinroberts/D
 
 ## Apoptosis assay
 Day7_2018_APOP_Granular_Apop_just_combined_plot_day <-  Day7_2018_APOP_Granular_Apop_just_combined_plot + ggtitle("Day 7 Post-Challenge")
-Day50_2018_APOP_Granular_Apop_just_combined_plot_day <- Day50_2018_APOP_Granular_Apop_just_combined_plot + ggtitle("Day 7 Post-Challenge")
+Day50_2018_APOP_Granular_Apop_just_combined_plot_day <- Day50_2018_APOP_Granular_Apop_just_combined_plot + ggtitle("Day 50 Post-Challenge")
 
 Chapter3_2018_apoptosis_pheno <- cowplot::plot_grid(Day7_2018_APOP_Granular_Apop_just_combined_plot_day, Day50_2018_APOP_Granular_Apop_just_combined_plot_day,
                                                     nrow = 1, labels = c("A","B"), label_size = 20, 
@@ -3260,6 +3306,16 @@ Chapter3_2018_apoptosis_pheno <- cowplot::plot_grid(Day7_2018_APOP_Granular_Apop
 
 ggsave(Chapter3_2018_apoptosis_pheno, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_apoptosis_pheno.tiff",
        device = "tiff", width = 21, height = 8)
+
+# repeat for agranular
+Chapter3_2018_apoptosis_pheno_agranular <- cowplot::plot_grid(Day7_2018_APOP_Agranular_Apop_just_combined_plot, Day50_2018_APOP_Agranular_Apop_just_combined_plot,
+                                                    nrow = 1, labels = c("A","B"), label_size = 20, 
+                                                    label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_apoptosis_pheno_agranular, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_apoptosis_pheno_agranular.tiff",
+       device = "tiff", width = 21, height = 8)
+
+
 
 ## Caspase assay
 Day7_2018_CASP_Granular_casp_combined_plot_day <-  Day7_2018_CASP_Granular_casp_combined_plot + ggtitle("Day 7 Post-Challenge")
