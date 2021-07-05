@@ -2047,7 +2047,7 @@ Day7_Day50_2018_VIA_Percent_Agranular_Granular_plot <- ggplot(data=Day7_Day50_20
   geom_point(position=position_dodge(width=0.75))+ 
   xlab("Treatment") +
   ylab("Percent Hemocytes") + 
-  ggtitle("Percent of Granular and Agranular Viability Assay 2018") + 
+  #ggtitle("Percent of Granular and Agranular Viability Assay 2018") + 
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
         text=element_text(family="serif",size=12), 
@@ -2058,7 +2058,7 @@ Day7_Day50_2018_VIA_Percent_Agranular_Granular_plot <- ggplot(data=Day7_Day50_20
   theme(axis.text.x = element_text(size=12)) +
   theme(legend.text = element_text(size=12)) + 
   facet_grid(Day~Family) + 
-  scale_x_discrete(labels=c("D"="Dermo Injected", "NC"="Notched Control")) + 
+  scale_x_discrete(labels=c("control"="C", "Dermo"="D")) + 
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_fill_manual(name="Cell Type", labels=c("Granular","Agranular"), values=c("#6c81d9","#50b47b")) 
 
@@ -2131,7 +2131,6 @@ Day7_2018_Live_granular_percent <- Day7_2018_Live_granular_counts %>% group_by(F
 
 # arcsine transform percentage 
 Day7_2018_Live_granular_percent$Percent_live_arcsine <- transf.arcsin(Day7_2018_Live_granular_percent$Percent_live*0.01)
-
 
 ## Create plot for Chapter 3 in dissertation
 Day7_2018_VIA_Percent_Live_Granular_plot <- 
@@ -2223,6 +2222,151 @@ Day50_2018_VIA_Percent_Granular_treat_aov <- Day50_2018_Live_granular_percent %>
   do(broom::tidy(aov(Percent_live_arcsine ~ Treat, data = .)))  %>%
   ungroup
 # no significant differences
+
+## Assess differences between day 50 and day 7 treated within families
+Day7_2018_VIA_Percent_Granular_treated$Day <- "7"
+Day50_2018_VIA_Percent_Granular_treated$Day <- "50"
+
+Day7_Day50_2018_VIA_Percent_Granular_treated  <- rbind(Day7_2018_VIA_Percent_Granular_treated ,Day50_2018_VIA_Percent_Granular_treated )
+
+Day7_Day50_2018_VIA_Percent_Granular_treated_DAY_aov <- Day7_Day50_2018_VIA_Percent_Granular_treated %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(Percent_live_arcsine ~ Day, data = .)))  %>%
+  ungroup
+# B      Day           1 0.0648  0.0648     12.7    0.00348
+# D      Day           1 0.0436  0.0436     17.0    0.00142
+# E      Day           1 0.0222  0.0222      6.70   0.0214 
+
+
+
+### REPEAT FOR AGRANULAR CELLS 
+### Viability Analysis of LIVE Agranular Day 7 
+## Used and analysis data from "Dermo_Viability_Assay_Data_analysis.Rmd" to assist in making this code 
+# original code there was: (VI_PLOT9_E1_MINUS_V1R_BAD_REMOVED$COUNT_THIS_PLOT / VI_PLOT4_E1_E3_GATE_BAD_REMOVED$E1_COUNT)*100
+## Calculate the live granulocytes
+# Procedure: isolate the day 7 agranular cells in plots 4 and 9
+# and divide the number of live agranulocytes (number from flow cytometry plot 10) by the total granular cell counts from Plot 4
+Day7_2018_Live_agranular_counts <- Day7_Day50_2018_all_assays_bad_removed_VI %>% filter(Day == 7) %>% filter(Plot_number == 4 | Plot_number == 10) %>% 
+  filter(grepl("agranular", Cell_type)) %>% select(-Percent_of_this_plot, - Percent_of_this_plot_arcsine)
+
+# calculate percent live
+Day7_2018_Live_agranular_percent <- Day7_2018_Live_agranular_counts %>% group_by(Flow_Code) %>% 
+  summarise(Percent_live = (Counts[Plot_number == 10] / Counts[Plot_number == 4])*100) %>%
+  left_join(unique(Day7_Day50_2018_all_assays_bad_removed_VI[,c("Family","ID","Assay","Treat","Flow_Code")]))
+
+# arcsine transform percentage 
+Day7_2018_Live_agranular_percent$Percent_live_arcsine <- transf.arcsin(Day7_2018_Live_agranular_percent$Percent_live*0.01)
+
+## Create plot for Chapter 3 in dissertation
+Day7_2018_VIA_Percent_Live_Agranular_plot <- 
+  ggplot(data=Day7_2018_Live_agranular_percent,
+         aes(y=Percent_live, x=Treat, fill=Treat)) + geom_boxplot()+ 
+  geom_point(position=position_dodge(width=0.75))+ 
+  xlab("Treatment") +
+  ylab("% Live Agranular Hemocytes") + 
+  ggtitle("Day 7 Post-Challenge") +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face = "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  facet_grid(.~Family) + 
+  scale_x_discrete(labels=c("Dermo"="D", "control"="C")) + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(90,100)) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control", "Dermo Injected"), values=c("#6c81d9","#50b47b")) 
+
+ggsave(Day7_2018_VIA_Percent_Live_Agranular_plot , path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       device = "tiff", filename = "Day7_2018_VIA_Percent_Live_Agranular_plot_7_5_21.tiff", width = 10, height =6 )
+
+## Perform AOVs
+# compare agranular treated only between treatments  
+Day7_2018_VIA_Percent_Agranular_treated <- Day7_2018_Live_agranular_percent %>%  
+  filter(Treat == "Dermo")
+
+Day7_2018_VIA_Percent_Agranular_aov <- aov(Percent_live_arcsine ~ Family, data = Day7_2018_VIA_Percent_Agranular_treated)  
+summary(Day7_2018_VIA_Percent_Agranular_aov) # sig difference between treatments  0.00629 **
+TukeyHSD(Day7_2018_VIA_Percent_Agranular_aov)
+    # sig difference between D-A, J-A in treated group
+
+## compare granular treated day 7 between control and treated within family
+Day7_2018_VIA_Percent_Agranular_treat_aov <- Day7_2018_Live_agranular_percent %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(Percent_live_arcsine ~ Treat, data = .)))  %>%
+  ungroup
+# no effect of treatment
+
+### Viability Analysis of LIVE Agranular Day 50 
+# Procedure: isolate the day 50 agranular cells in plots 4 and 9
+# and divide the number of live agranulocytes (number from flow cytometry plot 10) by the total granular cell counts from Plot 4
+Day50_2018_Live_agranular_counts <- Day7_Day50_2018_all_assays_bad_removed_VI %>% filter(Day == 50) %>% filter(Plot_number == 4 | Plot_number == 10) %>% 
+  filter(grepl("agranular", Cell_type)) %>% select(-Percent_of_this_plot, - Percent_of_this_plot_arcsine)
+
+# calculate percent live
+Day50_2018_Live_agranular_percent <- Day50_2018_Live_agranular_counts %>% group_by(Flow_Code) %>% 
+  summarise(Percent_live = (Counts[Plot_number == 10] / Counts[Plot_number == 4])*100) %>%
+  left_join(unique(Day7_Day50_2018_all_assays_bad_removed_VI[,c("Family","ID","Assay","Treat","Flow_Code")]))
+
+# arcsine transform percentage 
+Day50_2018_Live_agranular_percent$Percent_live_arcsine <- transf.arcsin(Day50_2018_Live_agranular_percent$Percent_live*0.01)
+
+## Create plot for Chapter 3 in dissertation
+Day50_2018_VIA_Percent_Live_Agranular_plot <- 
+  ggplot(data=Day50_2018_Live_agranular_percent,
+         aes(y=Percent_live, x=Treat, fill=Treat)) + geom_boxplot()+ 
+  geom_point(position=position_dodge(width=0.505))+ 
+  xlab("Treatment") +
+  ylab("% Live Agranular Hemocytes") + 
+  ggtitle("Day 50 Post-Challenge") +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face = "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  facet_grid(.~Family) + 
+  scale_x_discrete(labels=c("Dermo"="D", "control"="C")) + 
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(90,100)) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control", "Dermo Injected"), values=c("#6c81d9","#50b47b")) 
+
+## Perform AOVs
+# compare agranular treated only between treatments  
+Day50_2018_VIA_Percent_Agranular_treated <- Day50_2018_Live_agranular_percent %>%  
+  filter(Treat == "Dermo")
+
+Day50_2018_VIA_Percent_Agranular_aov <- aov(Percent_live_arcsine ~ Family, data = Day50_2018_VIA_Percent_Agranular_treated)  
+summary(Day50_2018_VIA_Percent_Agranular_aov) #0.000195 ***
+TukeyHSD(Day50_2018_VIA_Percent_Agranular_aov) 
+# L-A -0.038595476 -0.06550209 -0.0116888606 0.0013466
+# E-B -0.028221202 -0.05411972 -0.0023226852 0.0255143
+# L-B -0.047495662 -0.07575326 -0.0192380634 0.0001312
+# L-J -0.028340376 -0.05659797 -0.0000827778 0.0489506
+
+## compare granular treated day 50 between control and treated within family
+Day50_2018_VIA_Percent_Agranular_treat_aov <- Day50_2018_Live_agranular_percent %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(Percent_live_arcsine ~ Treat, data = .)))  %>%
+  ungroup
+# Family A significantly different between treated P = 0.02
+
+## Assess differences between day 50 and day 7 treated within families
+Day7_2018_VIA_Percent_Agranular_treated$Day <- "7"
+Day50_2018_VIA_Percent_Agranular_treated$Day <- "50"
+
+Day7_Day50_2018_VIA_Percent_Agranular_treated  <- rbind(Day7_2018_VIA_Percent_Agranular_treated ,Day50_2018_VIA_Percent_Agranular_treated )
+
+Day7_Day50_2018_VIA_Percent_Agranular_treated_DAY_aov <- Day7_Day50_2018_VIA_Percent_Agranular_treated %>% 
+  group_by(Family) %>%
+  do(broom::tidy(aov(Percent_live_arcsine ~ Day, data = .)))  %>%
+  ungroup
+# A      Day           1 0.000863 0.000863      5.61  0.0317 
+# B      Day           1 0.00441  0.00441       9.45  0.00888
+# E      Day           1 0.00246  0.00246       6.46  0.0235 
+#  L      Day           1 0.00403  0.00403       6.62  0.0232 
 
 #### Apoptosis Assay Statistics and Plotting ####
 
@@ -2405,8 +2549,46 @@ Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_DAY_AOV <- Day7_Day50_2018
   group_by(Family, Treat, Gate) %>%
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Day, data = .)))  %>%
   ungroup
-# B dermo granular, D granular control and dermo, E Dermo Granular (not control), J dermo granular (not control)
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_DAY_AOV %>% filter(p.value <= 0.05)
+  #Family Treat   Gate                    term     df  sumsq meansq statistic     p.value
+  #<chr>  <chr>   <chr>                   <chr> <dbl>  <dbl>  <dbl>     <dbl>       <dbl>
+  #  1 A      control apop_combined_agranular Day       1 0.0349 0.0349      7.25 0.0432     
+  #2 B      control apop_combined_agranular Day       1 0.0598 0.0598     10.4  0.0232     
+  #3 B      Dermo   apop_combined_agranular Day       1 0.256  0.256      85.8  0.000000240
+  #4 B      Dermo   apop_combined_granular  Day       1 0.618  0.618      12.1  0.00369    
+  #5 D      control apop_combined_granular  Day       1 0.215  0.215     163.   0.000217   
+  #6 D      Dermo   apop_combined_agranular Day       1 0.0204 0.0204      5.36 0.0409     
+  #7 D      Dermo   apop_combined_granular  Day       1 0.613  0.613      60.5  0.00000852 
+  #8 E      Dermo   apop_combined_granular  Day       1 0.148  0.148       5.08 0.0396     
+  #9 J      Dermo   apop_combined_granular  Day       1 0.214  0.214      21.9  0.000298 
   
+# one way anova granular and agranular hemocytes between families
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_FAMILY_AOV <-Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
+  group_by(Day, Gate, Treat) %>%
+  do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Family, data = .)))  %>%
+  ungroup
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_FAMILY_AOV %>% filter(p.value <= 0.05)
+  # Day   Gate                    Treat term      df  sumsq meansq statistic  p.value
+  # <chr> <chr>                   <chr> <chr>  <dbl>  <dbl>  <dbl>     <dbl>    <dbl>
+  #   1 50    apop_combined_agranular Dermo Family     5 0.0636 0.0127      2.68 0.0336  
+  # 2 7     apop_combined_agranular Dermo Family     5 0.385  0.0770      5.94 0.000340
+  # 3 7     apop_combined_granular  Dermo Family     5 0.626  0.125       3.98 0.00504 
+
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_FAMILY_TUKEY <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
+  group_by(Day, Gate, Treat) %>%
+  do(broom::tidy(TukeyHSD(aov(Percent_of_this_plot_arcsine ~ Family, data = .))))  %>%
+  ungroup
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_FAMILY_TUKEY %>% filter(adj.p.value <= 0.05)
+  #Day   Gate                    Treat term   comparison estimate conf.low conf.high adj.p.value
+  #<chr> <chr>                   <chr> <chr>  <chr>         <dbl>    <dbl>     <dbl>       <dbl>
+  #1 50    apop_combined_agranular Dermo Family J-A           0.101  0.00396    0.199     0.0371  
+  #2 7     apop_combined_agranular Dermo Family B-A           0.286  0.116      0.456     0.000152
+  #3 7     apop_combined_agranular Dermo Family E-B          -0.233 -0.410     -0.0568    0.00385 
+  #4 7     apop_combined_agranular Dermo Family J-B          -0.181 -0.347     -0.0153    0.0251  
+  #5 7     apop_combined_agranular Dermo Family L-B          -0.215 -0.385     -0.0443    0.00651 
+  #6 7     apop_combined_granular  Dermo Family B-A           0.348  0.0829     0.613     0.00418 
+  #7 7     apop_combined_granular  Dermo Family D-A           0.306  0.0197     0.593     0.0301  
+
 # one way anova granular and agranular hemocytes between treatments
 Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_TREAT_AOV <-Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
   group_by(Family, Day, Gate) %>%
@@ -2417,19 +2599,6 @@ Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_TREAT_AOV %>% filter(p.val
 #Family Day   Gate                    term     df  sumsq meansq statistic p.value
 #<chr>  <chr> <chr>                   <chr> <dbl>  <dbl>  <dbl>     <dbl>   <dbl>
 #  1 A      7     apop_combined_agranular Treat     1 0.0293 0.0293      7.42  0.0234
-
-Day7_Day50_2018_APOP_Granular_Agranular_all_TREAT_AOV <-Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_full %>%
-  group_by(Family, Day, Gate) %>% 
-  do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Treat, data = .)))  %>%
-  ungroup
-# significant include:
-  #D	50	Q13-LL	Treat	1	6.11E-02	6.11E-02	7.99E+00	0.01984361
-  #A	7	apop_combined_agranular	Treat	1	2.93E-02	2.93E-02	7.42E+00	0.02344723
-  #A	7	Q12-LL	Treat	1	2.72E-02	2.72E-02	7.15E+00	0.02542913  #agranular
-  #A	7	Q12-LR	Treat	1	2.47E-02	2.47E-02	6.96E+00	0.02700916 #agranular
-  #E	7	Q12-UL	Treat	1	2.99E-02	2.99E-02	6.71E+00	0.03592898 #agranular
-  #D	7	Q12-UR	Treat	1	5.15E-03	5.15E-03	5.79E+00	0.05289778 #agranular
-  #B	7	Q13-UL	Treat	1	7.32E-02	7.32E-02	4.94E+00	0.05696606 # granular
 
 ## Combined granular combined control vs. treated for each family at Day 7 
 Day7_2018_APOP_Granular_Apop_combined <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Day == 7 & Cell_type == "apop_combined_granular")
@@ -3072,6 +3241,13 @@ Chapter3_2018_viability_pheno <-  cowplot::plot_grid(Day7_2018_VIA_Percent_Live_
                                                      label_fontfamily = "serif",label_fontface = "bold")
 
 ggsave(Chapter3_2018_viability_pheno, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_viability_pheno.tiff",
+       device = "tiff", width = 21, height = 8)
+
+Chapter3_2018_viability_pheno_agranular <-  cowplot::plot_grid( Day7_2018_VIA_Percent_Live_Agranular_plot, Day50_2018_VIA_Percent_Live_Agranular_plot,
+                                                     nrow = 1, labels = c("A","B"), label_size = 20, 
+                                                     label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_viability_pheno_agranular, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_viability_pheno_agranular.tiff",
        device = "tiff", width = 21, height = 8)
 
 ## Apoptosis assay
