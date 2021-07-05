@@ -2845,9 +2845,6 @@ Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot 
   scale_fill_manual(name="Group", labels=c("Control","High Phenotype","Low Phenotype"), 
                     values = c("#7e78d4", "#cd4272","#50b47b"))
 
-ggsave(plot = Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot, filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot.tiff",
-       device = "tiff", width = 10, height =6 )
-
 ### ANOVA TO ASSESS DIFFERENCES BETWEEN PHENOTYPE GROUPS
 Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_group
 
@@ -3063,8 +3060,49 @@ Chapter3_2018_apoptosis_resistance <- cowplot::plot_grid(Day7_Day50_2018_APOP_Gr
 ggsave(Chapter3_2018_apoptosis_resistance, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_multipanel_Day50.tiff",
        device = "tiff", width = 20, height = 15)
 
+## Reconfigured figures, with day 7 and day 50 next to each other each in separate figures 
 
+## Viability assay
+# add titles for day
+Day7_2018_VIA_Percent_Live_Granular_plot_day <- Day7_2018_VIA_Percent_Live_Granular_plot + ggtitle("Day 7 Post-Challenge")
+Day50_2018_VIA_Percent_Live_Granular_plot_day <- Day50_2018_VIA_Percent_Live_Granular_plot + ggtitle("Day 50 Post-Challenge")
 
+Chapter3_2018_viability_pheno <-  cowplot::plot_grid(Day7_2018_VIA_Percent_Live_Granular_plot_day, Day50_2018_VIA_Percent_Live_Granular_plot_day,
+                                                     nrow = 1, labels = c("A","B"), label_size = 20, 
+                                                     label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_viability_pheno, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_viability_pheno.tiff",
+       device = "tiff", width = 21, height = 8)
+
+## Apoptosis assay
+Day7_2018_APOP_Granular_Apop_just_combined_plot_day <-  Day7_2018_APOP_Granular_Apop_just_combined_plot + ggtitle("Day 7 Post-Challenge")
+Day50_2018_APOP_Granular_Apop_just_combined_plot_day <- Day50_2018_APOP_Granular_Apop_just_combined_plot + ggtitle("Day 7 Post-Challenge")
+
+Chapter3_2018_apoptosis_pheno <- cowplot::plot_grid(Day7_2018_APOP_Granular_Apop_just_combined_plot_day, Day50_2018_APOP_Granular_Apop_just_combined_plot_day,
+                                                    nrow = 1, labels = c("A","B"), label_size = 20, 
+                                                    label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_apoptosis_pheno, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_apoptosis_pheno.tiff",
+       device = "tiff", width = 21, height = 8)
+
+## Caspase assay
+Day7_2018_CASP_Granular_casp_combined_plot_day <-  Day7_2018_CASP_Granular_casp_combined_plot + ggtitle("Day 7 Post-Challenge")
+Day50_2018_CASP_Granular_casp_combined_plot_day <- Day50_2018_CASP_Granular_casp_combined_plot + ggtitle("Day 7 Post-Challenge")
+  
+Chapter3_2018_caspase_pheno <- cowplot::plot_grid(Day7_2018_CASP_Granular_casp_combined_plot_day, Day50_2018_CASP_Granular_casp_combined_plot_day,
+                                                    nrow = 1, labels = c("A","B"), label_size = 20, 
+                                                    label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_caspase_pheno, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_caspase_pheno.tiff",
+       device = "tiff", width = 21, height = 8)
+
+# High and low phenotype figure alone 
+Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot_day <- Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot + 
+  ggtitle("Day 7 Post-Challenge")
+ggsave(plot = Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot_day,
+       filename  = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Day7_2018_APOP_Granular_Apop_combined_casp_combined_pconc_sequencing_PHENO_plot.tiff",
+       device = "tiff", width = 10, height =6 )
+       
 #### COMBINED 2018 2019 PLOTS ####
 
 # GOAL: PLOT ALL SAMPLES FOR EACH PARAMETER IN EACH YEAR, BOTH CONTROL AND CHALLENGE TO LOOK FOR TRENDS 
