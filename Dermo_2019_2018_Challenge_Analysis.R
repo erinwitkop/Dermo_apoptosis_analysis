@@ -2532,6 +2532,59 @@ Day50_2018_APOP_Granular_Apop_just_combined_plot <- Day7_Day50_2018_APOP_Granula
   scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
                     values = c("#7e78d4", "#cd4272")) 
 
+# find granular apoptosis range at both time points 
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular") %>% 
+  filter(Day == 50) %>% group_by(Treat, Family) %>% summarise( min = min(Percent_of_this_plot), max = max(Percent_of_this_plot),median= median(Percent_of_this_plot)) %>% filter(Treat !="control")
+    # Treat Family   min   max median
+    # <chr> <chr>  <dbl> <dbl>  <dbl>
+    #   1 Dermo A       8.86  52.4   24.8
+    # 2 Dermo B       9.18  60.1   34.6
+    # 3 Dermo D      11.9   38.5   23.4
+    # 4 Dermo E      13.1   59.5   30.4
+    # 5 Dermo J      24.2   38.3   34.3
+    # 6 Dermo L      22.7   58.8   49.5
+
+#caspase day 50
+# Treat Family   min   max median
+# <chr> <chr>  <dbl> <dbl>  <dbl>
+#   1 Dermo A       6.08  23.3  13.3 -LOWER
+# 2 Dermo B       3.01  55.3   9.75 - LOWER
+# 3 Dermo D       7.36  49.2  19.7 -LOWER 
+# 4 Dermo E      15.2   89.6  31.1 -HIGHER
+# 5 Dermo J      22.2   48.1  33.8 -LOWER
+# 6 Dermo L       5.53  26.5  18.0 -LOWER
+
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular") %>% 
+  filter(Day == 7) %>% group_by(Treat, Family) %>% summarise( min = min(Percent_of_this_plot), max = max(Percent_of_this_plot), median= median(Percent_of_this_plot)) %>% filter(Treat !="control")
+      # Treat Family   min   max median
+      # <chr> <chr>  <dbl> <dbl>  <dbl>
+      #   1 Dermo A       16.8  54.5   37.2
+      # 2 Dermo B       35.9  93.5   76.9
+      # 3 Dermo D       52.7  73.8   69.4
+      # 4 Dermo E       18.2  76.9   52.4
+      # 5 Dermo J       31.9  66.1   57.0
+      # 6 Dermo L       20.9  76.8   48.2
+
+
+#caspase day 7 
+# Treat Family   min   max median
+# <chr> <chr>  <dbl> <dbl>  <dbl>
+#   1 Dermo A      38.3   58.2   53.9 - HIGHER
+# 2 Dermo B       2.08  85.1   53.5 - LOWER
+# 3 Dermo D      26.1   45.6   41.5 - LOWER
+# 4 Dermo E      15.4   41.2   32.0 - LOWER
+# 5 Dermo J      14.7   64.9   40.2 - LOWER
+# 6 Dermo L      18.1   48.8   30.3 - LOWER
+
+# Compare apoptosis and caspase 3/7 activiation between each sample
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_granular <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>% filter(Gate == "apop_combined_granular") %>% rename(apop_percent_of_this_plot = Percent_of_this_plot)
+Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_granular <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate == "casp_active_combined_granular") %>% rename(casp_percent_of_this_plot = Percent_of_this_plot)
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_Casp_join <- left_join(Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_granular[,c("Oyster_ID", "Treat", "Family", "Day", "apop_percent_of_this_plot")],
+                                                                             Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_granular[,c("Oyster_ID", "Treat", "Family", "Day", "casp_percent_of_this_plot")], by=c("Oyster_ID", "Treat", "Family", "Day"))  %>%
+  arrange(Treat, Family)
+
+
+
 ## Repeat plots for agranular
 # Plot of just combined apoptotic granular in control and treated DAY 7
 # Used this figure for chapter 3 dissertation apoptosis figure
