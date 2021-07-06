@@ -2590,6 +2590,8 @@ Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_AOV_TUKEY <- Day7_Day50_20
   do(broom::tidy(TukeyHSD(aov(Percent_of_this_plot_arcsine ~ Gate, data = .)))) %>%
   ungroup
 
+Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_AOV_TUKEY %>% filter(adj.p.value <= 0.05)
+
 # Apop combined granular vs apop combined agranular within each treatment between Days
 Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_DAY_AOV <- Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined %>%
   group_by(Family, Treat, Gate) %>%
@@ -2600,10 +2602,12 @@ Day7_Day50_2018_APOP_Granular_Agranular_Apop_combined_DAY_AOV %>% filter(p.value
   #<chr>  <chr>   <chr>                   <chr> <dbl>  <dbl>  <dbl>     <dbl>       <dbl>
   #  1 A      control apop_combined_agranular Day       1 0.0349 0.0349      7.25 0.0432     
   #2 B      control apop_combined_agranular Day       1 0.0598 0.0598     10.4  0.0232     
+#5 D      control apop_combined_granular  Day       1 0.215  0.215     163.   0.000217 
+  
   #3 B      Dermo   apop_combined_agranular Day       1 0.256  0.256      85.8  0.000000240
-  #4 B      Dermo   apop_combined_granular  Day       1 0.618  0.618      12.1  0.00369    
-  #5 D      control apop_combined_granular  Day       1 0.215  0.215     163.   0.000217   
   #6 D      Dermo   apop_combined_agranular Day       1 0.0204 0.0204      5.36 0.0409     
+  
+  #4 B      Dermo   apop_combined_granular  Day       1 0.618  0.618      12.1  0.00369  
   #7 D      Dermo   apop_combined_granular  Day       1 0.613  0.613      60.5  0.00000852 
   #8 E      Dermo   apop_combined_granular  Day       1 0.148  0.148       5.08 0.0396     
   #9 J      Dermo   apop_combined_granular  Day       1 0.214  0.214      21.9  0.000298 
@@ -2822,6 +2826,46 @@ Day50_2018_CASP_Granular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Ag
   scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
                     values = c("#ad993c", "#b94e45")) 
 
+## Repeat plots for agranular
+# Plot only agranular at Day 7, all families 
+Day7_2018_CASP_Agranular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_agranular" & Day == "7")  %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Agranular Caspase 3/7 Active Hemocytes") + 
+  ggtitle("Day 7 Post-Challenge") +
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#ad993c", "#b94e45")) 
+
+# Plot only agranular at Day 50, all families 
+Day50_2018_CASP_Agranular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_agranular" & Day == "50")  %>% 
+  ggplot(aes(y=Percent_of_this_plot, x=Treat, fill=Treat)) + geom_boxplot()+ geom_point(position=position_dodge(width=0.75)) + xlab("Treatment") +
+  ylab("% Agranular Caspase 3/7 Active Hemocytes") + 
+  ggtitle("Day 50 Post-Challenge") +
+  facet_grid(.~Family, scales="free") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),panel.border=element_rect(fill=NA), 
+        text=element_text(family="serif",size=20, face= "bold"), 
+        axis.title.y=element_text(family="serif",size=20),
+        axis.title.x=element_text(family="serif",size=20),
+        axis.text.x = element_text(size = 20),
+        legend.key=element_rect(fill=NA),
+        legend.text = element_text(size=20)) +
+  scale_x_discrete(labels = c("control"="C","Dermo"= "D")) +
+  scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
+                    values = c("#ad993c", "#b94e45")) 
+
+
 # ANOVA
 # Casp active combined granular vs apop combined agranular within each treatment
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_AOV <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
@@ -2898,15 +2942,23 @@ Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_DAY_E_AOV <- Day7_Day50_20
   do(broom::tidy(aov(Percent_of_this_plot_arcsine ~ Day, data = .)))  %>%
   ungroup
 
-# Anova changes in granular hemocyte apoptosis between families in the treated group
+# Anova changes in  hemocyte apoptosis between families in the treated group
+# day 7
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
   filter(Gate == "casp_active_combined_granular" & Treat == "Dermo" & Day == 7) %>%
   aov(Percent_of_this_plot_arcsine ~ Family, data = .)
-TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov)
+TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov) # no differences at day 7 in granular, only day 50
 
+Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov_agranular <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
+  filter(Gate == "casp_active_combined_agranular" & Treat == "Dermo" & Day == 7) %>%
+  aov(Percent_of_this_plot_arcsine ~ Family, data = .)
+TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov_agranular) # no differences between families in agranular
+
+# day 50
 Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
   filter(Gate == "casp_active_combined_granular" & Treat == "Dermo" & Day == 50) %>%
   aov(Percent_of_this_plot_arcsine ~ Family, data = .)
+
 TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov)
 # day 50 differences in granular between families: E-A, E-B
 #Tukey multiple comparisons of means
@@ -2931,6 +2983,28 @@ TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov)
 #J-E -0.03386589 -0.27694659 0.209214818 0.9982920
 #L-E -0.24290205 -0.49544466 0.009640561 0.0655060
 #L-J -0.20903616 -0.47425896 0.056186628 0.1965315
+
+Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov_agranular <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>%
+  filter(Gate == "casp_active_combined_agranular" & Treat == "Dermo" & Day == 50) %>%
+  aov(Percent_of_this_plot_arcsine ~ Family, data = .)
+
+TukeyHSD(Day7_Day50_2018_CASP_Granular_Agranular_casp_combined_gran_treat_aov_agranular) # differences in day 50
+
+  #Tukey multiple comparisons of means
+  #95% family-wise confidence level
+  #
+  #Fit: aov(formula = Percent_of_this_plot_arcsine ~ Family, data = .)
+  #
+  #$Family
+  #diff           lwr          upr     p adj
+
+  #E-A  0.120780892  0.0274287801  0.214133004 0.0048124
+
+  #E-B  0.146813863  0.0534617512  0.240165975 0.0003880
+
+  #E-D  0.097633432  0.0006475924  0.194619271 0.0476477
+
+  #L-E -0.099518447 -0.1965042861 -0.002532607 0.0413481
 
 #### PICK SAMPLES FOR SEQUENCING ####
 
@@ -3326,6 +3400,13 @@ Chapter3_2018_caspase_pheno <- cowplot::plot_grid(Day7_2018_CASP_Granular_casp_c
                                                     label_fontfamily = "serif",label_fontface = "bold")
 
 ggsave(Chapter3_2018_caspase_pheno, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_caspase_pheno.tiff",
+       device = "tiff", width = 21, height = 8)
+
+Chapter3_2018_caspase_pheno_agranular <- cowplot::plot_grid(Day7_2018_CASP_Agranular_casp_combined_plot, Day50_2018_CASP_Agranular_casp_combined_plot,
+                                                  nrow = 1, labels = c("A","B"), label_size = 20, 
+                                                  label_fontfamily = "serif",label_fontface = "bold")
+
+ggsave(Chapter3_2018_caspase_pheno_agranular, filename = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES/Chapter3_2018_caspase_pheno_agranular.tiff",
        device = "tiff", width = 21, height = 8)
 
 # High and low phenotype figure alone 
