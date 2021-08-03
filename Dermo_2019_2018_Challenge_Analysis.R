@@ -2879,6 +2879,10 @@ Day50_2018_CASP_Granular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Ag
   scale_fill_manual(name="Cell Type", labels=c("Notched Control","Dermo Injected"), 
                     values = c("#ad993c", "#b94e45")) 
 
+#get stats
+Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_granular") %>% group_by(Day, Family, Treat) %>% 
+  summarise(mean = mean(Percent_of_this_plot)) %>% arrange(Day, Treat) %>% View()
+
 ## Repeat plots for agranular
 # Plot only agranular at Day 7, all families 
 Day7_2018_CASP_Agranular_casp_combined_plot  <- Day7_Day50_2018_CASP_Granular_Agranular_casp_combined %>% filter(Gate =="casp_active_combined_agranular" & Day == "7")  %>% 
@@ -3446,7 +3450,7 @@ ggsave(Chapter3_2018_apoptosis_pheno_agranular, filename = "/Users/erinroberts/D
 
 ## Caspase assay
 Day7_2018_CASP_Granular_casp_combined_plot_day <-  Day7_2018_CASP_Granular_casp_combined_plot + ggtitle("Day 7 Post-Challenge")
-Day50_2018_CASP_Granular_casp_combined_plot_day <- Day50_2018_CASP_Granular_casp_combined_plot + ggtitle("Day 7 Post-Challenge")
+Day50_2018_CASP_Granular_casp_combined_plot_day <- Day50_2018_CASP_Granular_casp_combined_plot + ggtitle("Day 50 Post-Challenge")
   
 Chapter3_2018_caspase_pheno <- cowplot::plot_grid(Day7_2018_CASP_Granular_casp_combined_plot_day, Day50_2018_CASP_Granular_casp_combined_plot_day,
                                                     nrow = 1, labels = c("A","B"), label_size = 20, 
