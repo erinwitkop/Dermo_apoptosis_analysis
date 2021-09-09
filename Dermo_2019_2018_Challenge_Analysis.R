@@ -5545,6 +5545,14 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <-
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel + 
   theme(axis.text.x = ggtext::element_markdown())
 
+## average percent live in  granular cells
+# ZVAD average
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd %>% filter(inhibitor == "ZVAD") %>% ungroup() %>% 
+  select(Percent_of_this_plot_live, inhibitor) %>%
+  group_by(inhibitor) %>%  
+  # get average and sd
+  summarise(mean = mean(Percent_of_this_plot_live), sd = sd(Percent_of_this_plot_live))
+
 # Perform aov and plot results onto boxplot #
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_AOV <-  aov(Percent_of_this_plot_live_arcsine ~ Treat, Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd)
 
