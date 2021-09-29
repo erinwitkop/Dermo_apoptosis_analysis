@@ -5567,6 +5567,65 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig <-
     stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(98,103),
     size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
+# Create same plot as above but reorder it so that the times are right next to it rather than the doses at each time
+# reorder the treatments
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_reorder <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_reorder$Treat <- factor(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_reorder$Treat, 
+                                                                                   levels = c("FSW_Control","GDC_10_1HR", "GDC_50_1HR", "GDC_100_1HR",
+                                                                                              "GDC_10_2HR", "GDC_50_2HR", "GDC_100_2HR",
+                                                                                              "ZVAD_10_1HR", "ZVAD_50_1HR", "ZVAD_100_1HR",
+                                                                                              "ZVAD_10_2HR",  "ZVAD_50_2HR",  "ZVAD_100_2HR"))
+
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder <- 
+  ggplot(data=  Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_reorder,
+         aes(y=Percent_of_this_plot_live, x=Treat)) + geom_bar(aes(fill= inhibitor),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 15, aes(fill = inhibitor)) + 
+  #facet_grid(.~Gate) +
+  xlab(NULL) +
+  ylab("% Live Granular Hemocytes") + 
+  theme_classic() +
+  theme(
+    axis.title.y=element_text(size=16, face = "bold"),
+    axis.title.x=element_text(size=16,face = "bold"),
+    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=16,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,105), breaks = c(0,25,50,75,100)) +
+  scale_x_discrete(labels = c( "FSW_Control" = "Control", 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder <- Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder + 
+  theme(axis.text.x = ggtext::element_markdown())
+
+
+# Perform aov and plot results onto boxplot #
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_AOV_reorder <-  aov(Percent_of_this_plot_live_arcsine ~ Treat, Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_reorder)
+
+stat_test_tukey <- tukey_hsd(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_AOV_reorder) %>%
+  add_significance(p.col = "p.adj")  
+
+# take only the significant columns
+stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 == "FSW_Control")
+
+Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig_reorder <- 
+  Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder + stat_pvalue_manual(
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(98,103),
+    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+
 ## ANALYSIS
 
 # Do treatments increase cell death as compared to the control 
@@ -5693,7 +5752,7 @@ Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-
     strip.text.x = element_text(size = 16),
     strip.background = element_blank()) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
                                "GDC_10_1HR"  = "10um 3hr" ,
                                "GDC_10_2HR"  = "10um 4hr" ,
@@ -5791,6 +5850,62 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig <-
   Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel + stat_pvalue_manual(
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(20),
     size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+## repeat the same plot above of all apoptosis treatments but with the columns reordered 
+Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_reorder <- Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd
+Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_reorder$Treat <- factor(Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_reorder$Treat, 
+                                                                                   levels = c("FSW_Control","GDC_10_1HR", "GDC_50_1HR", "GDC_100_1HR",
+                                                                                              "GDC_10_2HR", "GDC_50_2HR", "GDC_100_2HR",
+                                                                                              "ZVAD_10_1HR", "ZVAD_50_1HR", "ZVAD_100_1HR",
+                                                                                              "ZVAD_10_2HR",  "ZVAD_50_2HR",  "ZVAD_100_2HR"))
+Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder <- 
+  ggplot(data=Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_reorder ,
+         aes(y=Percent_of_this_plot, x=Treat)) + geom_bar(aes(fill= inhibitor),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 15, aes(fill = inhibitor)) + 
+  #facet_grid(.~Gate) +
+  xlab(NULL) +
+  ylab("% Apoptotic Granular Hemocytes") + 
+  theme_classic() +
+  theme(
+    axis.title.y=element_text(size=16, face = "bold"),
+    axis.title.x=element_text(size=16,face = "bold"),
+    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=16,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
+  scale_x_discrete(labels = c( "FSW_Control" = "Control", 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
+
+Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder <- Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder + 
+  theme(axis.text.x = ggtext::element_markdown())
+
+# Perform aov and plot results onto barplot 
+Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_AOV_reorder <- aov(Percent_of_this_plot_arcsine ~ Treat, Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_reorder)
+
+stat.test_tukey <- 
+  tukey_hsd(Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_AOV_reorder) %>%
+  add_significance(p.col = "p.adj")
+
+# take only significant columns
+stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05)
+
+Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder <- 
+  Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder + stat_pvalue_manual(
+    stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(20),
+    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
 
 ## Plot with treatments combined and bars by inhibitor
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_inhibitor <- Inhibitor_2020_APOP_join_ID_treat_combined %>%
@@ -6006,6 +6121,87 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig <-
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(20,22),
    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
 
+## repeat plot above but with the bars reordered, and changing the labeling for significance
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder$Treat <- factor(Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder$Treat, 
+                                                                               levels = c("FSW_Control","GDC_10_1HR", "GDC_50_1HR", "GDC_100_1HR",
+                                                                                          "GDC_10_2HR", "GDC_50_2HR", "GDC_100_2HR",
+                                                                                          "ZVAD_10_1HR", "ZVAD_50_1HR", "ZVAD_100_1HR",
+                                                                                          "ZVAD_10_2HR",  "ZVAD_50_2HR",  "ZVAD_100_2HR"))
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_reorder <- 
+  ggplot(data=Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder ,
+         aes(y=Percent_of_this_plot, x=Treat)) + geom_bar(aes(fill= inhibitor),position = "dodge", stat = "summary")  + 
+  geom_point(shape = 15, aes(fill = inhibitor)) + 
+  #facet_grid(.~Gate) +
+  xlab(NULL) +
+  ylab("% Caspase 3/7 Active Granular Hemocytes") + 
+  theme_classic() +
+  theme(
+    axis.title.y=element_text(size=16, face = "bold"),
+    axis.title.x=element_text(size=16,face = "bold"),
+    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=16,face = "bold")) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25), breaks = c(0,5,10,15,20,25)) +
+  scale_x_discrete(labels = c( "FSW_Control" = "Control", 
+                               "GDC_10_1HR"  = "10um 3hr" ,
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_1HR"  = "50um 3hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
+                               "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_100_2HR" = "100um 4hr", 
+                               "ZVAD_10_1HR" = "10um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_1HR" = "50um 3hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
+                               "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_100_2HR"= "100um 4hr")) + 
+  scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
+
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_reorder <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_reorder + 
+  theme(axis.text.x = ggtext::element_markdown())
+
+# Perform aov and plot results onto barplot 
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_AOV_reorder <- aov(Percent_of_this_plot_arcsine ~ Treat, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder)
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_AOV_reorder_time <- aov(Percent_of_this_plot_arcsine ~ Treat + time, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder)
+summary(Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_AOV_reorder_time)
+#Df  Sum Sq  Mean Sq F value Pr(>F)   
+#Treat       12 0.04080 0.003400   4.904 0.0039 **
+#  Residuals   13 0.00901 0.000693   
+
+stat.test_tukey <- 
+  tukey_hsd(Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_AOV_reorder) %>%
+  add_significance(p.col = "p.adj")
+
+# take only significant columns and only show differences between ZVAD treatment 
+stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05) %>% filter(grepl("ZVAD", group1))
+
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder <- 
+  Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_reorder  +
+  # 5_17_21 removing these significance bars since none are versus control and are beside the point of the paper
+  stat_pvalue_manual(
+    stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(20,22),
+    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+
+# ALSO calculate whether there is an overall time difference within the ZVAD treatment
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder %>% filter(grepl("ZVAD",Treat))
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD_AOV <- aov(Percent_of_this_plot_arcsine ~ time, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD)
+summary(Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD_AOV)
+#Df  Sum Sq Mean Sq F value  Pr(>F)   
+#time         1 0.01287 0.01287   10.38 0.00915 **
+#  Residuals   10 0.01240 0.00124 
+tukey_hsd(Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD_AOV) %>%
+  add_significance(p.col = "p.adj")
+# the effect of time is significant..so both treatment and time are significantly different
+
+Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD_AOV_level <- aov(Percent_of_this_plot_arcsine ~ level, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD)
+summary(Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD_AOV_level)
+#Df  Sum Sq  Mean Sq F value Pr(>F)  
+#level        2 0.01019 0.005094   3.041 0.0979 . # level on its own in the Z-VAD-fmk treatment was not significant
+#Residuals    9 0.01508 0.001675 
+
+
+
 ## Plot with treatments combined and bars by inhibitor
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_inhibitor <- Inhibitor_2020_CASP_join_ID_treat_combined %>%
   filter(Gate == "casp_active_combined_granular" ) %>%
@@ -6086,6 +6282,21 @@ ggsave(Inhibitor_2020_multipanel, device = "tiff", filename = "Inhibitor_2020_mu
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 20, width = 17) 
 
+# Inhibitor 2020 remove the summary figures to the left and reordered the columns
+
+Inhibitor_2020_multipanel_trial_first <- cowplot::plot_grid(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig,
+                                                           Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig_reorder, 
+                                                           # add the group letters A B and C after to show significant differences in the treatments and time 
+                                                           ncol = 2, nrow = 1, labels = "AUTO", label_size = 16, label_fontface = "bold", rel_widths = c(1,1))
+Inhibitor_2020_multipanel_trial_second <- cowplot::plot_grid(Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder, 
+                                                             Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder,
+                                                            # add the group letters A B and C after to show significant differences in the treatments and time 
+                                                            ncol = 2, nrow = 1, labels = c("C","D"), label_size = 16, label_fontface = "bold")
+Inhibitor_2020_multipanel_trial_all <- cowplot::plot_grid(Inhibitor_2020_multipanel_trial_first, Inhibitor_2020_multipanel_trial_second, nrow=2)
+
+ggsave(Inhibitor_2020_multipanel_trial_all, device = "tiff", filename = "Inhibitor_2020_multipanel_trial_all_9_29_21.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 20, width = 17) 
 
 #### 2020 Dermo and Inhibitor Experiment Load Data ####
 
