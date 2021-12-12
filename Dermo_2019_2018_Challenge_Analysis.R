@@ -5443,10 +5443,10 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <-
   ylab("% Hemocytes") + 
   theme_classic() +
   theme(
-        axis.title.y=element_text(size=16, face = "bold"),
-        axis.title.x=element_text(size=16,face = "bold"),
-        axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1 ),
-        axis.text.y=element_text(size=16,face = "bold")) +
+        axis.title.y=element_text(size=20, face = "bold"),
+        axis.title.x=element_text(size=20,face = "bold"),
+        axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1 ),
+        axis.text.y=element_text(size=20,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), position=position_dodge(width = 0.9), width = 0.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_x_discrete(labels = c("P3" = "Agranular","P4"="Granular")) + 
@@ -5464,7 +5464,7 @@ stat.test <- as.data.frame(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_sd
 
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig <- 
   Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel + stat_pvalue_manual(
-    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 75, size = 4) + labs(subtitle = "T-test, Arcsine Percent ~ Cell Type")
+    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 75, size = 6) + labs(subtitle = "T-test, Arcsine Percent ~ Cell Type") + theme(plot.subtitle = element_text(size = 20))
 
 # Compare the percent of dead cells between treatments
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_DEAD_plot <- Inhibitor_2020_VIA_join_ID_treat %>%
@@ -5586,10 +5586,10 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder <-
   ylab("% Live Granular Hemocytes") + 
   theme_classic() +
   theme(
-    axis.title.y=element_text(size=16, face = "bold"),
-    axis.title.x=element_text(size=16,face = "bold"),
-    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=16,face = "bold")) +
+    axis.title.y=element_text(size=20, face = "bold"),
+    axis.title.x=element_text(size=20,face = "bold"),
+    axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=20,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,105), breaks = c(0,25,50,75,100)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
@@ -5623,7 +5623,7 @@ stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 =
 Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig_reorder <- 
   Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder + stat_pvalue_manual(
     stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(98,103),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+    size = 6, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size = 20))
 
 
 ## ANALYSIS
@@ -5867,10 +5867,10 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder <-
   ylab("% Apoptotic Granular Hemocytes") + 
   theme_classic() +
   theme(
-    axis.title.y=element_text(size=16, face = "bold"),
-    axis.title.x=element_text(size=16,face = "bold"),
-    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=16,face = "bold")) +
+    axis.title.y=element_text(size=20, face = "bold"),
+    axis.title.x=element_text(size=20,face = "bold"),
+    axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=20,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
@@ -5904,7 +5904,7 @@ stat.test_tukey <- stat.test_tukey %>% filter(p.adj <= 0.05)
 Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder <- 
   Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder + stat_pvalue_manual(
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(20),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+    size = 6, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size= 20))
 
 
 ## Plot with treatments combined and bars by inhibitor
@@ -6137,10 +6137,10 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_reorder <-
   ylab("% Caspase 3/7 Active Granular Hemocytes") + 
   theme_classic() +
   theme(
-    axis.title.y=element_text(size=16, face = "bold"),
-    axis.title.x=element_text(size=16,face = "bold"),
-    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=16,face = "bold")) +
+    axis.title.y=element_text(size=20, face = "bold"),
+    axis.title.x=element_text(size=20,face = "bold"),
+    axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=20,face = "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25), breaks = c(0,5,10,15,20,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
@@ -6181,7 +6181,7 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder <-
   # 5_17_21 removing these significance bars since none are versus control and are beside the point of the paper
   stat_pvalue_manual(
     stat.test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.02, y.position = c(20,22),
-    size = 4, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat")
+    size = 6, vjust = 0) + labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size = 20))
 
 # ALSO calculate whether there is an overall time difference within the ZVAD treatment
 Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder_ZVAD <- Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_reorder %>% filter(grepl("ZVAD",Treat))
@@ -6282,21 +6282,30 @@ ggsave(Inhibitor_2020_multipanel, device = "tiff", filename = "Inhibitor_2020_mu
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 20, width = 17) 
 
-# Inhibitor 2020 remove the summary figures to the left and reordered the columns
+
+# removed the summary figures to the left and reordered the columns
 
 Inhibitor_2020_multipanel_trial_first <- cowplot::plot_grid(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig,
                                                            Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig_reorder, 
                                                            # add the group letters A B and C after to show significant differences in the treatments and time 
-                                                           ncol = 2, nrow = 1, labels = "AUTO", label_size = 16, label_fontface = "bold", rel_widths = c(1,1))
+                                                           ncol = 2, nrow = 1, labels = "AUTO", label_size = 24, label_fontface = "bold", rel_widths = c(1,1))
+
 Inhibitor_2020_multipanel_trial_second <- cowplot::plot_grid(Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder, 
                                                              Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig_reorder,
                                                             # add the group letters A B and C after to show significant differences in the treatments and time 
-                                                            ncol = 2, nrow = 1, labels = c("C","D"), label_size = 16, label_fontface = "bold")
+                                                            ncol = 2, nrow = 1, labels = c("C","D"), label_size = 24, label_fontface = "bold")
+
 Inhibitor_2020_multipanel_trial_all <- cowplot::plot_grid(Inhibitor_2020_multipanel_trial_first, Inhibitor_2020_multipanel_trial_second, nrow=2)
 
-ggsave(Inhibitor_2020_multipanel_trial_all, device = "tiff", filename = "Inhibitor_2020_multipanel_trial_all_9_29_21.tiff",
+#ggsave(Inhibitor_2020_multipanel_trial_all, device = "tiff", filename = "Inhibitor_2020_multipanel_trial_all_9_29_21.tiff",
+#       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+#       height = 20, width = 17) 
+
+# remake figure 12/12/21 to increase text and label size
+ggsave(Inhibitor_2020_multipanel_trial_all, device = "tiff", filename = "Inhibitor_2020_multipanel_trial_all_12_12_21.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
        height = 20, width = 17) 
+
 
 #### 2020 Dermo and Inhibitor Experiment Load Data ####
 
