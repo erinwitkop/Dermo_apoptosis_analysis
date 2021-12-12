@@ -6806,11 +6806,11 @@ Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel <-
   geom_point(shape = 1, aes(fill = Gate)) +
   labs(x = NULL , y ="% Live P. marinus") + 
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, face= "bold"),
-        axis.title.y = element_text(size = 12, face= "bold"),
-        axis.text.x = element_text(size = 12, face= "bold"),
-        legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
+  theme(axis.text.y = element_text(size = 20, face= "bold"),
+        axis.title.y = element_text(size = 20, face= "bold"),
+        axis.text.x = element_text(size = 20, face= "bold"),
+        legend.text = element_text(size = 20, face= "bold"),
+        legend.title = element_text(size = 20, face= "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_x_discrete(labels = c("V4-R" = "*P. marinus*")) + 
@@ -6929,11 +6929,11 @@ Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel <-
   geom_point(shape = 1, aes(fill = Treat)) +
   labs(x = NULL , y ="% Granular Phagocytosis") + 
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, face= "bold"),
-        axis.title.y = element_text(size = 12, face= "bold"),
-        axis.text.x = element_text(size = 12, face= "bold"),
-       legend.text = element_text(size = 12, face= "bold"),
-        legend.title = element_text(size = 12, face= "bold")) +
+  theme(axis.text.y = element_text(size = 20, face= "bold"),
+        axis.title.y = element_text(size = 20, face= "bold"),
+        axis.text.x = element_text(size = 20, face= "bold"),
+       legend.text = element_text(size = 20, face= "bold"),
+        legend.title = element_text(size = 20, face= "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_x_discrete(labels = c("PERK_hemo" = "*P. marinus*", "BEADS_LPS"="Beads")) + 
@@ -6953,7 +6953,7 @@ stat.test <- as.data.frame(Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR)
 
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig <- 
   Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig + stat_pvalue_manual(
-    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 25)
+    stat.test, label = "{p} {p.signif}",  tip.length = 0.02, y.position = 25, size = 6)
 
 # Analysis of Phagocytic cells percentages
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined %>%
@@ -7423,7 +7423,7 @@ Dermo_Inhibitor_2020_APOP_join_granular_percent_perk_apop_plot <-
   #scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
-  scale_x_discrete(labels = c("PERK"="*P. mar.* alone"))
+  scale_x_discrete(labels = c("PERK"="*P. mar.*<br> alone"))
 
 Dermo_Inhibitor_2020_APOP_join_granular_percent_perk_apop_plot <- Dermo_Inhibitor_2020_APOP_join_granular_percent_perk_apop_plot +
   theme(axis.text.x=ggtext::element_markdown()) 
@@ -7974,6 +7974,29 @@ Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp <-  Dermo_Inhibitor_20
   summarize(mean = mean(Percent_of_this_plot))
 # mean = 29.0 
 
+# 12/12/21 plot the average percent of caspase active perkinsus cells in the control assay
+Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp_plot <- 
+  Dermo_Inhibitor_2020_CASP_join %>% filter(Gate == "Q10-UL") %>% filter(Treat == "PERK") %>% ungroup() %>%
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot)) %>%
+  ggplot(data=.,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#b84c3f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Caspase 3/7 Active") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 20, face= "bold"),
+        axis.title.y = element_text(size = 20, face= "bold"),
+        axis.text.x = element_text(size = 20, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 20, face= "bold"),
+        legend.title = element_text(size = 20, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("PERK"="*P. mar.*<br> alone"))
+
+Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp_plot <- Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp_plot +
+  theme(axis.text.x=ggtext::element_markdown()) 
+
 # calculate approximate casptotic granular perkinsus cells 
 Dermo_Inhibitor_2020_CASP_join_total_Perkinsus_casptotic <- Dermo_Inhibitor_2020_CASP_join_total_Perkinsus %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
   mutate(Parasite_granular = Total_parasite_counts * 0.0524, Parasite_granular_casp = Parasite_granular * 0.290, Parasite_gran_casp_phago = Parasite_granular_casp *0.13219,
@@ -8324,6 +8347,29 @@ Dermo_Inhibitor_2020_JC1_join_granular_percent <-  Dermo_Inhibitor_2020_JC1_join
 Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito <-  Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "H10-3") %>% filter(Treat == "PERK") %>% ungroup() %>%
   summarize(mean = mean(Percent_of_this_plot))
 # mean = 25.1
+
+# 12/12/21 plot the average percent of mitochondria permeabilized cells in the control assay
+Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito_plot <- 
+  Dermo_Inhibitor_2020_JC1_join %>% filter(Gate == "H10-3") %>% filter(Treat == "PERK") %>% ungroup()  %>%
+  mutate(mean = mean(Percent_of_this_plot), sd = sd(Percent_of_this_plot)) %>%
+  ggplot(data=.,
+         aes(y=Percent_of_this_plot, x=Treat)) + 
+  geom_bar(aes(fill=Treat), position="dodge", stat = "summary", fill = "#52b77f")  + 
+  geom_point(aes(x= Treat, shape = ID), size = 3) +
+  labs(x = NULL , y ="% Mitochondria Permeabilized") + 
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 20, face= "bold"),
+        axis.title.y = element_text(size = 20, face= "bold"),
+        axis.text.x = element_text(size = 20, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 20, face= "bold"),
+        legend.title = element_text(size = 20, face= "bold")) +
+  #scale_shape_manual(values = c(15,16,17)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
+  scale_x_discrete(labels = c("PERK"="*P. mar.*<br> alone"))
+
+Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito_plot <- Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito_plot +
+  theme(axis.text.x=ggtext::element_markdown()) 
 
 # calculate approximate mito granular perkinsus cells 
 Dermo_Inhibitor_2020_JC1_join_total_Perkinsus_mito <- Dermo_Inhibitor_2020_JC1_join_total_Perkinsus %>% filter(Treat == "Dermo" | Treat ==  "Dermo_GDC" | Treat ==  "Dermo_ZVAD") %>%
@@ -8679,12 +8725,16 @@ ggsave(hemo_2020_compiled, device = "tiff", filename = "hemo_2020_compiled_12_12
 
 #### 2020 PHAGOCYTOSIS AND P. MARINUS ONLY CONTROL ASSAYS ####
 
-cowplot::plot_grid(Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig,
+Perk_control_plot <- cowplot::plot_grid(Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig,
                    Dermo_Inhibitor_perk_2020_VIA_join_LIVE_multipanel_sig,
                    Dermo_Inhibitor_2020_APOP_join_granular_percent_perk_apop_plot,
+                   Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp_plot,
+                   Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito_plot,
+                   nrow = 2, labels = c("A","B","C","D","E"), label_size = 20, label_fontface = "bold", align = "hv")
 
-nrow = 2, labels = c("A","B"), label_size = 20, label_fontface = "bold", align = "hv")
-
+ggsave(Perk_control_plot, device = "tiff", filename = "Perk_control_plot_12_12_21.tiff",
+       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+       height = 10, width = 14) 
 
 #### 2020 DERMO AND INHIBITORS AGRANULAR SUPPLEMENTARY FIGURE ####
 
