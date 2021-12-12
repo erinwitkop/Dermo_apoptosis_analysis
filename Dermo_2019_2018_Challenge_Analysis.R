@@ -6936,7 +6936,7 @@ Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel <-
         legend.title = element_text(size = 20, face= "bold")) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
-  scale_x_discrete(labels = c("PERK_hemo" = "*P. marinus*", "BEADS_LPS"="Beads")) + 
+  scale_x_discrete(labels = c("PERK_hemo" = "*P. mar.*", "BEADS_LPS"="Beads")) + 
   scale_fill_manual(name="Treatment", labels=c("Beads","*P. marinus*"), values=c("#88bf3b","#5b2c90")) 
 
 Dermo_Inhibitor_2020_PHAGO_join_phago_combined_Q1_UR_multipanel_sig <- 
@@ -8730,11 +8730,11 @@ Perk_control_plot <- cowplot::plot_grid(Dermo_Inhibitor_2020_PHAGO_join_phago_co
                    Dermo_Inhibitor_2020_APOP_join_granular_percent_perk_apop_plot,
                    Dermo_Inhibitor_2020_CASP_join_granular_percent_perk_casp_plot,
                    Dermo_Inhibitor_2020_JC1_join_granular_percent_perk_mito_plot,
-                   nrow = 2, labels = c("A","B","C","D","E"), label_size = 20, label_fontface = "bold", align = "hv")
+                   nrow = 3, labels = c("A","B","C","D","E"), label_size = 20, label_fontface = "bold", align = "hv")
 
 ggsave(Perk_control_plot, device = "tiff", filename = "Perk_control_plot_12_12_21.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 10, width = 14) 
+       height = 18, width = 11) 
 
 #### 2020 DERMO AND INHIBITORS AGRANULAR SUPPLEMENTARY FIGURE ####
 
