@@ -5745,11 +5745,13 @@ Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-
   ylab("% Apoptotic Agranular Hemocytes") + 
   theme_classic() +
   theme(
-    axis.title.y=element_text(size=16, face = "bold"),
-    axis.title.x=element_text(size=16,face = "bold"),
-    axis.text.x=element_text(size=16,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=16,face = "bold"),
-    strip.text.x = element_text(size = 16),
+    axis.title.y=element_text(size=20, face = "bold"),
+    axis.title.x=element_text(size=20,face = "bold"),
+    axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
+    axis.text.y=element_text(size=20,face = "bold"),
+    strip.text.x = element_text(size = 20),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
     strip.background = element_blank()) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
@@ -5770,6 +5772,10 @@ Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-
 
 Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel + 
   theme(axis.text.x = ggtext::element_markdown())
+
+# export 
+ggsave(Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel, file = "./FIGURES/Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel.tiff",
+       device = "tiff", height = 8, width = 8)
 
 # Perform aov and plot results onto barplot 
 Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_AOV <- aov(Percent_of_this_plot_arcsine ~ Treat, Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd)
@@ -7502,7 +7508,7 @@ stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_combined_apoptotic_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,55,60), size = 6) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,57,64), size = 6) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size = 20))
@@ -7565,7 +7571,7 @@ stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 !
 
 Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_APOP_join_granular_recalc_all_treat_Q16UL_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,55,60), size = 6) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(50,57,64), size = 6) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size = 20))
@@ -8011,11 +8017,11 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_m
   geom_point(aes(x= Treat, shape = ID), size = 3) +
   labs(x = NULL , y ="% Granular Caspase Active") + 
   theme_classic() +
-  theme(axis.text.y = element_text(size = 16, face= "bold"),
-        axis.title.y = element_text(size = 16, face= "bold"),
-        axis.text.x = element_text(size = 16, face= "bold", angle = 90, hjust = 1),
-        legend.text = element_text(size = 16, face= "bold"),
-        legend.title = element_text(size = 16, face= "bold")) +
+  theme(axis.text.y = element_text(size = 20, face= "bold"),
+        axis.title.y = element_text(size = 20, face= "bold"),
+        axis.text.x = element_text(size = 20, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 20, face= "bold"),
+        legend.title = element_text(size = 20, face= "bold")) +
   #scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
@@ -8064,11 +8070,11 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel <-
   labs(x = NULL , y ="% Granular Caspase 3/7 Active") + 
   ggtitle("Granular Caspase 3/7 Active Hemocytes and Parasite") +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 16, face= "bold"),
-        axis.title.y = element_text(size = 16, face= "bold"),
-        axis.text.x = element_text(size = 16, face= "bold", angle = 90, hjust = 1),
-        legend.text = element_text(size = 16, face= "bold"),
-        legend.title = element_text(size = 16, face= "bold")) +
+  theme(axis.text.y = element_text(size = 20, face= "bold"),
+        axis.title.y = element_text(size = 20, face= "bold"),
+        axis.text.x = element_text(size = 20, face= "bold", angle = 90, hjust = 1),
+        legend.text = element_text(size = 20, face= "bold"),
+        legend.title = element_text(size = 20, face= "bold")) +
   #scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
@@ -8118,11 +8124,11 @@ geom_point(aes(x= Treat, shape = ID), size = 3) +
 labs(x = NULL , y ="% Granular Caspase 3/7 Active") + 
   ggtitle("Granular Caspase 3/7 Active Hemocytes Alone") +
 theme_classic() +
-theme(axis.text.y = element_text(size = 16, face= "bold"),
-      axis.title.y = element_text(size = 16, face= "bold"),
-      axis.text.x = element_text(size = 16, face= "bold", angle = 90, hjust = 1),
-      legend.text = element_text(size = 16, face= "bold"),
-      legend.title = element_text(size = 16, face= "bold")) +
+theme(axis.text.y = element_text(size = 20, face= "bold"),
+      axis.title.y = element_text(size = 20, face= "bold"),
+      axis.text.x = element_text(size = 20, face= "bold", angle = 90, hjust = 1),
+      legend.text = element_text(size = 20, face= "bold"),
+      legend.title = element_text(size = 20, face= "bold")) +
 #scale_shape_manual(values = c(15,16,17)) +
 geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
 scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
@@ -8160,7 +8166,7 @@ ggsave(plot = Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_
 # remove legend from initial plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel +
   theme(legend.position = "none",
-        axis.title.x = element_text(size = 16, face= "bold"), plot.caption = ggtext::element_markdown(size = 25, hjust = 0.5)) + 
+        axis.title.x = element_text(size = 20, face= "bold"), plot.caption = ggtext::element_markdown(size = 22, hjust = 0.5)) + 
   labs(x = NULL, caption = "Panel 1:<br>Total Granular<br>Hemocytes", y = "% Caspase 3/7 Active")
 
 # remove y axis labels and legend and labels from second plot
@@ -8169,22 +8175,22 @@ Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_
   labs(y = NULL, x = NULL, caption = "Panel 2:<br>Granular Hemocytes<br>without *P. marinus* **Only**") + theme(axis.text.y = element_blank(),
                                                              axis.ticks.y = element_blank(),
                                                              axis.title.y = element_blank(),
-                                                             plot.caption = ggtext::element_markdown(size = 25, hjust = 0.5))  + ggtitle(NULL)
+                                                             plot.caption = ggtext::element_markdown(size = 22, hjust = 0.5))  + ggtitle(NULL)
 
 # fix axes on final plot
 Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs <- Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel +
   ggtitle(NULL) + labs(x = NULL, caption = "Panel 3:<br>Granular Hemocytes<br>with Engulfed *P. marinus* **Only**", y = "% Caspase 3/7 Active") + 
-  theme(axis.title.x = element_text(size = 16, face= "bold"),
-        plot.caption = ggtext::element_markdown(size = 25, hjust = 0.5))
+  theme(axis.title.x = element_text(size = 20, face= "bold"),
+        plot.caption = ggtext::element_markdown(size = 22, hjust = 0.5))
 
 CASP_all_hemo_2020 <- egg::ggarrange(Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_combined_casptotic_sd_multipanel_no_legend,
                                      Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UL_sd_multipanel_no_labels, 
                                      Dermo_Inhibitor_2020_CASP_join_granular_recalc_all_treat_Q10UR_sd_multipanel_labs ,
                                      nrow = 1)
 
-ggsave(CASP_all_hemo_2020, device = "tiff", filename = "CASP_all_hemo_2020.tiff",
-       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 8, width = 12 ) 
+#ggsave(CASP_all_hemo_2020, device = "tiff", filename = "CASP_all_hemo_2020.tiff",
+#       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+#       height = 8, width = 12 ) 
 
 #### 2020 Dermo and Inhibitors JC1 ASSAY statistics and plotting ####
 
@@ -8412,7 +8418,7 @@ Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel <-
         legend.title = element_text(size = 20, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,100)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,110), breaks = c(0,25,50,75,100)) +
   scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo" = "FSW",
                               "UV" = "UV killed *P. mar.*",
@@ -8442,7 +8448,7 @@ stat_test_tukey <- stat_test_tukey %>% filter(p.adj <= 0.05) %>% filter(group1 =
 
 Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_JC1_join_granular_recalc_all_treat_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,80,85,90,95,100), size = 6) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(70,78,86,94,102,110), size = 6) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size = 20))
@@ -8539,7 +8545,7 @@ Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_mu
         legend.title = element_text(size = 20, face= "bold")) +
   scale_shape_manual(values = c(15,16,17)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,100)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0,110), breaks = c(0,25,50,75,100)) +
   scale_x_discrete(labels = c("BEADS_LPS"="Beads",
                               "Control_hemo" = "FSW",
                               "UV" = "UV killed *P. mar.*",
@@ -8570,7 +8576,7 @@ stat_test_tukey <- stat_test_tukey[-c(5,7,8),]
 
 Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel_sig <- 
   Dermo_Inhibitor_2020_JC1_join_granular_H10_Q28_recalc_all_treat_replace_UL_sd_multipanel + stat_pvalue_manual(
-    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(75,80,85,90,95), size = 6) +
+    stat_test_tukey, label = "{p.adj} {p.adj.signif}",  tip.length = 0.01, y.position = c(70,78,86,94,102), size = 6) +
   # add overall anova values 
   #stat_compare_means(method= "anova") +
   labs(subtitle = "Tukey HSD, Arcsine Percent ~ Treat") + theme(plot.subtitle = element_text(size = 20))
@@ -8634,17 +8640,17 @@ JC1_all_hemo_2020_no_label <- egg::ggarrange(Dermo_Inhibitor_2020_JC1_join_granu
 
 # remove the underneath labels from all except the caspase assay which will be at the bottom
 hemo_2020_compiled <- cowplot::plot_grid(apop_all_hemo_2020_no_lab, JC1_all_hemo_2020_no_label, CASP_all_hemo_2020,
-                                         nrow = 3, labels= c("A","B","C"), label_size = 16, label_fontface = "bold", align = "hv")
+                                         nrow = 3, labels= c("A","B","C"), label_size = 24, label_fontface = "bold", align = "hv")
 
 # save the plot
-ggsave(hemo_2020_compiled, device = "tiff", filename = "hemo_2020_compiled.tiff",
-       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 20, width = 15 ) 
+#ggsave(hemo_2020_compiled, device = "tiff", filename = "hemo_2020_compiled.tiff",
+#       path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
+#       height = 20, width = 15 ) 
 
-# increase font size for figure
+# increased font size for figure
 ggsave(hemo_2020_compiled, device = "tiff", filename = "hemo_2020_compiled_12_12_21.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 20, width = 15 ) 
+       height = 22, width = 18 ) 
 
 #### 2020 DERMO AND INHIBITORS AGRANULAR SUPPLEMENTARY FIGURE ####
 
@@ -8655,7 +8661,7 @@ agranular_apop_2020_combined <- cowplot::plot_grid(Inhibitor_2020_APOP_join_ID_t
 # save the plot
 ggsave(agranular_apop_2020_combined, device = "tiff", filename = "agranular_apop_2020_combined.tiff",
        path = "/Users/erinroberts/Documents/PhD_Research/DERMO_EXP_18_19/COMBINED_ANALYSIS/R_ANALYSIS/FIGURES",
-       height = 12, width = 8 ) 
+       height = 14, width = 8 ) 
 
 #### FORMAT 2020 INHIBITOR DATA FOR TRANSCRIPTOME PCA ####
 
