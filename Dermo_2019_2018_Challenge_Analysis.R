@@ -5446,7 +5446,8 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel <-
         axis.title.y=element_text(size=20, face = "bold"),
         axis.title.x=element_text(size=20,face = "bold"),
         axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1 ),
-        axis.text.y=element_text(size=20,face = "bold")) +
+        axis.text.y=element_text(size=20,face = "bold"),
+        text = element_text(size = 20)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), position=position_dodge(width = 0.9), width = 0.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,100)) +
   scale_x_discrete(labels = c("P3" = "Agranular","P4"="Granular")) + 
@@ -5589,7 +5590,8 @@ Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_reorder <-
     axis.title.y=element_text(size=20, face = "bold"),
     axis.title.x=element_text(size=20,face = "bold"),
     axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=20,face = "bold")) +
+    axis.text.y=element_text(size=20,face = "bold"),
+    text = element_text(size = 20)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,105), breaks = c(0,25,50,75,100)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
@@ -5876,7 +5878,8 @@ Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_reorder <-
     axis.title.y=element_text(size=20, face = "bold"),
     axis.title.x=element_text(size=20,face = "bold"),
     axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=20,face = "bold")) +
+    axis.text.y=element_text(size=20,face = "bold"),
+    text = element_text(size = 20)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
@@ -6146,7 +6149,8 @@ Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_reorder <-
     axis.title.y=element_text(size=20, face = "bold"),
     axis.title.x=element_text(size=20,face = "bold"),
     axis.text.x=element_text(size=20,face = "bold", angle = 90, hjust = 1),
-    axis.text.y=element_text(size=20,face = "bold")) +
+    axis.text.y=element_text(size=20,face = "bold"),
+    text = element_text(size = 20)) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,25), breaks = c(0,5,10,15,20,25)) +
   scale_x_discrete(labels = c( "FSW_Control" = "Control", 
@@ -6281,7 +6285,7 @@ TukeyHSD(Inhibitor_2020_CASP_join_ID_treat_combined_granular_TREAT_AOV)
 Inhibitor_2020_multipanel <- cowplot::plot_grid(Inhibitor_2020_VIA_join_Percent_Agranular_Granular_plot_multipanel_sig,Inhibitor_2020_VIA_join_Percent_Agranular_Granular_LIVE_sd_multipanel_sig, 
                                                  Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig, Inhibitor_2020_APOP_join_ID_treat_combined_granular_sd_multipanel_sig, 
                                                  Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_inhibitor_sig, Inhibitor_2020_CASP_join_ID_treat_combined_granular_sd_multipanel_sig,
-                                                 ncol = 2, nrow = 3, labels = "AUTO", label_size = 16, label_fontface = "bold", 
+                                                 ncol = 2, nrow = 3, labels = "AUTO", label_size = 24, label_fontface = "bold", 
                                                 rel_widths = c(0.5,1))
 
 ggsave(Inhibitor_2020_multipanel, device = "tiff", filename = "Inhibitor_2020_multipanel_5_17_21.tiff",
