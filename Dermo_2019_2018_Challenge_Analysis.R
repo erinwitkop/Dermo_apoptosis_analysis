@@ -5757,18 +5757,30 @@ Inhibitor_2020_APOP_join_ID_treat_combined_agranular_sd_multipanel <-
     strip.background = element_blank()) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
   scale_y_continuous(labels = function(x) paste0(x, "%"), limits=c(0,10)) +
-  scale_x_discrete(labels = c( "FSW_Control" = "Control", 
+  scale_x_discrete(limits = c("FSW_Control",
+                              "GDC_10_1HR",
+                              "GDC_50_1HR",
+                              "GDC_100_1HR", 
+                              "GDC_10_2HR",
+                              "GDC_50_2HR",
+                              "GDC_100_2HR", 
+                              "ZVAD_10_1HR",
+                              "ZVAD_50_1HR",
+                              "ZVAD_100_1HR", 
+                              "ZVAD_10_2HR",
+                              "ZVAD_50_2HR",
+                              "ZVAD_100_2HR"), labels = c( "FSW_Control" = "Control", 
                                "GDC_10_1HR"  = "10um 3hr" ,
-                               "GDC_10_2HR"  = "10um 4hr" ,
                                "GDC_50_1HR"  = "50um 3hr" ,
-                               "GDC_50_2HR"  = "50um 4hr" ,
                                "GDC_100_1HR" = "100um 3hr", 
+                               "GDC_10_2HR"  = "10um 4hr" ,
+                               "GDC_50_2HR"  = "50um 4hr" ,
                                "GDC_100_2HR" = "100um 4hr", 
                                "ZVAD_10_1HR" = "10um 3hr", 
-                               "ZVAD_10_2HR" = "10um 4hr", 
                                "ZVAD_50_1HR" = "50um 3hr", 
-                               "ZVAD_50_2HR" = "50um 4hr",
                                "ZVAD_100_1HR"= "100um 3hr", 
+                               "ZVAD_10_2HR" = "10um 4hr", 
+                               "ZVAD_50_2HR" = "50um 4hr",
                                "ZVAD_100_2HR"= "100um 4hr")) + 
   scale_fill_manual(name="Treatment", labels=c("Control","GDC-0152","Z-VAD-FMK"), values=c("#b94973", "#45c097","#9fac3a")) 
 
